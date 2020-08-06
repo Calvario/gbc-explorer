@@ -5,8 +5,8 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
 ### Preview
 
-![alt text](https://github.com/Calvario/gbc-explorer/raw/master/docs/images/desktop.png "Desktop preview")
-![alt text](https://github.com/Calvario/gbc-explorer/raw/master/docs/images/mobile.png "Mobile preview")
+<img src="https://raw.githubusercontent.com/Calvario/gbc-explorer/master/docs/images/desktop.PNG" height="360">
+<img src="https://raw.githubusercontent.com/Calvario/gbc-explorer/master/docs/images/mobile.PNG" height="360">
 
 ### Requires
 

@@ -1,0 +1,11 @@
+* text=auto
+public/css/bulma*.css linguist-vendored
+public/css/fontawesome*.css linguist-vendored
+public/js/lib/*.js linguist-vendored
+public/webfonts/*.eot binary
+public/webfonts/*.ttf binary
+public/webfonts/*.woff binary
+public/webfonts/*.woff2 binary
+CHANGELOG.md export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
