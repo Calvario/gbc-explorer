@@ -124,7 +124,7 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 						let tInputT: BigNumber = new BigNumber(0);
 						let tOutputC: BigNumber = new BigNumber(0);;
 						let tOutputT: BigNumber = new BigNumber(0);
-						let tFee: BigNumber = new BigNumber(0);
+						let tFee: BigNumber;
 
 						// 4. Loop for each VINs
 						for(const vinInfo of transactionInfo['vin']) {

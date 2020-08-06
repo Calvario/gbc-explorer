@@ -30,7 +30,7 @@ $(document).ready(function() {
 			else
 				return seconds + "s ";
 		} else {
-			return formatEpochToDate(epoch)
+			return formatEpochToDate(epoch);
 		}
 	}
 
@@ -600,8 +600,8 @@ $(document).ready(function() {
 	// Page specific : Extraction
 	if ($(location).attr('pathname').indexOf('/block') === 0 && $(location).attr('search').indexOf('?addressHash=') === 0) {
 		$("#extractionTable tbody tr").remove();
-		$("#extractionAddress").text(getUrlParameter("addressHash"))
-		$("#extractionAddress").attr("href", '/address?hash=' + getUrlParameter("addressHash"))
+		$("#extractionAddress").text(getUrlParameter("addressHash"));
+		$("#extractionAddress").attr("href", '/address?hash=' + getUrlParameter("addressHash"));
 		$.get('/rest/api/block/extraction?addressHash=' + getUrlParameter("addressHash"), function (data, textStatus, jqXHR) {
 			$.each(data, function(i, item) {
 				$('<tr>').append(

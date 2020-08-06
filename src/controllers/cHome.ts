@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response } from 'express';
 import { getRepository, Like } from "typeorm";
 import iController from '../interfaces/iController';
 import stringValidator from '../middlewares/mStringValidator';
