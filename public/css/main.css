@@ -1,0 +1,142 @@
+/* 
+General design : Flex footer
+*/
+body {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+
+/*
+General design : Overflow
+https://stackoverflow.com/a/41534940
+*/
+.text-overflow-dynamic-container {
+	position: relative;
+	max-width: 100%;
+	padding: 0 !important;
+	display: -webkit-flex;
+	display: -moz-flex;
+	display: flex;
+	vertical-align: text-bottom !important;
+}
+.text-overflow-dynamic-ellipsis {
+	position: absolute;
+	white-space: nowrap;
+	overflow-y: visible;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	-ms-text-overflow: ellipsis;
+	-o-text-overflow: ellipsis;
+	max-width: 100%;
+	min-width: 0;
+	width:100%;
+	top: 0;
+	left: 0;
+}
+.text-overflow-dynamic-container:after,
+.text-overflow-dynamic-ellipsis:after {
+	content: '-';
+	display: inline;
+	visibility: hidden;
+}
+
+/*
+General design : Bottom border
+*/
+.bottom-border {
+	display: table;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.bottom-border:after {
+	border-bottom: 1px solid #ddd !important; /* Bulma override */
+	content: '';
+	display: block;
+	padding-right: 10%;
+	width: 100%;
+}
+
+/*
+General design : JSON formatting
+https://stackoverflow.com/questions/4810841/pretty-print-json-using-javascript
+*/
+
+pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; }
+.json-string { color: green; }
+.json-number { color: darkorange; }
+.json-boolean { color: blue; }
+.json-null { color: magenta; }
+.json-key { color: red; }
+
+/* 
+Mobile views : Tabs
+https://github.com/buefy/buefy/issues/364#issuecomment-408530192
+*/
+@media screen and (max-width: 768px) {
+	li:not(.is-active) > a > span:not(.icon) {
+	  visibility: hidden;
+	  position:  absolute;
+	}
+  
+	nav.tabs li:not(.is-active) {
+	  -webkit-box-flex: 0;
+	  -ms-flex-positive: 0;
+	  flex-grow: 0;
+	  -ms-flex-negative: 1;
+	  flex-shrink: 1;
+	}
+  
+	.tabs .icon {
+	  margin-left: 0.5em;
+	}
+}
+
+/*
+Mobile views : Tables
+https://codepen.io/AllThingsSmitty/pen/MyqmdM
+*/
+@media screen and (max-width: 768px) {
+	table {
+	  border: 0;
+	}
+  
+	table caption {
+	  font-size: 1.3em;
+	}
+	
+	table thead {
+	  border: none;
+	  clip: rect(0 0 0 0);
+	  height: 1px;
+	  margin: -1px;
+	  overflow: hidden;
+	  padding: 0;
+	  position: absolute;
+	  width: 1px;
+	}
+	
+	table tr, table tbody tr:last-child th {
+	  border-bottom: 3px solid #ddd !important; /* Bulma override */
+	  display: block;
+	  margin-bottom: .625em;
+	  width: 100%;
+	}
+	
+	table td, table tbody tr:last-child td{
+		border-bottom: 1px solid #ddd !important; /* Bulma override */
+		display: block;
+		font-size: .8em;
+		text-align: right !important;	/* Bulma override */
+	}
+	
+	table td::before {
+	  content: attr(data-label);
+	  float: left;
+	  font-weight: bold;
+	  text-transform: uppercase;
+	  padding-right: 5%;
+	}
+}

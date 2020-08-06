@@ -1,0 +1,130 @@
+extends layout
+block content
+
+  div.container.pb-4
+    div.box
+      h4.title.is-4 Block #
+        span#blockHeight
+      <!-- Full -->
+      div.columns.is-multiline.is-mobile
+        <!-- Main row -->
+        div.column.is-full.bottom-border
+          div.columns.is-mobile
+            div.column.is-half-desktop.is-narrow-mobile
+              p.has-text-weight-bold Hash
+            div.column.is-half-desktop
+              p.has-text-right
+                span.text-overflow-dynamic-container
+                  span.text-overflow-dynamic-ellipsis.has-text-right
+                    span#blockHash
+
+        <!-- Left -->
+        div.column.is-half-desktop.is-full-mobile
+          <!-- Rows -->
+          div.columns.is-mobile.is-multiline
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold UTC Time
+                div.column.is-half-desktop
+                  p#blockTime.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Transactions (Size)
+                div.column.is-half-desktop
+                  p.has-text-right
+                    span#blockTransactionsCount
+                    span#blockSize.has-text-weight-light
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Inputs (VRM)
+                div.column.is-half-desktop
+                  p.has-text-right
+                    span#blockInputs
+                    span#blockIn.has-text-weight-light
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Outputs (VRM)
+                div.column.is-half-desktop
+                  p.has-text-right
+                    span#blockOutputs
+                    span#blockOut.has-text-weight-light
+
+        <!-- Right -->
+        div.column.is-half-desktop.is-full-mobile
+          <!-- Rows -->
+          div.columns.is-mobile.is-multiline
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Fees
+                div.column.is-half-desktop
+                  p#blockFees.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Difficulty
+                div.column.is-half-desktop
+                  span.text-overflow-dynamic-container
+                    span.text-overflow-dynamic-ellipsis.has-text-right
+                      p#blockDifficulty.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Generation
+                div.column.is-half-desktop
+                  p#blockGeneration.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Extracted by
+                div.column.is-half-desktop
+                  span.text-overflow-dynamic-container
+                    span.text-overflow-dynamic-ellipsis.has-text-right
+                      a#blockMiner
+
+      <!-- Navigation -->
+      nav.tabs.is-boxed
+        div.container
+          ul#homeMenu
+            li.is-active
+              a#blockTransactions
+                span.icon.is-small
+                  i.fas.fa-exchange-alt(aria-hidden="true")
+                span Transactions
+            li
+              a#blockJSON
+                span.icon.is-small
+                  i.fas.fa-code(aria-hidden="true")
+                span Block (JSON RPC)
+      
+      <!-- Transactions -->
+      div.table-container
+        table#blockTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-left Transaction
+              th.has-text-right Inputs
+              th.has-text-right In (#{process.env.COIN_SYMBOL})
+              th.has-text-right From (amount)
+              th.has-text-right Outputs
+              th.has-text-right Out (#{process.env.COIN_SYMBOL})
+              th.has-text-right To (amount)
+              th.has-text-right Fee
+              th.has-text-right Size
+          tbody
+      
+      <!-- Block (JSON RPC) -->
+      div.container.is-hidden
+        pre#blockJSONPre

@@ -1,0 +1,112 @@
+doctype html
+head
+  meta(charset='utf-8')
+  title #{process.env.APP_TITLE}
+  meta(name="title" content=`${process.env.APP_TITLE}`)
+  meta(name="description" content="Global Blockchain Explorer RPC")
+  meta(name="keywords" content="blockchain, explorer, rpc")
+  meta(name="robots" content="index, follow")
+  meta(http-equiv="Content-Type" content="text/html; charset=utf-8")
+  meta(name="apple-mobile-web-app-capable" content="yes")
+  meta(name="mobile-web-app-capable" content="yes")
+  meta(name='viewport' content='width=device-width, initial-scale=1')
+  link(rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png")
+  link(rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png")
+  link(rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png")
+  link(rel="manifest" href="/site.webmanifest")
+  link(rel='stylesheet' href='/css/main.css')
+  link(rel='stylesheet' href='/css/bulma.min.css')
+  link(rel='stylesheet' href='/css/fontawesome-free-5.14.0-all.css')
+  
+body.has-background-light
+
+  <!-- Header -->
+  header.hero.is-dark
+    div.hero-header
+      div.container
+        nav(role="navigation" aria-label="main navigation").navbar.is-transparent
+          div.navbar-brand
+            a(href="/").pt-2.pb-2
+              figure.image.is-64x64
+                img(src="/images/logo.png" width="64px" height="64px")
+            a(href="/").navbar-item
+              p.is-size-3 #{process.env.APP_TITLE}
+            div.navbar-item.navbar-burger.is-hidden-desktop
+              span
+              span
+              span
+          div#navbarMenu.navbar-menu
+            div.navbar-end
+              div.navbar-item
+                if(process.env.COIN_TELEGRAM)
+                  span.pl-2
+                    a(href=`${process.env.COIN_TELEGRAM}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-telegram
+                if(process.env.COIN_TWITTER)
+                  span.pl-2
+                    a(href=`${process.env.COIN_TWITTER}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-twitter
+                if(process.env.COIN_REDDIT)
+                  span.pl-2
+                    a(href=`${process.env.COIN_REDDIT}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-reddit
+                if(process.env.COIN_FACEBOOK)
+                  span.pl-2
+                    a(href=`${process.env.COIN_FACEBOOK}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-facebook
+                if(process.env.COIN_SLACK)
+                  span.pl-2
+                    a(href=`${process.env.COIN_SLACK}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-slack
+                if(process.env.COIN_GITHUB)
+                  span.pl-2
+                    a(href=`${process.env.COIN_GITHUB}` target="_blank").button
+                      span.icon
+                        i.fab.fa-2x.fa-github
+                if(process.env.COIN_SITE)
+                  span.pl-2
+                    a(href=`${process.env.COIN_SITE}` target="_blank").button
+                      span.icon
+                        i.fas.fa-2x.fa-globe
+  
+  <!-- Page content -->
+  div.container.is-fluid
+
+    <!-- Search -->
+    div.container.pb-4.pt-4
+      div.control.has-icons-left.is-expanded
+        input#layoutSearch(type="search" placeholder="Search for address, block, transaction").input.is-rounded
+        span.icon.is-left
+            i.fas.fa-search
+
+    <!-- Content -->
+    block content
+
+  <!-- Footer -->
+  footer.hero.is-dark.mt-4
+    div.hero-footer
+      div.container
+        div.level.is-mobile.pt-2.pb-2
+          div.level-left
+            div.level-item
+              a(href="https://github.com/Calvario/gbc-explorer" target="_blank").button
+                span.icon
+                  i.fab.fa-2x.fa-github
+            div.level-item
+              p Powered by GBC Explorer
+          div.level-right
+            div.level-item
+              a(href="/api" target="_blank").navbar-item
+                span API
+            div.level-item
+              a(href="/faq" target="_blank").navbar-item
+                span FAQ
+
+  script(src='/js/lib/jquery-3.5.1.min.js')
+  script(src='/js/lib/Chart.min.js')
+  script(src='/js/main.js')

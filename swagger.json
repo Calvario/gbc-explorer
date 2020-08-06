@@ -1,0 +1,47 @@
+{
+	"swagger":"2.0",
+	"info":{
+	   "description":"",
+	   "version":"1.0.0",
+	   "title":"Swagger GBC Explorer"
+	},
+	"basePath":"/rest/api/",
+	"schemes":[
+	   "https"
+	],
+	"tags": [
+		{
+			"name": "RPC",
+			"description": "RPC commands"
+		}
+	],
+	"paths":{
+	   "/rpc/getblock":{
+		  "get":{
+			 "tags": ["RPC"],
+			 "summary":"Returns information about the block with the given hash.",
+			 "description":"",
+			 "operationId":"getblock",
+			 "produces":[
+				"application/json"
+			 ],
+			 "parameters":[
+				{
+				   "in": "query",
+				   "name": "hash",
+				   "description": "Block hash",
+				   "schema": {
+						"type": "string"
+				   },
+				   "required": true
+				}
+			 ],
+			 "responses":{
+				"405":{
+				   "description":"Invalid input"
+				}
+			 }
+		  }
+	   }
+	}
+ }

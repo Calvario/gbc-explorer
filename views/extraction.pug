@@ -1,0 +1,18 @@
+extends layout
+block content
+
+  div.container.pb-4
+    div.box
+      <!-- Blocks -->
+      h4.title.is-4 Latest blocks for 
+        a#extractionAddress
+      div.table-container
+        table#extractionTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Block
+              th.has-text-right Time
+              th.has-text-right Difficulty
+              th.has-text-right Reward (#{process.env.COIN_SYMBOL})
+              th.has-text-right Fees (#{process.env.COIN_SYMBOL})
+          tbody

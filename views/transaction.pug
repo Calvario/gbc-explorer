@@ -1,0 +1,121 @@
+extends layout
+block content
+
+  div.container.pb-4
+    div.box
+      h4.title.is-4 Transaction
+      <!-- Full -->
+      div.columns.is-multiline.is-mobile
+        <!-- Main row -->
+        div.column.is-full.bottom-border
+          div.columns.is-mobile
+            div.column.is-half-desktop.is-narrow-mobile
+              p.has-text-weight-bold Hash
+            div.column.is-half-desktop
+              p.has-text-right
+                span.text-overflow-dynamic-container
+                  span.text-overflow-dynamic-ellipsis.has-text-right
+                    span#transactionId
+
+        <!-- Left -->
+        div.column.is-half-desktop.is-full-mobile
+          <!-- Rows -->
+          div.columns.is-mobile.is-multiline
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Block
+                div.column.is-half-desktop
+                  p.has-text-right
+                    a#transactionBlock
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Inputs
+                div.column.is-half-desktop
+                  p.has-text-right
+                    span#transactionInputs
+                    span#transactionIn.has-text-weight-light
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Outputs
+                div.column.is-half-desktop
+                  p.has-text-right
+                    span#transactionOuputs
+                    span#transactionOut.has-text-weight-light
+
+        <!-- Right -->
+        div.column.is-half-desktop.is-full-mobile
+          <!-- Rows -->
+          div.columns.is-mobile.is-multiline
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold UTC Time
+                div.column.is-half-desktop
+                  p#transactionTime.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Size
+                div.column.is-half-desktop
+                  p#transactionSize.has-text-right
+            <!-- Row -->
+            div.column.is-full.bottom-border
+              div.columns.is-mobile
+                div.column.is-half-desktop.is-narrow-mobile
+                  p.has-text-weight-bold Fee
+                div.column.is-half-desktop
+                  p#transactionFee.has-text-right
+
+      <!-- Navigation -->
+      nav.tabs.is-boxed
+        div.container
+          ul#homeMenu
+            li.is-active
+              a#transactionVins
+                span.icon.is-small
+                  i.fas.fa-exchange-alt(aria-hidden="true")
+                span Inputs
+            li
+              a#transactionVouts
+                span.icon.is-small
+                  i.fas.fa-exchange-alt(aria-hidden="true")
+                span  Outputs
+            li
+              a#transactionJSON
+                span.icon.is-small
+                  i.fas.fa-code(aria-hidden="true")
+                span Transaction (JSON RPC)
+      
+      <!-- Inputs -->
+      div.table-container
+        table#transactionVinsTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Index
+              th.has-text-left Previous output
+              th.has-text-left Address
+              th.has-text-right Amount (#{process.env.COIN_SYMBOL})
+          tbody
+      
+      <!-- Outputs -->
+      div.table-container.is-hidden
+        table#transactionVoutsTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Index
+              th.has-text-left Redeemed In
+              th.has-text-left Address
+              th.has-text-right Amount (#{process.env.COIN_SYMBOL})
+          tbody
+      
+      <!-- Transaction (JSON RPC) -->
+      div.container.is-hidden
+        pre#transactionJSONPre

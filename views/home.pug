@@ -1,0 +1,162 @@
+extends layout
+block content
+ 
+  <!-- Market Info -->
+  div.container.pb-4
+    div.columns.is-centered.is-mobile.is-multiline.is-variable.is-1
+      div.column.is-one-fifth-desktop.is-half-mobile
+        div.box.has-text-centered
+          p.has-text-weight-semibold BTC Price 
+            a(href="/faq#financial-disclaimer") *
+          p
+            a#layoutBTCPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+      div.column.is-one-fifth-desktop.is-half-mobile
+        div.box.has-text-centered
+          p.has-text-weight-semibold USD Price 
+            a(href="/faq#financial-disclaimer") *
+          p
+            a#layoutUSDPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+      div.column.is-one-fifth-desktop.is-half-mobile
+        div.box.has-text-centered
+          p.has-text-weight-semibold Market Cap 
+            a(href="/faq#financial-disclaimer") *
+          p
+            a#layoutMarketCap(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+      div.column.is-one-fifth-desktop.is-half-mobile
+        div.box.has-text-centered
+          p.has-text-weight-semibold Network Hash
+          p#layoutNetworkHash 0 kH/m
+      div.column.is-one-fifth-desktop.is-full-mobile
+        div.box.has-text-centered
+          p.has-text-weight-semibold #{process.env.COIN_SYMBOL} Current Supply
+          span#layoutSupply 0
+
+  div.container.pb-4
+    div.box
+      <!-- Navigation -->
+      nav.tabs.is-boxed.is-centered
+        div.container
+          ul#homeMenu
+            li.is-active
+              a#homeBlocks
+                span.icon.is-small
+                  i.fas.fa-cube(aria-hidden="true")
+                span Blocks
+            li
+              a#homeTransactions
+                span.icon.is-small
+                  i.fas.fa-exchange-alt(aria-hidden="true")
+                span Transactions
+            li
+              a#homeAddresses
+                span.icon.is-small
+                  i.fas.fa-wallet(aria-hidden="true")
+                span Rich list
+            li.is-hidden
+              a#homeMempool
+                span.icon.is-small
+                  i.fas.fa-memory(aria-hidden="true")
+                span Mempool
+            li
+              a#homeExtraction
+                span.icon.is-small
+                  i.fas.fa-tools(aria-hidden="true")
+                span Extraction
+            li
+              a#homeMarket
+                span.icon.is-small
+                  i.fas.fa-chart-bar(aria-hidden="true")
+                span Markets
+            li
+              a#homeNews
+                span.icon.is-small
+                  i.fas.fa-newspaper(aria-hidden="true")
+                span News
+      
+      <!-- Blocks -->
+      div.table-container.is-hidden
+        table#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Height
+              th.has-text-right Age
+              th.has-text-right Txs
+              th.has-text-right Inputs
+              th.has-text-right Outputs
+              th.has-text-right Out (#{process.env.COIN_SYMBOL})
+              th.has-text-right Generation
+              th.has-text-right Fees
+              th.has-text-right Size
+              th.has-text-right Difficulty
+              th.has-text-left Extracted by
+          tbody
+
+      <!-- Transactions -->
+      div.table-container.is-hidden
+        table#homeTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Block
+              th.has-text-left Transaction
+              th.has-text-right Time
+              th.has-text-right Inputs
+              th.has-text-right Outputs
+              th.has-text-right Out (#{process.env.COIN_SYMBOL})
+              th.has-text-right Fee
+              th.has-text-right Size
+          tbody
+
+      <!-- Rich List -->
+      div.table-container.is-hidden
+        table#homeAddressesTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Rank
+              th.has-text-left Address
+              th.has-text-right Balance (#{process.env.COIN_SYMBOL})
+              th.has-text-right Transactions
+              th.has-text-right Inputs
+              th.has-text-right Outputs
+          tbody
+
+      <!-- Mempool -->
+      div.columns.is-hidden
+        div#homeMempoolTable.column.is-one-third
+            h4.subtitle Mempool
+            p Transactions
+            p Txs per second
+            p In fees
+
+      <!-- Extraction -->
+      div.table-container.is-hidden
+        table#homeExtractionTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th.has-text-right Rank
+              th.has-text-left Pool/Miner
+              th.has-text-left Address
+              th.has-text-right Last 100
+          tbody
+
+      <!-- Market -->
+      div.container.is-hidden
+        table#homeMarketTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th.has-text-right Exchange
+                th.has-text-right Pair
+                th.has-text-right USD Price
+                th.has-text-right BTC Price
+                th.has-text-right VRM Volume
+                th.has-text-right BTC Volume
+                th.has-text-right USD Volume
+                th.has-text-right Bid/Ask Spread
+            tbody
+        p.has-text-right.has-text-weight-semibold Datasource 
+          a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
+
+      <!-- News -->
+      div.container.is-hidden
+        div#homeNewsWidget
+          script(src="https://widgets.coingecko.com/coingecko-beam-widget.js")
+          coingecko-beam-widget(type="coins" height="0" locale="en" project-id=`${process.env.COINGECKO_SYMBOL}`)
