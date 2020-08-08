@@ -54,9 +54,11 @@ class App {
 
     // Sync labels
     const jobLabels = new CronJob('45 * * * * *', async () => {
-      isRunning = true;
-      await blockchain.updateLabelForAddresses(path.join(__dirname, '../'));
-      isRunning = false;
+      if(!isRunning) {
+        isRunning = true;
+        await blockchain.updateLabelForAddresses(path.join(__dirname, '../'));
+        isRunning = false;
+      }
     });
 
     jobSync.start();

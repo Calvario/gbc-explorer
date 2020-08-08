@@ -412,7 +412,7 @@ $(document).ready(function() {
 
 		$('#blockJSON').click(function(){
 			navigationControl('#blockJSON', '#blockJSONPre', allItemInfo);
-			$.get('/rest/api/rpc/getblock?hash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/rpc/getblock?verbosity=2&blockHash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
 				$('#blockJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
 			});
 		});
@@ -526,7 +526,7 @@ $(document).ready(function() {
 
 		$('#transactionJSON').click(function(){
 			navigationControl('#transactionJSON', '#transactionJSONPre', allItemInfo);
-			$.get('/rest/api/rpc/getrawtransaction?hash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/rpc/getrawtransaction?verbose=true&txid=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
 				$('#transactionJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
 			});
 		});
