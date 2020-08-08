@@ -206,7 +206,7 @@ class RPC implements iController {
       return response.status(405);
     }
     const qTxID: string = request.query.txid.toString();
-    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === undefined ? false : true;
+    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getmempoolancestors({
       txid: qTxID,
       verbose: qVerbose
@@ -225,7 +225,7 @@ class RPC implements iController {
       return response.status(405);
     }
     const qTxID: string = request.query.txid.toString();
-    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === undefined ? false : true;
+    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getmempooldescendants({
       txid: qTxID,
       verbose: qVerbose
@@ -279,7 +279,7 @@ class RPC implements iController {
   }
 
   private getrawmempool = async (request: Request, response: Response) => {
-    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === undefined ? false : true;
+    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getrawmempool({
       verbose: qVerbose
     })
@@ -297,7 +297,7 @@ class RPC implements iController {
       return response.status(405);
     }
     const qTxID: string = request.query.txid.toString();
-    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === undefined ? false : true;
+    const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getrawtransaction({
       txid: qTxID,
       verbose: qVerbose
