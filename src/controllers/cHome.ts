@@ -10,7 +10,7 @@ import debug from 'debug';
 
 class Home implements iController {
   public path = ''
-  public apiPath = '/rest/api/general';
+  public apiPath = '/rest/api/1/general';
   public router = Router();
   private blockRepository = getRepository(mBlock);
 	private transactionRepository = getRepository(mTransaction);

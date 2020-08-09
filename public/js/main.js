@@ -134,7 +134,7 @@ $(document).ready(function() {
 	// Layout : Functions
 	$('#layoutSearch').keypress(function(e){
         if(e.which == 13) {
-			$.get('/rest/api/general?search=' + $('#layoutSearch').val(), function (data, textStatus, jqXHR) {
+			$.get('/rest/api/1/general?search=' + $('#layoutSearch').val(), function (data, textStatus, jqXHR) {
 				if(data.length === 1) {
 					window.location.replace('/' + data[0].type + '/' + data[0]._id);
 				}
