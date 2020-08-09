@@ -6,7 +6,6 @@ class Address {
 	@PrimaryGeneratedColumn()
 	id?: number;
 
-	@Index()
 	@Column({ unique: true })
 	address!: string;
 

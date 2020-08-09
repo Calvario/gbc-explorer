@@ -7,7 +7,6 @@ class Block {
 	@PrimaryGeneratedColumn()
 	id?: number;
 
-	@Index()
 	@Column({ unique: true })
 	hash!: string;
 

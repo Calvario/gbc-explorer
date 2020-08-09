@@ -8,11 +8,9 @@ class Transaction {
 	@PrimaryGeneratedColumn()
 	id?: number;
 
-	@Index()
 	@Column({ unique: true })
 	txid!: string;
 
-	@Index()
 	@Column({ unique: true })
 	hash!: string;
 
