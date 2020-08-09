@@ -862,7 +862,7 @@
         }
       }
     },
-    "/transactions/{addressHash}":{
+    "/transaction/{addressHash}":{
       "get":{
         "tags":[
           "Transaction"
