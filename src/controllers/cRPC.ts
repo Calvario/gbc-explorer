@@ -6,7 +6,7 @@ import debug from 'debug';
 
 class RPC implements iController {
   public path = '';
-  public apiPath = '/rest/api/rpc';
+  public apiPath = '/rest/api/1/rpc';
   public router = Router();
   private client: RPCClient;
 
@@ -26,23 +26,23 @@ class RPC implements iController {
 
     private initializeRoutes() {
     // API
-    this.router.get(`${this.apiPath}/getaddressinfo`, stringValidator(), this.getaddressinfo);
-    this.router.get(`${this.apiPath}/getblock`, stringValidator(), this.getblock);
+    this.router.get(`${this.apiPath}/getaddressinfo/:address`, stringValidator(), this.getaddressinfo);
+    this.router.get(`${this.apiPath}/getblock/:hash`, stringValidator(), this.getblock);
     this.router.get(`${this.apiPath}/getblockchaininfo`, this.getblockchaininfo);
     this.router.get(`${this.apiPath}/getblockcount`, this.getblockcount);
-    this.router.get(`${this.apiPath}/getblockhash`, stringValidator(), this.getblockhash);
-    this.router.get(`${this.apiPath}/getblockstats`, stringValidator(), this.getblockstats);
+    this.router.get(`${this.apiPath}/getblockhash/:height`, stringValidator(), this.getblockhash);
+    this.router.get(`${this.apiPath}/getblockstats/:block`, stringValidator(), this.getblockstats);
     this.router.get(`${this.apiPath}/getchaintips`, this.getchaintips);
     this.router.get(`${this.apiPath}/getchaintxstats`, stringValidator(), this.getchaintxstats);
     this.router.get(`${this.apiPath}/getconnectioncount`, this.getconnectioncount);
     this.router.get(`${this.apiPath}/getdifficulty`, this.getdifficulty);
-    this.router.get(`${this.apiPath}/getmempoolancestors`, stringValidator(), this.getmempoolancestors);
-    this.router.get(`${this.apiPath}/getmempooldescendants`, stringValidator(), this.getmempooldescendants);
-    this.router.get(`${this.apiPath}/getmempoolentry`, stringValidator(), this.getmempoolentry);
+    this.router.get(`${this.apiPath}/getmempoolancestors/:txid`, stringValidator(), this.getmempoolancestors);
+    this.router.get(`${this.apiPath}/getmempooldescendants/:txid`, stringValidator(), this.getmempooldescendants);
+    this.router.get(`${this.apiPath}/getmempoolentry/:txid`, stringValidator(), this.getmempoolentry);
     this.router.get(`${this.apiPath}/getmempoolinfo`, this.getmempoolinfo);
     this.router.get(`${this.apiPath}/getmininginfo`, this.getmininginfo);
     this.router.get(`${this.apiPath}/getrawmempool`, this.getrawmempool);
-    this.router.get(`${this.apiPath}/getrawtransaction`, stringValidator(), this.getrawtransaction);
+    this.router.get(`${this.apiPath}/getrawtransaction/:txid`, stringValidator(), this.getrawtransaction);
     this.router.get(`${this.apiPath}/gettxoutproof`, stringValidator(), this.gettxoutproof);
     this.router.get(`${this.apiPath}/gettxoutsetinfo`, this.gettxoutsetinfo);
 }
@@ -59,10 +59,7 @@ class RPC implements iController {
   }
 
   private getaddressinfo = async (request: Request, response: Response) => {
-    if (request.query.address === undefined) {
-      return response.status(405);
-    }
-    const qAddress: string = request.query.address.toString();
+    const qAddress: string = request.params.hash;
     await this.client.getaddressinfo({
       address: qAddress
     })
@@ -76,10 +73,7 @@ class RPC implements iController {
   }
 
   private getblock = async (request: Request, response: Response) => {
-    if (request.query.blockHash === undefined) {
-      return response.status(405);
-    }
-    const qBlockHash: string = request.query.blockHash.toString();
+    const qBlockHash: string = request.params.hash;
     const qVerbosity = request.query.verbosity === undefined ? 0 : this.verbosityCheck(request.query.verbosity.toString())
     await this.client.getblock({
       blockhash: qBlockHash,
@@ -117,10 +111,7 @@ class RPC implements iController {
   }
 
   private getblockhash = async (request: Request, response: Response) => {
-    if (request.query.height === undefined || Object.is(NaN, Number(request.query.height.toString()))) {
-      return response.status(405);
-    }
-    const qHeight: number = Number(request.query.height.toString());
+    const qHeight: number = Number(request.params.height);
     await this.client.getblockhash({
       height: qHeight
     })
@@ -134,10 +125,7 @@ class RPC implements iController {
   }
 
   private getblockstats = async (request: Request, response: Response) => {
-    if (request.query.block === undefined) {
-      return response.status(405);
-    }
-    const qBlock: string = request.query.block.toString();
+    const qBlock: string = request.params.block;
     const qStats: undefined | string[] = request.query.stat === undefined ? undefined :  [request.query.stat.toString()]; // TODO: Allow array of strings
     await this.client.getblockstats({
       hash_or_height: qBlock,
@@ -202,10 +190,7 @@ class RPC implements iController {
   }
 
   private getmempoolancestors = async (request: Request, response: Response) => {
-    if (request.query.txid === undefined) {
-      return response.status(405);
-    }
-    const qTxID: string = request.query.txid.toString();
+    const qTxID: string = request.params.txid;
     const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getmempoolancestors({
       txid: qTxID,
@@ -221,10 +206,7 @@ class RPC implements iController {
   }
 
   private getmempooldescendants = async (request: Request, response: Response) => {
-    if (request.query.txid === undefined) {
-      return response.status(405);
-    }
-    const qTxID: string = request.query.txid.toString();
+    const qTxID: string = request.params.txid;
     const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getmempooldescendants({
       txid: qTxID,
@@ -240,10 +222,7 @@ class RPC implements iController {
   }
 
   private getmempoolentry = async (request: Request, response: Response) => {
-    if (request.query.txid === undefined) {
-      return response.status(405);
-    }
-    const qTxID: string = request.query.txid.toString();
+    const qTxID: string = request.params.txid;
     await this.client.getmempoolentry({
       txid: qTxID
     })
@@ -293,10 +272,7 @@ class RPC implements iController {
   }
 
   private getrawtransaction = async (request: Request, response: Response) => {
-    if (request.query.txid === undefined) {
-      return response.status(405);
-    }
-    const qTxID: string = request.query.txid.toString();
+    const qTxID: string = request.params.txid;
     const qVerbose: boolean = Boolean(request.query.verbose?.toString()) === false ? false : true;
     await this.client.getrawtransaction({
       txid: qTxID,

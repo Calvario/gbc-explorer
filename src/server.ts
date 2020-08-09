@@ -3,6 +3,7 @@ import { createConnection } from 'typeorm';
 import App from './app';
 import cHome from './controllers/cHome';
 import cBlock from './controllers/cBlock';
+import cExtraction from './controllers/cExtraction';
 import cTransaction from './controllers/cTransaction';
 import cAddress from './controllers/cAddress';
 import cRPC from './controllers/cRPC';
@@ -21,6 +22,7 @@ import debug from 'debug';
     [
       new cHome(),
       new cBlock(),
+      new cExtraction(),
       new cTransaction(),
       new cAddress(),
       new cRPC(),

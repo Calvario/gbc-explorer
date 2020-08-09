@@ -37,22 +37,22 @@ $(document).ready(function() {
 	function formatEpochToDate(epoch){
 
 		var date = new Date(epoch * 1000);
-	   
+
 		var year = date.getFullYear();
 		var month = date.toLocaleString('default', { month: 'short' });
 		var day = ("0" + date.getDate()).substr(-2);
 		var hours = ("0" + date.getHours()).substr(-2);
 		var minutes = ("0" + date.getMinutes()).substr(-2);
 		var seconds = ("0" + date.getSeconds()).substr(-2);
-	   
-		var convdataTime = day + ' ' + month + ' ' + year 
+
+		var convdataTime = day + ' ' + month + ' ' + year
 			+ ' '+ hours + ':' + minutes + ':' + seconds + '';
-		
+
 		return convdataTime;
 	}
 
 	function formatNumber(number, size = 5) {
-		const options = { 
+		const options = {
 			minimumFractionDigits: size,
 			maximumFractionDigits: size
 		};
@@ -88,10 +88,9 @@ $(document).ready(function() {
 		});
 	}
 
-	function getUrlParameter(parameter) {
-		const queryString = window.location.search;
-		const urlParams = new URLSearchParams(queryString);
-		return urlParams.get(parameter)
+	function getUrlParameter() {
+    const pathname = window.location.pathname;
+		return pathname.substring(pathname.lastIndexOf('/') + 1);
 	};
 
 	function navigationControl(menuItem, itemInfo, allItemInfo = [], refresh = false){
@@ -106,11 +105,11 @@ $(document).ready(function() {
 
 		// Set active menu
 		$(menuItem).parent().addClass('is-active');
-		
+
 		// Remove hidden
 		$(itemInfo).parent().removeClass('is-hidden');
 
-		// Async auto refresg
+		// Async auto refresh
 		if (refresh === true) {
 			sessionStorage.setItem('homeCurrentTab', menuItem);
 		}
@@ -137,7 +136,7 @@ $(document).ready(function() {
         if(e.which == 13) {
 			$.get('/rest/api/general?search=' + $('#layoutSearch').val(), function (data, textStatus, jqXHR) {
 				if(data.length === 1) {
-					window.location.replace('/' + data[0].type + '?hash=' + data[0]._id);
+					window.location.replace('/' + data[0].type + '/' + data[0]._id);
 				}
 			});
 		}
@@ -162,12 +161,12 @@ $(document).ready(function() {
 				$('#layoutUSDPrice').text(formatNumber(data.veriumreserve.usd, 2) + ' $');
 				$('#layoutMarketCap').text(formatNumber(data.veriumreserve.usd_market_cap, 2) + ' $');
 			});
-	
-			$.get('/rest/api/rpc/getmininginfo', function (data, textStatus, jqXHR) {
+
+			$.get('/rest/api/1/rpc/getmininginfo', function (data, textStatus, jqXHR) {
 				$('#layoutNetworkHash').text(formatNumber(data["nethashrate (kH/m)"], 2) + ' kH/m');
 			});
-	
-			$.get('/rest/api/rpc/getblockchaininfo', function (data, textStatus, jqXHR) {
+
+			$.get('/rest/api/1/rpc/getblockchaininfo', function (data, textStatus, jqXHR) {
 				$('#layoutSupply').text(formatNumber(data.totalsupply, 0));
 			});
 		}
@@ -183,7 +182,7 @@ $(document).ready(function() {
 
 		$('#homeBlocks').click(function(){
 			navigationControl('#homeBlocks', "#homeBlocksTable", allItemInfo, true);
-			$.get('/rest/api/block', function (data, textStatus, jqXHR) {
+			$.get('/rest/api/1/block', function (data, textStatus, jqXHR) {
 				// Clean tables
 				$("#homeBlocksTable tbody tr").remove();
 				// Check for notification
@@ -192,7 +191,7 @@ $(document).ready(function() {
 				$.each(data, function(i, item) {
 					$('<tr>').append(
 						$('<td class="has-text-right">').append(
-							$('<a href="/block?hash=' + item.hash + '">').text(item.height)
+							$('<a href="/block/' + item.hash + '">').text(item.height)
 						),
 						$('<td class="has-text-right">').text(formatEpochToAge(item.time)),
 						$('<td class="has-text-right">').text(item.nTx),
@@ -206,7 +205,7 @@ $(document).ready(function() {
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/block?addressHash=' + item.miner.address + '">').text((item.miner.label !== null ? item.miner.label : item.miner.address ))
+									$('<a href="/extraction/' + item.miner.address + '">').text((item.miner.label !== null ? item.miner.label : item.miner.address ))
 								)
 							)
 						)
@@ -215,21 +214,21 @@ $(document).ready(function() {
 				formatTableDataLabel('#homeBlocksTable');
 			});
 		});
-	
+
 		$('#homeTransactions').click(function(){
 			navigationControl('#homeTransactions', "#homeTransactionsTable", allItemInfo, true);
-			$.get('/rest/api/transaction', function (data, textStatus, jqXHR) {
+			$.get('/rest/api/1/transaction', function (data, textStatus, jqXHR) {
 				// Clean table
 				$("#homeTransactionsTable tbody tr").remove();
 				$.each(data, function(i, item) {
 					$('<tr>').append(
 						$('<td class="has-text-right">').append(
-							$('<a href="/block?hash=' + item.block.hash + '">').text(item.block.height)
+							$('<a href="/block/' + item.block.hash + '">').text(item.block.height)
 						),
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/transaction?hash=' + item.hash + '">').text(item.hash)
+									$('<a href="/transaction/' + item.hash + '">').text(item.hash)
 								)
 							)
 						),
@@ -244,10 +243,10 @@ $(document).ready(function() {
 				formatTableDataLabel('#homeTransactionsTable');
 			});
 		});
-	
+
 		$('#homeAddresses').click(function(){
 			navigationControl('#homeAddresses', "#homeAddressesTable", allItemInfo, true);
-			$.get('/rest/api/address', function (data, textStatus, jqXHR) {
+			$.get('/rest/api/1/address', function (data, textStatus, jqXHR) {
 				// Clean table
 				$("#homeAddressesTable tbody tr").remove();
 				$.each(data, function(i, item) {
@@ -256,7 +255,7 @@ $(document).ready(function() {
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/address?hash=' + item.address + '">').text((item.label !== null ? item.label : item.address ))
+									$('<a href="/address/' + item.address + '">').text((item.label !== null ? item.label : item.address ))
 								)
 							)
 						),
@@ -269,14 +268,14 @@ $(document).ready(function() {
 				formatTableDataLabel('#homeAddressesTable');
 			});
 		});
-	
+
 		$('#homeMempool').click(function(){
 			navigationControl('#homeMempool', "#homeMempoolTable", allItemInfo);
 		});
-	
+
 		$('#homeExtraction').click(function(){
 			navigationControl('#homeExtraction', "#homeExtractionTable", allItemInfo, true);
-			$.get('/rest/api/block/extraction', function (data, textStatus, jqXHR) {
+			$.get('/rest/api/1/extraction', function (data, textStatus, jqXHR) {
 				// Clean table
 				$("#homeExtractionTable tbody tr").remove();
 				$.each(data, function(i, item) {
@@ -290,7 +289,7 @@ $(document).ready(function() {
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/block?addressHash=' + item.address + '">').text(item.address)
+									$('<a href="/extraction/' + item.address + '">').text(item.address)
 								)
 							)
 						),
@@ -300,7 +299,7 @@ $(document).ready(function() {
 				formatTableDataLabel('#homeExtractionTable');
 			});
 		});
-	
+
 		$('#homeMarket').click(function(){
 			navigationControl('#homeMarket', "#homeMarketTable", allItemInfo);
 			var link =  "https://api.coingecko.com/api/v3/coins/veriumreserve/tickers?id=veriumreserve";
@@ -322,12 +321,12 @@ $(document).ready(function() {
 				formatTableDataLabel('#homeMarketTable');
 			});
 		});
-	
+
 		$('#homeNews').click(function(){
 			navigationControl('#homeNews', "#homeNewsWidget", allItemInfo);
 		});
 
-		// Page initilalization
+		// Page initialization
 		updateLayoutMarketBoxes();
 		$("#homeBlocks").trigger('click');
 
@@ -341,12 +340,11 @@ $(document).ready(function() {
 	}
 
 	// Page specific : Block
-	if ($(location).attr('pathname').indexOf('/block') === 0 && $(location).attr('search').indexOf('?hash=') === 0) {
+	if ($(location).attr('pathname').indexOf('/block') === 0) {
 		var allItemInfo = ['#blockTransactionsTable', '#blockJSONPre'];
 
 		$('#blockTransactions').click(function(){
-			navigationControl('#blockTransactions', '#blockTransactionsTable', allItemInfo);
-			$.get('/rest/api/block?hash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/1/block/' + getUrlParameter(), function (data, textStatus, jqXHR) {
 				$('#blockHeight').text(data.height);
 				$('#blockHash').text(data.hash);
 				$('#blockTime').text(formatEpochToDate(data.time));
@@ -359,16 +357,19 @@ $(document).ready(function() {
 				$('#blockFees').text(data.feesT);
 				$('#blockDifficulty').text(data.difficulty);
 				$('#blockGeneration').text(data.generation);
-				$('#blockMiner').attr("href", '/block?addressHash=' + data.miner.address);
+				$('#blockMiner').attr("href", '/extraction/' + data.miner.address);
 				$('#blockMiner').text(data.miner.label !== null ? data.miner.label : data.miner.address);
+      });
 
+      $.get('/rest/api/1/block/' + getUrlParameter() + '/transactions', function (data, textStatus, jqXHR) {
+        navigationControl('#blockTransactions', '#blockTransactionsTable', allItemInfo);
 				$("#blockTransactionsTable tbody tr").remove();
-				$.each(data.transactions, function(i, item) {
+				$.each(data, function(i, item) {
 					$('<tr>').append(
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/transaction?hash=' + item.hash + '">').text(item.hash)
+									$('<a href="/transaction/' + item.hash + '">').text(item.hash)
 								)
 							)
 						),
@@ -380,7 +381,7 @@ $(document).ready(function() {
 									return $('<span class="text-overflow-dynamic-container">').append(
 										$('<span class="text-overflow-dynamic-ellipsis">').append(
 											$('<span>').text(vin.vout.value + ' ').append(
-												$('<a href="/address?hash=' + vin.vout.addresses[0].address + '">').text(vin.vout.addresses[0].address)
+												$('<a href="/address/' + vin.vout.addresses[0].address + '">').text(vin.vout.addresses[0].address)
 											)
 										)
 									)
@@ -396,7 +397,7 @@ $(document).ready(function() {
 								return $('<span class="text-overflow-dynamic-container">').append(
 									$('<span class="text-overflow-dynamic-ellipsis">').append(
 										$('<span>').text(vout.value + ' ').append(
-											$('<a href="/address?hash=' + vout.addresses[0].address + '">').text(vout.addresses[0].address)
+											$('<a href="/address/' + vout.addresses[0].address + '">').text(vout.addresses[0].address)
 										)
 									)
 								)
@@ -412,12 +413,12 @@ $(document).ready(function() {
 
 		$('#blockJSON').click(function(){
 			navigationControl('#blockJSON', '#blockJSONPre', allItemInfo);
-			$.get('/rest/api/rpc/getblock?verbosity=2&blockHash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/1/rpc/getblock/' + getUrlParameter() + '?verbosity=2', function (data, textStatus, jqXHR) {
 				$('#blockJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
 			});
 		});
 
-		// Page initilalization
+		// Page initialization
 		$("#blockTransactions").trigger('click');
 	}
 
@@ -427,15 +428,15 @@ $(document).ready(function() {
 		var allItemInfo = ['#transactionVinsTable', '#transactionVoutsTable', '#transactionJSONPre'];
 
 		function getTransaction() {
-			$.get('/rest/api/transaction?hash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/1/transaction/' + getUrlParameter(), function (data, textStatus, jqXHR) {
 				$('#transactionId').text(data.hash);
 				$('#transactionBlock').text(data.block.height);
-				$('#transactionBlock').attr("href", '/block?hash=' + data.block.hash);
+				$('#transactionBlock').attr("href", '/block/' + data.block.hash);
 				$('#transactionTime').text(formatEpochToDate(data.time));
 				$('#transactionSize').text(formatBytes(data.size));
 				$('#transactionInputs').text(data.inputC);
 				$('#transactionIn').text(' ( ' + data.inputT + ' )');
-				$('#transactionOuputs').text(data.outputC);
+				$('#transactionOutputs').text(data.outputC);
 				$('#transactionOut').text(' ( ' + data.outputT + ' )');
 				$('#transactionFee').text(data.fee);
 
@@ -449,7 +450,7 @@ $(document).ready(function() {
 									return $('<span class="text-overflow-dynamic-container">').append(
 										$('<span class="text-overflow-dynamic-ellipsis">').append(
 											$('<span>').text(item.vout.n + ': ').append(
-												$('<a href="/transaction?hash=' + item.vout.transaction.hash + '">').text(item.vout.transaction.hash)
+												$('<a href="/transaction/' + item.vout.transaction.hash + '">').text(item.vout.transaction.hash)
 											)
 										)
 									)
@@ -463,7 +464,7 @@ $(document).ready(function() {
 								if (item.vout !== null && item.vout !== undefined) {
 									return $('<span class="text-overflow-dynamic-container">').append(
 										$('<span class="text-overflow-dynamic-ellipsis">').append(
-											$('<a href="/address?hash=' + item.vout.addresses[0].address + '">').text(item.vout.addresses[0].address)
+											$('<a href="/address/' + item.vout.addresses[0].address + '">').text(item.vout.addresses[0].address)
 										)
 									)
 								} else {
@@ -494,7 +495,7 @@ $(document).ready(function() {
 								if (item.vin !== null && item.vin !== undefined) {
 									return $('<span class="text-overflow-dynamic-container">').append(
 										$('<span class="text-overflow-dynamic-ellipsis">').append(
-											$('<a href="/transaction?hash=' + item.vin.transaction.hash + '">').text(item.vin.transaction.hash)
+											$('<a href="/transaction/' + item.vin.transaction.hash + '">').text(item.vin.transaction.hash)
 										)
 									)
 								} else {
@@ -505,7 +506,7 @@ $(document).ready(function() {
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
-									$('<a href="/address?hash=' + item.addresses[0].address + '">').text(item.addresses[0].address)
+									$('<a href="/address/' + item.addresses[0].address + '">').text(item.addresses[0].address)
 								)
 							)
 						),
@@ -526,19 +527,19 @@ $(document).ready(function() {
 
 		$('#transactionJSON').click(function(){
 			navigationControl('#transactionJSON', '#transactionJSONPre', allItemInfo);
-			$.get('/rest/api/rpc/getrawtransaction?verbose=true&txid=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+			$.get('/rest/api/1/rpc/getrawtransaction/' + getUrlParameter() + '?verbose=true', function (data, textStatus, jqXHR) {
 				$('#transactionJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
 			});
 		});
 
-		// Page initilalization
+		// Page initialization
 		getTransaction();
 	}
 
 	// Page specific : Address
 	if ($(location).attr('pathname').indexOf('/address') === 0) {
 
-		$.get('/rest/api/address?hash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {	
+		$.get('/rest/api/1/address/' + getUrlParameter(), function (data, textStatus, jqXHR) {
 			$('#addressHash').text(data.address);
 			$('#addressLabel').text(data.label);
 			$('#addressBalance').text(formatNumber(data.balance));
@@ -548,41 +549,41 @@ $(document).ready(function() {
 		});
 
 		$("#addressTransactionsTable tbody tr").remove();
-		$.get('/rest/api/transaction?addressHash=' + getUrlParameter("hash"), function (data, textStatus, jqXHR) {
+		$.get('/rest/api/1/address/' + getUrlParameter() + '/transactions', function (data, textStatus, jqXHR) {
 			$.each(data, function(i, item) {
 				// Received
-				if (item.vouts[0].addresses[0].address === getUrlParameter("hash")) {
+				if (item.vouts[0].addresses[0].address === getUrlParameter()) {
 					$('<tr>').append(
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
 									$('<span>').text(item.vouts[0].n + ': ').append(
-										$('<a href="/transaction?hash=' + item.hash + '">').text(item.hash)
+										$('<a href="/transaction/' + item.hash + '">').text(item.hash)
 									)
 								)
 							)
 						),
 						$('<td class="has-text-right">').append(
-							$('<a href="/block?hash=' + item.block.hash + '">').text(item.block.height)
+							$('<a href="/block/' + item.block.hash + '">').text(item.block.height)
 						),
 						$('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
 						$('<td class="has-text-right">').text(formatNumber(item.vouts[0].value)),
 					).appendTo('#addressTransactionsTable');
 
 				// Sent
-				} else if (item.vins[0].vout.addresses[0].address === getUrlParameter("hash")) {
+				} else if (item.vins[0].vout.addresses[0].address === getUrlParameter()) {
 					$('<tr>').append(
 						$('<td class="has-text-left-desktop">').append(
 							$('<span class="text-overflow-dynamic-container">').append(
 								$('<span class="text-overflow-dynamic-ellipsis">').append(
 									$('<span>').text(item.vins[0].vout.n + ': ').append(
-										$('<a href="/transaction?hash=' + item.hash + '">').text(item.hash)
+										$('<a href="/transaction/' + item.hash + '">').text(item.hash)
 									)
 								)
 							)
 						),
 						$('<td class="has-text-right">').append(
-							$('<a href="/block?hash=' + item.block.hash + '">').text(item.block.height)
+							$('<a href="/block/' + item.block.hash + '">').text(item.block.height)
 						),
 						$('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
 						$('<td class="has-text-right">').text(formatNumber(-item.vins[0].vout.value)),
@@ -598,20 +599,20 @@ $(document).ready(function() {
 	}
 
 	// Page specific : Extraction
-	if ($(location).attr('pathname').indexOf('/block') === 0 && $(location).attr('search').indexOf('?addressHash=') === 0) {
+	if ($(location).attr('pathname').indexOf('/extraction') === 0) {
 		$("#extractionTable tbody tr").remove();
-		$("#extractionAddress").text(getUrlParameter("addressHash"));
-		$("#extractionAddress").attr("href", '/address?hash=' + getUrlParameter("addressHash"));
-		$.get('/rest/api/block/extraction?addressHash=' + getUrlParameter("addressHash"), function (data, textStatus, jqXHR) {
+		$("#extractionAddress").text(getUrlParameter());
+		$("#extractionAddress").attr("href", '/address/' + getUrlParameter());
+		$.get('/rest/api/1/extraction/' + getUrlParameter(), function (data, textStatus, jqXHR) {
 			$.each(data, function(i, item) {
 				$('<tr>').append(
 					$('<td class="has-text-right">').append(
-						$('<a href="/block?hash=' + item.hash + '">').text(item.height)
+						$('<a href="/block/' + item.hash + '">').text(item.height)
 					),
 					$('<td class="has-text-right">').text(formatEpochToDate(item.time)),
 					$('<td class="has-text-right">').text(formatNumber(item.difficulty)),
 					$('<td class="has-text-right">').text(formatNumber(item.generation)),
-					$('<td class="has-text-right">').text(formatNumber(item.feesT)),					
+					$('<td class="has-text-right">').text(formatNumber(item.feesT)),
 				).appendTo('#extractionTable');
 			});
 			formatTableDataLabel('#extractionTable');

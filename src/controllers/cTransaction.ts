@@ -7,7 +7,7 @@ import debug from 'debug';
 
 class Transaction implements iController {
   public path = '/transaction'
-  public apiPath = '/rest/api/transaction';
+  public apiPath = '/rest/api/1/transaction';
   public router = Router();
   private repository = getRepository(mTransaction);
 
@@ -17,31 +17,18 @@ class Transaction implements iController {
 
   private initializeRoutes() {
     // Frontend
-    this.router.get(`${this.path}`, this.getTransactionPage);
+    this.router.get(`${this.path}/:hash`, this.getTransactionPage);
 
     // API
-    this.router.get(`${this.apiPath}`, stringValidator(), this.getTransactionAPI);
+    this.router.get(`${this.apiPath}`, stringValidator(), this.getLatestTransactions);
+    this.router.get(`${this.apiPath}/:hash`, stringValidator(), this.getTransactionByHash);
   }
 
   private getTransactionPage = async (request: Request, response: Response) => {
-    if (request.query.hash !== undefined)
-      return response.render('transaction');
-    else
-      return response.status(404);
+    return response.render('transaction');
   }
 
-  private getTransactionAPI = async (request: Request, response: Response) => {
-    if (request.query.hash !== undefined)
-      return this.getTransactionByHash(response, request.query.hash.toString())
-    else if (request.query.blockHash !== undefined)
-      return this.getTransactionsForBlock(response, request.query.blockHash.toString());
-    else if (request.query.addressHash !== undefined)
-      return this.getTransactionsForAddress(response, request.query.addressHash.toString());
-    else
-      return this.getLatestTransactions(response);
-  }
-
-  private getLatestTransactions = async (response: Response) => {
+  private getLatestTransactions = async (request: Request, response: Response) => {
     await this.repository.find({
       join: {
         alias: "transaction",
@@ -61,7 +48,8 @@ class Transaction implements iController {
     });
   }
 
-  private getTransactionByHash = async (response: Response, hashParam: string) => {
+  private getTransactionByHash = async (request: Request, response: Response) => {
+    const hashParam = request.params.hash;
     await this.repository.createQueryBuilder("transaction")
     .innerJoinAndSelect("transaction.block", "block")
     .innerJoinAndSelect("transaction.vins", "vin")
@@ -81,50 +69,6 @@ class Transaction implements iController {
     .catch((error) => {
       debug.log(error);
       return response.status(404).send('Transaction not found');
-    });
-  }
-
-  private getTransactionsForBlock = async (response: Response, hashParam: string) => {
-    await this.repository.find({
-      join: {
-        alias: "transaction",
-        innerJoinAndSelect: {
-            block: "transaction.block",
-        }
-      },
-      where: { "block.hash": hashParam },
-      order: { id: "ASC" }
-    })
-    .then(transactions => {
-      return response.json(transactions);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.status(500).send();
-    });
-  }
-
-  private getTransactionsForAddress = async (response: Response, addressHash: string) => {
-    await this.repository.createQueryBuilder("transaction")
-    .innerJoinAndSelect("transaction.block", "block")
-    .innerJoinAndSelect("transaction.vins", "vin")
-    .innerJoinAndSelect("vin.vout", "vinvout")
-    .innerJoinAndSelect("vinvout.transaction", "vintransaction")
-    .innerJoinAndSelect("vinvout.addresses", "vinaddress")
-    .innerJoinAndSelect("transaction.vouts", "vout")
-    .innerJoinAndSelect("vout.addresses", "address")
-    .leftJoinAndSelect("vout.vin", "voutvin")
-    .leftJoinAndSelect("voutvin.transaction", "voutvintransaction")
-    .where("vinaddress.address = :address", { address: addressHash })
-    .orWhere("address.address = :address", { address: addressHash })
-    .take(10)
-    .getMany()
-    .then(transactions => {
-      return response.json(transactions);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.status(404).send('Transactions not found');
     });
   }
 }

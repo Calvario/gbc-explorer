@@ -36,7 +36,7 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
 Copy the ".env.example" to ".env" and edit it according your environment.
 Change logo on public/images/logo.png
-Change favicons on public
+Change favicon on public
 
 ### Before first start
 

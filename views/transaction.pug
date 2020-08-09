@@ -45,7 +45,7 @@ block content
                   p.has-text-weight-bold Outputs
                 div.column.is-half-desktop
                   p.has-text-right
-                    span#transactionOuputs
+                    span#transactionOutputs
                     span#transactionOut.has-text-weight-light
 
         <!-- Right -->
@@ -93,7 +93,7 @@ block content
                 span.icon.is-small
                   i.fas.fa-code(aria-hidden="true")
                 span Transaction (JSON RPC)
-      
+
       <!-- Inputs -->
       div.table-container
         table#transactionVinsTable.table.is-striped.is-hoverable.is-fullwidth
@@ -104,7 +104,7 @@ block content
               th.has-text-left Address
               th.has-text-right Amount (#{process.env.COIN_SYMBOL})
           tbody
-      
+
       <!-- Outputs -->
       div.table-container.is-hidden
         table#transactionVoutsTable.table.is-striped.is-hoverable.is-fullwidth
@@ -115,7 +115,7 @@ block content
               th.has-text-left Address
               th.has-text-right Amount (#{process.env.COIN_SYMBOL})
           tbody
-      
+
       <!-- Transaction (JSON RPC) -->
       div.container.is-hidden
         pre#transactionJSONPre

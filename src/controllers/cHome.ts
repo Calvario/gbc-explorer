@@ -22,19 +22,19 @@ class Home implements iController {
 
   private initializeRoutes() {
 	  // Frontend
-    this.router.get(`${this.path}`, this.getHome);
+    this.router.get(`${this.path}`, this.getHomePage);
     this.router.use(`${this.path}/api`, swaggerUi.serve);
     this.router.get(`${this.path}/api`, swaggerUi.setup(require('../../swagger.json')));
-    this.router.get(`${this.path}/faq`, this.getFAQ);
+    this.router.get(`${this.path}/faq`, this.getFAQPage);
 
     this.router.get(`${this.apiPath}`, stringValidator(), this.getSearch);
   }
 
-  private getHome = async (request: Request, response: Response) => {
+  private getHomePage = async (request: Request, response: Response) => {
 	  response.render('home');
   }
 
-  private getFAQ = async (request: Request, response: Response) => {
+  private getFAQPage = async (request: Request, response: Response) => {
 	  response.render('faq');
   }
 

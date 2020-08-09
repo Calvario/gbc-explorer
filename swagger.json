@@ -5,19 +5,39 @@
     "version":"1.0.0",
     "title":"Swagger GBC Explorer"
   },
-  "basePath":"/rest/api/",
+  "basePath":"/rest/api/1/",
   "schemes":[
-    "http",
-    "https"
+    "https",
+    "http"
   ],
   "tags":[
     {
       "name":"RPC",
       "description":"RPC commands"
+    },
+    {
+      "name":"General",
+      "description":"Internal API"
+    },
+    {
+      "name":"Block",
+      "description":"Internal API"
+    },
+    {
+      "name":"Extraction",
+      "description":"Internal API"
+    },
+    {
+      "name":"Transaction",
+      "description":"Internal API"
+    },
+    {
+      "name":"Address",
+      "description":"Internal API"
     }
   ],
   "paths":{
-    "/rpc/getaddressinfo":{
+    "/rpc/getaddressinfo/{hash}":{
       "get":{
         "tags":[
           "RPC"
@@ -30,8 +50,8 @@
         ],
         "parameters":[
           {
-            "in":"query",
-            "name":"address",
+            "in":"path",
+            "name":"hash",
             "description":"Address hash",
             "schema":{
               "type":"string"
@@ -52,7 +72,7 @@
         }
       }
     },
-    "/rpc/getblock":{
+    "/rpc/getblock/{hash}":{
       "get":{
         "tags":[
           "RPC"
@@ -65,8 +85,8 @@
         ],
         "parameters":[
           {
-            "in":"query",
-            "name":"blockHash",
+            "in":"path",
+            "name":"hash",
             "description":"Block hash",
             "schema":{
               "type":"string"
@@ -138,7 +158,7 @@
         }
       }
     },
-    "/rpc/getblockhash":{
+    "/rpc/getblockhash/{height}":{
       "get":{
         "tags":[
           "RPC"
@@ -151,7 +171,7 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"height",
             "description":"Block height",
             "schema":{
@@ -173,7 +193,7 @@
         }
       }
     },
-    "/rpc/getblockstats":{
+    "/rpc/getblockstats/{block}":{
       "get":{
         "tags":[
           "RPC"
@@ -186,9 +206,9 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"block",
-            "description":"Block hash",
+            "description":"Block hash or height",
             "schema":{
               "type":"string"
             },
@@ -324,7 +344,7 @@
         }
       }
     },
-    "/rpc/getmempoolancestors":{
+    "/rpc/getmempoolancestors/{txid}":{
       "get":{
         "tags":[
           "RPC"
@@ -337,7 +357,7 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"txid",
             "description":"Transaction hash",
             "schema":{
@@ -368,7 +388,7 @@
         }
       }
     },
-    "/rpc/getmempooldescendants":{
+    "/rpc/getmempooldescendants/{txid}":{
       "get":{
         "tags":[
           "RPC"
@@ -381,7 +401,7 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"txid",
             "description":"Transaction hash",
             "schema":{
@@ -412,7 +432,7 @@
         }
       }
     },
-    "/rpc/getmempoolentry":{
+    "/rpc/getmempoolentry/{txid}":{
       "get":{
         "tags":[
           "RPC"
@@ -425,7 +445,7 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"txid",
             "description":"Transaction hash",
             "schema":{
@@ -521,7 +541,7 @@
         }
       }
     },
-    "/rpc/getrawtransaction":{
+    "/rpc/getrawtransaction/{txid}":{
       "get":{
         "tags":[
           "RPC"
@@ -534,7 +554,7 @@
         ],
         "parameters":[
           {
-            "in":"query",
+            "in":"path",
             "name":"txid",
             "description":"Transaction hash",
             "schema":{
@@ -616,13 +636,354 @@
         ],
         "summary":"Returns statistics about the unspent transaction output set. Note this call may take some time.",
         "description":"",
-        "operationId":"gettxoutproof",
+        "operationId":"gettxoutsetinfo",
         "produces":[
           "application/json"
         ],
         "responses":{
           "200":{
 
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/general":{
+      "get":{
+        "tags":[
+          "General"
+        ],
+        "summary":"Search pattern matches on blocks, transactions, addresses",
+        "description":"",
+        "operationId":"general",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"query",
+            "name":"search",
+            "description":"Search pattern",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/block":{
+      "get":{
+        "tags":[
+          "Block"
+        ],
+        "summary":"Get latest blocks",
+        "description":"",
+        "operationId":"block",
+        "produces":[
+          "application/json"
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/block/{hash}":{
+      "get":{
+        "tags":[
+          "Block"
+        ],
+        "summary":"Get block",
+        "description":"",
+        "operationId":"blockHash",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Block hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/block/{hash}/transactions":{
+      "get":{
+        "tags":[
+          "Block"
+        ],
+        "summary":"Get block transactions",
+        "description":"",
+        "operationId":"blockHashTransaction",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Block hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/extraction":{
+      "get":{
+        "tags":[
+          "Extraction"
+        ],
+        "summary":"Get extraction statistics",
+        "description":"",
+        "operationId":"extraction",
+        "produces":[
+          "application/json"
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/extraction/{addressHash}":{
+      "get":{
+        "tags":[
+          "Extraction"
+        ],
+        "summary":"Get latest block extracted by a specific address",
+        "description":"",
+        "operationId":"addressHash",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"addressHash",
+            "description":"Address hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/transaction":{
+      "get":{
+        "tags":[
+          "Transaction"
+        ],
+        "summary":"Get latest transaction",
+        "description":"",
+        "operationId":"transaction",
+        "produces":[
+          "application/json"
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/transactions/{addressHash}":{
+      "get":{
+        "tags":[
+          "Transaction"
+        ],
+        "summary":"Get transaction information",
+        "description":"",
+        "operationId":"transactionHash",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Transaction hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/address":{
+      "get":{
+        "tags":[
+          "Address"
+        ],
+        "summary":"Get rich list",
+        "description":"",
+        "operationId":"address",
+        "produces":[
+          "application/json"
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/address/{hash}":{
+      "get":{
+        "tags":[
+          "Address"
+        ],
+        "summary":"Get address information",
+        "description":"",
+        "operationId":"addressHash",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Address hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/address/{hash}/transactions":{
+      "get":{
+        "tags":[
+          "Address"
+        ],
+        "summary":"Get latest address transactions",
+        "description":"",
+        "operationId":"addressHashTransactions",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Address hash",
+            "schema":{
+              "type":"string"
+            },
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
           },
           "500":{
             "description":"Error"
