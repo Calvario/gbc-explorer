@@ -29,16 +29,13 @@ class Transaction implements iController {
   }
 
   private getLatestTransactions = async (request: Request, response: Response) => {
-    await this.repository.find({
-      join: {
-        alias: "transaction",
-        innerJoinAndSelect: {
-            block: "transaction.block",
-        }
-      },
-      order: { "block": "DESC" },
-      take: 10
-    })
+    const qB = this.repository.createQueryBuilder("transaction")
+    .innerJoinAndSelect("transaction.block", "block")
+    .orderBy("block.height", "DESC")
+    if (request.query.afterId !== undefined) qB.where("transaction.id < " + request.query.afterId.toString());
+    request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+    await qB.getMany()
     .then(transactions => {
       return response.json(transactions);
     })

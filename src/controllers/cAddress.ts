@@ -31,10 +31,11 @@ class Address implements iController {
   }
 
   private getRichAddresses = async (request: Request, response: Response)  => {
-    await this.repository.find({
-      order: { "balance": "DESC" },
-      take: 10
-    })
+    const qB = this.repository.createQueryBuilder("address")
+    .orderBy("balance", "DESC")
+    request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+    await qB.getMany()
     .then(addresses => {
       return response.json(addresses);
     })
@@ -58,19 +59,20 @@ class Address implements iController {
 
   private getTransactionsForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.hash;
-    await createQueryBuilder(mTransaction, "transaction")
+    const qB = createQueryBuilder(mTransaction, "transaction")
     .innerJoinAndSelect("transaction.block", "block")
     .innerJoinAndSelect("transaction.vins", "vin")
     .leftJoinAndSelect("vin.vout", "vinvout")
-    .leftJoin("vinvout.transaction", "vintransaction")
-    .leftJoin("vinvout.addresses", "vinaddress")
+    .leftJoinAndSelect("vinvout.addresses", "vinaddress")
     .innerJoinAndSelect("transaction.vouts", "vout")
     .innerJoinAndSelect("vout.addresses", "address")
     .where("vinaddress.address = :address", { address: addressHash })
     .orWhere("address.address = :address", { address: addressHash })
-    .orderBy("block.height", "DESC")
-    .take(10)
-    .getMany()
+    .orderBy("transaction.id", "DESC")
+    if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());
+    request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+    await qB.getMany()
     .then(transactions => {
       return response.json(transactions);
     })

@@ -1,24 +1,24 @@
 extends layout
 block content
- 
+
   <!-- Market Info -->
   div.container.pb-4
     div.columns.is-centered.is-mobile.is-multiline.is-variable.is-1
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold BTC Price 
+          p.has-text-weight-semibold BTC Price
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutBTCPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold USD Price 
+          p.has-text-weight-semibold USD Price
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutUSDPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold Market Cap 
+          p.has-text-weight-semibold Market Cap
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutMarketCap(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
@@ -52,11 +52,6 @@ block content
                 span.icon.is-small
                   i.fas.fa-wallet(aria-hidden="true")
                 span Rich list
-            li.is-hidden
-              a#homeMempool
-                span.icon.is-small
-                  i.fas.fa-memory(aria-hidden="true")
-                span Mempool
             li
               a#homeExtraction
                 span.icon.is-small
@@ -72,9 +67,9 @@ block content
                 span.icon.is-small
                   i.fas.fa-newspaper(aria-hidden="true")
                 span News
-      
+
       <!-- Blocks -->
-      div.table-container.is-hidden
+      div.table-container
         table#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
@@ -90,6 +85,7 @@ block content
               th.has-text-right Difficulty
               th.has-text-left Extracted by
           tbody
+        a#homeBlocksGetMore Display 100 more (Disable auto refresh)
 
       <!-- Transactions -->
       div.table-container.is-hidden
@@ -105,6 +101,7 @@ block content
               th.has-text-right Fee
               th.has-text-right Size
           tbody
+        a#homeTransactionsGetMore Display 100 more (Disable auto refresh)
 
       <!-- Rich List -->
       div.table-container.is-hidden
@@ -118,14 +115,6 @@ block content
               th.has-text-right Inputs
               th.has-text-right Outputs
           tbody
-
-      <!-- Mempool -->
-      div.columns.is-hidden
-        div#homeMempoolTable.column.is-one-third
-            h4.subtitle Mempool
-            p Transactions
-            p Txs per second
-            p In fees
 
       <!-- Extraction -->
       div.table-container.is-hidden
@@ -152,7 +141,7 @@ block content
                 th.has-text-right USD Volume
                 th.has-text-right Bid/Ask Spread
             tbody
-        p.has-text-right.has-text-weight-semibold Datasource 
+        p.has-text-right.has-text-weight-semibold Datasource
           a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
 
       <!-- News -->

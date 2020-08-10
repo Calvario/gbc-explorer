@@ -32,16 +32,13 @@ class Block implements iController {
   }
 
   private getLatestBlocks = async (request: Request, response: Response) => {
-    await this.repository.find({
-      join: {
-        alias: "block",
-        innerJoinAndSelect: {
-            miner: "block.miner",
-        }
-      },
-      order: { "height": "DESC" },
-      take: 10
-    })
+    const qB = this.repository.createQueryBuilder("block")
+    .innerJoinAndSelect("block.miner", "miner")
+    .orderBy("block.height", "DESC")
+    if (request.query.afterId !== undefined) qB.where("block.id < " + request.query.afterId.toString());
+    request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+    await qB.getMany()
     .then(blocks => {
       return response.json(blocks);
     })

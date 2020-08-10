@@ -53,9 +53,7 @@
             "in":"path",
             "name":"hash",
             "description":"Address hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -88,18 +86,14 @@
             "in":"path",
             "name":"hash",
             "description":"Block hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"verbosity",
-            "description":"Verbosity level",
-            "schema":{
-              "type":"0,1,2"
-            },
+            "description":"Verbosity level (0,1,2)",
+            "type":"integer",
             "required":false
           }
         ],
@@ -174,9 +168,7 @@
             "in":"path",
             "name":"height",
             "description":"Block height",
-            "schema":{
-              "type":"number"
-            },
+            "type":"integer",
             "required":true
           }
         ],
@@ -209,18 +201,14 @@
             "in":"path",
             "name":"block",
             "description":"Block hash or height",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"stat",
             "description":"Stat",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":false
           }
         ],
@@ -274,18 +262,14 @@
             "in":"query",
             "name":"nBlocks",
             "description":"Size of the window in number of blocks (default: one month).",
-            "schema":{
-              "type":"number"
-            },
+            "type":"integer",
             "required":false
           },
           {
             "in":"query",
             "name":"blockHash",
             "description":"The hash of the block that ends the window.",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":false
           }
         ],
@@ -360,18 +344,14 @@
             "in":"path",
             "name":"txid",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"verbose",
             "description":"Verbose",
-            "schema":{
-              "type":"boolean"
-            },
+            "type":"boolean",
             "required":false
           }
         ],
@@ -404,18 +384,14 @@
             "in":"path",
             "name":"txid",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"verbose",
             "description":"Verbose",
-            "schema":{
-              "type":"boolean"
-            },
+            "type":"boolean",
             "required":false
           }
         ],
@@ -448,9 +424,7 @@
             "in":"path",
             "name":"txid",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -525,9 +499,7 @@
             "in":"query",
             "name":"verbose",
             "description":"verbose",
-            "schema":{
-              "type":"boolean"
-            },
+            "type":"boolean",
             "required":false
           }
         ],
@@ -557,18 +529,14 @@
             "in":"path",
             "name":"txid",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"verbose",
             "description":"Verbose",
-            "schema":{
-              "type":"boolean"
-            },
+            "type":"boolean",
             "required":false
           }
         ],
@@ -601,18 +569,14 @@
             "in":"query",
             "name":"txid",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           },
           {
             "in":"query",
             "name":"blockHash",
             "description":"Block hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":false
           }
         ],
@@ -666,9 +630,7 @@
             "in":"query",
             "name":"search",
             "description":"Search pattern",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -695,6 +657,22 @@
         "operationId":"block",
         "produces":[
           "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"query",
+            "name":"afterId",
+            "description":"After ID",
+            "type":"integer",
+            "required":false
+          },
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
+          }
         ],
         "responses":{
           "200":{
@@ -725,9 +703,7 @@
             "in":"path",
             "name":"hash",
             "description":"Block hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -760,9 +736,7 @@
             "in":"path",
             "name":"hash",
             "description":"Block hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -789,6 +763,15 @@
         "operationId":"extraction",
         "produces":[
           "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
+          }
         ],
         "responses":{
           "200":{
@@ -819,10 +802,22 @@
             "in":"path",
             "name":"addressHash",
             "description":"Address hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
+          },
+          {
+            "in":"query",
+            "name":"afterId",
+            "description":"After ID",
+            "type":"integer",
+            "required":false
+          },
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
           }
         ],
         "responses":{
@@ -848,6 +843,22 @@
         "operationId":"transaction",
         "produces":[
           "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"query",
+            "name":"afterId",
+            "description":"After ID",
+            "type":"integer",
+            "required":false
+          },
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
+          }
         ],
         "responses":{
           "200":{
@@ -878,9 +889,7 @@
             "in":"path",
             "name":"hash",
             "description":"Transaction hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -907,6 +916,15 @@
         "operationId":"address",
         "produces":[
           "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
+          }
         ],
         "responses":{
           "200":{
@@ -937,9 +955,7 @@
             "in":"path",
             "name":"hash",
             "description":"Address hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
           }
         ],
@@ -972,10 +988,22 @@
             "in":"path",
             "name":"hash",
             "description":"Address hash",
-            "schema":{
-              "type":"string"
-            },
+            "type":"string",
             "required":true
+          },
+          {
+            "in":"query",
+            "name":"afterId",
+            "description":"After ID",
+            "type":"integer",
+            "required":false
+          },
+          {
+            "in":"query",
+            "name":"limit",
+            "description":"Number of results (max 100)",
+            "type":"integer",
+            "required":false
           }
         ],
         "responses":{

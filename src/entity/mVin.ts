@@ -4,19 +4,19 @@ import Vout from './mVout';
 
 @Entity()
 class Vin {
-	@PrimaryGeneratedColumn()
-	id?: number;
+  @PrimaryGeneratedColumn()
+  id?: number;
 
-	@OneToOne(() => Vout, (vout: Vout) => vout.vin)
-	@JoinColumn()
-	vout?: Vout;
+  @OneToOne(() => Vout, (vout: Vout) => vout.vin)
+  @JoinColumn()
+  vout?: Vout;
 
-	@Column()
-	coinbase!: boolean;
+  @Column()
+  coinbase!: boolean;
 
-	@Index()
-	@ManyToOne(() => Transaction, (transaction: Transaction) => transaction.vins)
-  	transaction!: Transaction;
+  @Index()
+  @ManyToOne(() => Transaction, (transaction: Transaction) => transaction.vins)
+  transaction!: Transaction;
 }
 
 export default Vin;

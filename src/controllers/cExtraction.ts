@@ -34,17 +34,20 @@ class Block implements iController {
       order: { "height": "DESC" }
     })
     .then(async lastBlock => {
-      await this.repository.createQueryBuilder("block")
+      const qB = this.repository.createQueryBuilder("block")
       .select("COUNT(miner.address)", "count")
+      .addSelect("miner.id", "id")
       .addSelect("miner.address", "address")
       .addSelect("miner.label", "label")
       .innerJoin("block.miner", "miner")
       .where("height >= :height", { height: lastBlock.height - 100 })
       .groupBy("miner.address")
       .addGroupBy("miner.label")
+      .addGroupBy("miner.id")
       .orderBy("count", "DESC")
-      .limit(10)
-      .getRawMany()
+      request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+      await qB.getRawMany()
       .then(blocks => {
         return response.json(blocks);
       })
@@ -61,12 +64,14 @@ class Block implements iController {
 
   private getExtractionForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.addressHash;
-    await this.repository.createQueryBuilder("block")
+    const qB = this.repository.createQueryBuilder("block")
     .innerJoin("block.miner", "miner")
     .where("miner.address = :address", { address: addressHash })
     .orderBy("block.height", "DESC")
-    .limit(10)
-    .getMany()
+    if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
+    request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+
+    await qB.getMany()
     .then(blocks => {
       return response.json(blocks);
     })
