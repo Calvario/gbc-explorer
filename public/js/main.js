@@ -489,7 +489,7 @@ $(document).ready(function() {
 				$("#transactionVoutsTable tbody tr").remove();
 				$.each(data.vouts, function(i, item) {
 					$('<tr>').append(
-						$('<td class="has-text-right">').text(i),
+						$('<td class="has-text-right">').text(item.n),
 						$('<td class="has-text-left-desktop">').append(
 							function() {
 								if (item.vin !== null && item.vin !== undefined) {

@@ -64,6 +64,7 @@ class Block implements iController {
     await this.repository.createQueryBuilder("block")
     .innerJoin("block.miner", "miner")
     .where("miner.address = :address", { address: addressHash })
+    .orderBy("block.height", "DESC")
     .limit(10)
     .getMany()
     .then(blocks => {

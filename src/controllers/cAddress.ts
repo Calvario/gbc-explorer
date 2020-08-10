@@ -68,6 +68,7 @@ class Address implements iController {
     .innerJoinAndSelect("vout.addresses", "address")
     .where("vinaddress.address = :address", { address: addressHash })
     .orWhere("address.address = :address", { address: addressHash })
+    .orderBy("block.height", "DESC")
     .take(10)
     .getMany()
     .then(transactions => {

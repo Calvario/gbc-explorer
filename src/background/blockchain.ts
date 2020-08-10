@@ -87,7 +87,6 @@ class Blockchain {
 export default Blockchain;
 
 async function loop(rpc: RPCClient, start: number, end: number) {
-	/* tslint:disable:no-string-literal */
 	let counter: number = start;
 	while (counter <= end){
 		debug.log('-- START Heigh: ' + counter);
@@ -115,7 +114,7 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 				let blockMiner: mAddress | undefined;
 
 				// 2. Loop on each transaction
-				for(const transactionInfo of blockInfo['tx']) {
+				for(const transactionInfo of blockInfo.tx) {
 					// 3. Create Transaction
 					await createTransaction(transactionalEntityManager, blockObj, transactionInfo)
 					.then( async (transactionObj: mTransaction) => {
@@ -127,7 +126,7 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 						let tFee: BigNumber;
 
 						// 4. Loop for each VINs
-						for(const vinInfo of transactionInfo['vin']) {
+						for(const vinInfo of transactionInfo.vin) {
 							// 5. Check the VOUT transaction associated with the VIN
 							await checkVinTransaction(transactionalEntityManager, vinInfo)
 							.then (async (vinVout: mVout) => {
@@ -143,8 +142,8 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 						blockInputT = blockInputT.plus(tInputT);
 
 						// 7. Loop for each VOUTs
-						for (const voutInfo of transactionInfo['vout']) {
-							// 8. Loop for each addresses and search them (or create them if neededed) returning an array with ID's
+						for (const voutInfo of transactionInfo.vout) {
+							// 8. Loop for each addresses and search them (or create them if needed) returning an array with ID's
 							await checkVoutAddresses(transactionalEntityManager, voutInfo)
 							.then(async addressesArrayObj => {
 								// 9. Create VOUT
@@ -152,8 +151,8 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 
 								// Update transation variables for output
 								tOutputC = tOutputC.plus(1);
-								tOutputT = tOutputT.plus(new BigNumber(voutInfo['value']));
-								if(transactionInfo['vin'][0]['coinbase'] !== undefined) blockMiner = addressesArrayObj[0];
+								tOutputT = tOutputT.plus(new BigNumber(voutInfo.value));
+								if(transactionInfo.vin[0].coinbase !== undefined && voutInfo.n === 0) blockMiner = addressesArrayObj[0];
 							})
 							.catch(error => {
 								debug.log(error)
@@ -163,9 +162,9 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 						// Update block variable
 						blockOutputC = blockOutputC.plus(tOutputC);
 						blockOutputT = blockOutputT.plus(tOutputT);
-						tFee = (transactionInfo['vin'][0]['coinbase'] !== undefined ? new BigNumber(0) : tInputT.minus(tOutputT))
+						tFee = (transactionInfo.vin[0].coinbase !== undefined ? new BigNumber(0) : tInputT.minus(tOutputT))
 						blockFeesT = blockFeesT.plus(tFee);
-						blockGeneration = (transactionInfo['vin'][0]['coinbase'] !== undefined ? blockGeneration.plus(tOutputT) : blockGeneration.minus(tFee));
+						blockGeneration = (transactionInfo.vin[0].coinbase !== undefined ? blockGeneration.plus(tOutputT) : blockGeneration.minus(tFee));
 
 						// 10. Update transaction
 						await updateTransaction(transactionalEntityManager, transactionObj, tInputC.toNumber(), tInputT, tOutputC.toNumber(), tOutputT, tFee)
@@ -194,30 +193,27 @@ async function loop(rpc: RPCClient, start: number, end: number) {
 		// Jump to the next block
 		counter++
 	}
-	/* tslint:enable:no-string-literal */
 }
 
 async function createBlock(transaction: EntityManager, blockInfo: any): Promise<any> {
 	const blockData: mBlock = {
-		/* tslint:disable:no-string-literal */
-		hash: blockInfo['hash'],
-		onMainChain: (blockInfo['confirmation'] === -1 ? false : true),
-		strippedsize: blockInfo['strippedsize'],
-		size: blockInfo['size'],
-		mint: blockInfo['mint'],
-		weight: blockInfo['weight'],
-		height: blockInfo['height'],
-		version: blockInfo['version'],
-		merkleroot: blockInfo['merkleroot'],
-		time: blockInfo['time'],
-		nonce: blockInfo['nonce'],
-		bits: blockInfo['bits'],
-		difficulty: blockInfo['difficulty'],
-		chainwork: blockInfo['chainwork'],
-		nTx: blockInfo['nTx'],
-		previousblockhash: blockInfo['previousblockhash'],
-		nextblockhash: blockInfo['nextblockhash'],
-		/* tslint:enable:no-string-literal */
+		hash: blockInfo.hash,
+		onMainChain: (blockInfo.confirmation === -1 ? false : true),
+		strippedsize: blockInfo.strippedsize,
+		size: blockInfo.size,
+		mint: blockInfo.mint,
+		weight: blockInfo.weight,
+		height: blockInfo.height,
+		version: blockInfo.version,
+		merkleroot: blockInfo.merkleroot,
+		time: blockInfo.time,
+		nonce: blockInfo.nonce,
+		bits: blockInfo.bits,
+		difficulty: blockInfo.difficulty,
+		chainwork: blockInfo.chainwork,
+		nTx: blockInfo.nTx,
+		previousblockhash: blockInfo.previousblockhash,
+		nextblockhash: blockInfo.nextblockhash,
 	};
 
 	const newBlock = transaction.create(mBlock, blockData);
@@ -259,16 +255,14 @@ async function updatePreviousBlock(transaction: EntityManager, blockObj: mBlock)
 
 async function createTransaction (transaction: EntityManager, blockObj: mBlock, transactionInfo: any): Promise<any> {
 	const transactionData: mTransaction = {
-		/* tslint:disable:no-string-literal */
-		txid: transactionInfo['txid'],
-		hash: transactionInfo['hash'],
-		version: transactionInfo['version'],
-		time: transactionInfo['time'],
-		size: transactionInfo['size'],
-		vsize: transactionInfo['vsize'],
-		locktime: transactionInfo['locktime'],
+		txid: transactionInfo.txid,
+		hash: transactionInfo.hash,
+		version: transactionInfo.version,
+		time: transactionInfo.time,
+		size: transactionInfo.size,
+		vsize: transactionInfo.vsize,
+		locktime: transactionInfo.locktime,
 		block: blockObj,
-		/* tslint:enable:no-string-literal */
 	};
 
 	const newTransaction = transaction.create(mTransaction, transactionData);
@@ -294,11 +288,9 @@ async function updateTransaction (transaction: EntityManager, transactionObj: mT
 
 async function createVin (transaction: EntityManager, transactionObj: mTransaction, vinVoutObj: mVout | undefined, vinInfo: any): Promise<any> {
 	const vinData: mVin = {
-		/* tslint:disable:no-string-literal */
 		transaction: transactionObj,
-		coinbase: (!vinInfo['coinbase'] ? false : true),
+		coinbase: (!vinInfo.coinbase ? false : true),
 		vout: vinVoutObj,
-		/* tslint:enable:no-string-literal */
 	};
 
 	const newVin = transaction.create(mVin, vinData);
@@ -309,12 +301,11 @@ async function createVin (transaction: EntityManager, transactionObj: mTransacti
 }
 
 async function checkVinTransaction (transaction: EntityManager, vinInfo: any): Promise<any> {
-	/* tslint:disable:no-string-literal */
-	if (vinInfo['txid'] !== undefined && vinInfo['vout'] !== undefined) {
-		return await transaction.findOneOrFail(mTransaction, { txid: vinInfo['txid'] })
+	if (vinInfo.txid !== undefined && vinInfo.vout !== undefined) {
+		return await transaction.findOneOrFail(mTransaction, { txid: vinInfo.txid })
 		.then(async transactionObj => {
 			return await transaction.findOneOrFail(mVout, {
-				where: {transaction: transactionObj.id, n: vinInfo['vout'] },
+				where: {transaction: transactionObj.id, n: vinInfo.vout },
 				relations: ["addresses"]
 			});
 		}).then(async vout => {
@@ -327,18 +318,15 @@ async function checkVinTransaction (transaction: EntityManager, vinInfo: any): P
 	} else {
 		return undefined;
 	}
-	/* tslint:enable:no-string-literal */
 }
 
 async function createVout (transaction: EntityManager, transactionObj: mTransaction, addressesArrayObj: [mAddress] ,voutInfo: any): Promise<any> {
 	const voutData: mVout = {
-		/* tslint:disable:no-string-literal */
-		value!: voutInfo['value'],
-		n: voutInfo['n'],
-		type: voutInfo['scriptPubKey']['type'],
+		value!: voutInfo.value,
+		n: voutInfo.n,
+		type: voutInfo.scriptPubKey.type,
 		addresses: addressesArrayObj,
 		transaction: transactionObj,
-		/* tslint:enable:no-string-literal */
 	};
 
 	const newVout = transaction.create(mVout, voutData);
@@ -349,18 +337,16 @@ async function createVout (transaction: EntityManager, transactionObj: mTransact
 }
 
 async function checkVoutAddresses (transaction: EntityManager, voutInfo: any): Promise<any> {
-	/* tslint:disable:no-string-literal */
-	const promiseAddressesArrayObj: mAddress[] = voutInfo['scriptPubKey']['addresses'].map(async (addressHash: string) => {
+	const promiseAddressesArrayObj: mAddress[] = voutInfo.scriptPubKey.addresses.map(async (addressHash: string) => {
 		const address = await transaction.findOne(mAddress, ({ address: addressHash }))
 		if (address !== undefined) {
-			await updateAddress(transaction, address, 1, new BigNumber(voutInfo['value']), 0, new BigNumber(0))
+			await updateAddress(transaction, address, 1, new BigNumber(voutInfo.value), 0, new BigNumber(0))
 			return address;
 		} else {
-			return await createAddress(transaction, addressHash, new BigNumber(voutInfo['value']));
+			return await createAddress(transaction, addressHash, new BigNumber(voutInfo.value));
 		}
 	}, {concurrency: 1});
 	return await Promise.all(promiseAddressesArrayObj);
-	/* tslint:enable:no-string-literal */
 }
 
 async function createAddress (transaction: EntityManager, addressHash: string, inputBalance: BigNumber): Promise<any> {

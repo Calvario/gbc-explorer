@@ -61,7 +61,8 @@ class Transaction implements iController {
     .leftJoinAndSelect("vout.vin", "voutvin")
     .leftJoinAndSelect("voutvin.transaction", "voutvintransaction")
     .where("transaction.hash = :hash", { hash: hashParam })
-    .orderBy("block", "DESC" )
+    .orderBy("vin.id", "ASC")
+    .addOrderBy("vout.n", "ASC")
     .getOne()
     .then( transaction => {
       return response.json(transaction);

@@ -83,6 +83,9 @@ class Block implements iController {
     .innerJoinAndSelect("transaction.vouts", "vout")
     .innerJoinAndSelect("vout.addresses", "address")
     .where("block.hash = :hash", { hash: blockHash })
+    .orderBy("transaction.id", "ASC")
+    .addOrderBy("vin.id", "ASC")
+    .addOrderBy("vout.n", "ASC")
     .getMany()
     .then(transactions => {
       return response.json(transactions);
