@@ -40,7 +40,7 @@ class Home implements iController {
 
   private getSearch = async (request: Request, response: Response) => {
     if(request.query.search === undefined) {
-      return response.status(405);
+      return response.sendStatus(405)
     }
 
     const searchPattern = request.query.search.toString();

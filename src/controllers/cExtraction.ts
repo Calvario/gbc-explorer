@@ -53,12 +53,12 @@ class Block implements iController {
       })
       .catch((error) => {
         debug.log(error);
-        return response.status(500).send();
+        return response.sendStatus(500)
       });
     })
     .catch(error => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     })
   }
 
@@ -77,7 +77,7 @@ class Block implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(404).send('Address not found');
+      return response.sendStatus(404)
     });
   }
 }

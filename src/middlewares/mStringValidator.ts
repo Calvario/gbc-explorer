@@ -8,14 +8,14 @@ function stringValidator<T>(): RequestHandler {
     for(const param in request.params) {
       if (request.params.hasOwnProperty(param))
         if(!strRegex.test(request.params[param]!.toString()))
-          return response.status(405).send("Invalid parameter");
+          return response.sendStatus(405)
     }
 
     if (request.query.constructor !== Object) {
       for(const query in request.query) {
         if (!request.query.hasOwnProperty(query))
           if(!strRegex.test(request.query[query]!.toString()))
-            return response.status(405).send("Invalid parameter");
+            return response.sendStatus(405)
       }
     }
 

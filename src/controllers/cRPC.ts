@@ -68,7 +68,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -84,7 +84,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500);
     });
   }
 
@@ -95,7 +95,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -106,7 +106,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -120,7 +120,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -136,7 +136,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -147,7 +147,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -163,7 +163,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -174,7 +174,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -185,7 +185,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -201,7 +201,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -217,7 +217,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -231,7 +231,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -242,7 +242,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -253,7 +253,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -267,7 +267,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -283,13 +283,13 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
   private gettxoutproof = async (request: Request, response: Response) => {
     if (request.query.txid === undefined) {
-      return response.status(405);
+      return response.sendStatus(405)
     }
     const qTxID: string = request.query.txid.toString(); // TODO: Allow array of strings
     const qBlockHash: string | undefined = request.query.blockHash === undefined ? undefined : request.query.blockHash.toString()
@@ -302,7 +302,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 
@@ -313,7 +313,7 @@ class RPC implements iController {
     })
     .catch(error => {
       debug.log(error)
-      return response.status(500);
+      return response.sendStatus(500)
     });
   }
 }

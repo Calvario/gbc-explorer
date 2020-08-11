@@ -41,7 +41,7 @@ class Transaction implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     });
   }
 
@@ -66,7 +66,7 @@ class Transaction implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(404).send('Transaction not found');
+      return response.sendStatus(404)
     });
   }
 }

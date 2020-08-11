@@ -44,7 +44,7 @@ class Address implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     });
   }
 
@@ -56,7 +56,7 @@ class Address implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(404).send('Address not found');
+      return response.sendStatus(404)
     });
   }
 
@@ -92,7 +92,7 @@ class Address implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(404).send('Transactions not found');
+      return response.sendStatus(404)
     });
   }
 }

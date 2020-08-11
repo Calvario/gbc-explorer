@@ -44,7 +44,7 @@ class Block implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     });
   }
 
@@ -66,7 +66,7 @@ class Block implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     });
   }
 
@@ -89,7 +89,7 @@ class Block implements iController {
     })
     .catch((error) => {
       debug.log(error);
-      return response.status(500).send();
+      return response.sendStatus(500)
     });
   }
 }
