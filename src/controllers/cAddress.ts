@@ -2,8 +2,11 @@ import { Router, Request, Response } from 'express';
 import { getRepository, createQueryBuilder } from "typeorm";
 import iController from '../interfaces/iController';
 import stringValidator from '../middlewares/mStringValidator';
-import mAddress from '../entity/mAddress';
 import mTransaction from '../entity/mTransaction';
+import mVout from '../entity/mVout';
+import mVin from '../entity/mVin';
+import mAddress from '../entity/mAddress';
+
 import debug from 'debug';
 
 class Address implements iController {
@@ -60,15 +63,26 @@ class Address implements iController {
   private getTransactionsForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.hash;
     const qB = createQueryBuilder(mTransaction, "transaction")
-    .innerJoinAndSelect("transaction.block", "block")
-    .innerJoinAndSelect("transaction.vins", "vin")
+    qB.innerJoinAndSelect("transaction.block", "block")
+    .leftJoinAndSelect("transaction.vins", "vin", "vin.transaction = transaction.id AND vin.id IN " + qB.subQuery()
+      .select("vin.id")
+      .from(mVin, "vin")
+      .innerJoin("vin.vout", "vout")
+      .innerJoin("vout.addresses", "address")
+      .where("address.address = :address", { address: addressHash })
+      .getQuery()
+    )
     .leftJoinAndSelect("vin.vout", "vinvout")
-    .leftJoinAndSelect("vinvout.addresses", "vinaddress")
-    .innerJoinAndSelect("transaction.vouts", "vout")
-    .innerJoinAndSelect("vout.addresses", "address")
-    .where("vinaddress.address = :address", { address: addressHash })
-    .orWhere("address.address = :address", { address: addressHash })
+    .leftJoinAndSelect("transaction.vouts", "vout", "vout.transaction = transaction.id AND vout.id IN " + qB.subQuery()
+      .select("vout.id")
+      .from(mVout, "vout")
+      .innerJoin("vout.addresses", "address")
+      .where("address.address = :address", { address: addressHash })
+      .getQuery()
+    )
+    .where("(vin.id IS NOT NULL OR vout.id IS NOT NULL)")
     .orderBy("transaction.id", "DESC")
+    .addOrderBy("vin.id", "ASC")
     if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 

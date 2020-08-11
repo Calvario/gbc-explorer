@@ -13,15 +13,15 @@ class Home implements iController {
   public apiPath = '/rest/api/1/general';
   public router = Router();
   private blockRepository = getRepository(mBlock);
-	private transactionRepository = getRepository(mTransaction);
-	private addressRepository = getRepository(mAddress);
+  private transactionRepository = getRepository(mTransaction);
+  private addressRepository = getRepository(mAddress);
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-	  // Frontend
+    // Frontend
     this.router.get(`${this.path}`, this.getHomePage);
     this.router.use(`${this.path}/api`, swaggerUi.serve);
     this.router.get(`${this.path}/api`, swaggerUi.setup(require('../../swagger.json')));
@@ -31,11 +31,11 @@ class Home implements iController {
   }
 
   private getHomePage = async (request: Request, response: Response) => {
-	  response.render('home');
+    return response.render('home');
   }
 
   private getFAQPage = async (request: Request, response: Response) => {
-	  response.render('faq');
+    return response.render('faq');
   }
 
   private getSearch = async (request: Request, response: Response) => {

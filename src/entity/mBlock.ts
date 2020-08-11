@@ -4,86 +4,86 @@ import Transaction from './mTransaction';
 
 @Entity()
 class Block {
-	@PrimaryGeneratedColumn()
-	id?: number;
+  @PrimaryGeneratedColumn()
+  id?: number;
 
-	@Column({ unique: true })
-	hash!: string;
+  @Column({ unique: true })
+  hash!: string;
 
-	@Column()
-	onMainChain!: boolean;
+  @Column()
+  onMainChain!: boolean;
 
-	@Index()
-	@ManyToOne(() => Address, (address: Address) => address.address)
-	miner?: Address;
+  @Index()
+  @ManyToOne(() => Address, (address: Address) => address.address)
+  miner?: Address;
 
-	@Column({ type: 'int' })
-	strippedsize!: number;
+  @Column({ type: 'int' })
+  strippedsize!: number;
 
-	@Column({ type: 'int' })
-	size!: number;
+  @Column({ type: 'int' })
+  size!: number;
 
-	@Column({ type: 'decimal' })
-	mint!: number;
+  @Column({ type: 'decimal' })
+  mint!: number;
 
-	@Column({ type: 'int' })
-	weight!: number;
+  @Column({ type: 'int' })
+  weight!: number;
 
-	@Index()
-	@Column({ type: 'int' })
-	height!: number;
+  @Index()
+  @Column({ type: 'int' })
+  height!: number;
 
-	@Column({ type: 'int' })
-	version!: number;
+  @Column({ type: 'int' })
+  version!: number;
 
-	@Column()
-	merkleroot!: string;
+  @Column()
+  merkleroot!: string;
 
-	@OneToMany(() => Transaction, (transaction: Transaction) => transaction.block)
-	transactions?: Transaction[];
+  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.block)
+  transactions?: Transaction[];
 
-	@Index()
-	@Column({ type: 'int' })
-	time!: number;
+  @Index()
+  @Column({ type: 'int' })
+  time!: number;
 
-	@Column()
-	nonce!: string;
+  @Column()
+  nonce!: string;
 
-	@Column()
-	bits!: string;
+  @Column()
+  bits!: string;
 
-	@Column({ type: 'decimal' })
-	difficulty!: number;
+  @Column({ type: 'decimal' })
+  difficulty!: number;
 
-	@Column()
-	chainwork!: string;
+  @Column()
+  chainwork!: string;
 
-	@Column({ type: 'int' })
-	nTx!: number;
+  @Column({ type: 'int' })
+  nTx!: number;
 
-	@Column({ nullable: true, type: 'int' })
-	inputC?: number;
+  @Column({ nullable: true, type: 'int' })
+  inputC?: number;
 
-	@Column({ nullable: true, type: 'decimal' })
-	inputT?: number;
+  @Column({ nullable: true, type: 'decimal' })
+  inputT?: number;
 
-	@Column({ nullable: true, type: 'int' })
-	outputC?: number;
+  @Column({ nullable: true, type: 'int' })
+  outputC?: number;
 
-	@Column({ nullable: true, type: 'decimal' })
-	outputT?: number;
+  @Column({ nullable: true, type: 'decimal' })
+  outputT?: number;
 
-	@Column({ nullable: true, type: 'decimal' })
-	feesT?: number;
+  @Column({ nullable: true, type: 'decimal' })
+  feesT?: number;
 
-	@Column({ nullable: true, type: 'decimal' })
-	generation?: number;
+  @Column({ nullable: true, type: 'decimal' })
+  generation?: number;
 
-	@Column()
-	previousblockhash!: string;
+  @Column()
+  previousblockhash!: string;
 
-	@Column({ nullable: true })
-	nextblockhash!: string;
+  @Column({ nullable: true })
+  nextblockhash!: string;
 }
 
 export default Block;

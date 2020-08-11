@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 
 function stringValidator<T>(): RequestHandler {
-	return (request, response, next) => {
+  return (request, response, next) => {
 
     const strRegex = RegExp('^[0-9a-zA-Z]*$');
 
@@ -11,7 +11,7 @@ function stringValidator<T>(): RequestHandler {
           return response.status(405).send("Invalid parameter");
     }
 
-		if (request.query.constructor !== Object) {
+    if (request.query.constructor !== Object) {
       for(const query in request.query) {
         if (!request.query.hasOwnProperty(query))
           if(!strRegex.test(request.query[query]!.toString()))
@@ -20,7 +20,7 @@ function stringValidator<T>(): RequestHandler {
     }
 
     return next();
-	};
+  };
 }
 
 export default stringValidator;

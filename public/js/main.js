@@ -171,7 +171,7 @@ function homeBlocks(afterId) {
       // Clean tables
       $("#homeBlocksTable tbody tr").remove();
     }
-    getAfterId = data[data.length - 1].id
+    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
     // Check for notification
     if(data[0] !== undefined) newBlockCheck(data[0].height);
     $.each(data, function(i, item) {
@@ -208,7 +208,7 @@ function homeTransactions(afterId) {
       // Clean table
       $("#homeTransactionsTable tbody tr").remove();
     }
-    getAfterId = data[data.length - 1].id
+    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
     $.each(data, function(i, item) {
       $('<tr>').append(
         $('<td class="has-text-right">').append(
@@ -310,15 +310,15 @@ function addressTransactions(afterId) {
       // Clean table
       $("#addressTransactionsTable tbody tr").remove();
     }
-    getAfterId = data[data.length - 1].id
+    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
     $.each(data, function(i, item) {
       // Received
-      if (item.vouts[0].addresses[0].address === getUrlParameter()) {
+      $.each(item.vouts, function(i, vout) {
         $('<tr>').append(
           $('<td class="has-text-left-desktop">').append(
             $('<span class="text-overflow-dynamic-container">').append(
               $('<span class="text-overflow-dynamic-ellipsis">').append(
-                $('<span>').text(item.vouts[0].n + ': ').append(
+                $('<span>').text(vout.n + ': ').append(
                   $('<a href="/transaction/' + item.hash + '">').text(item.hash)
                 )
               )
@@ -328,16 +328,17 @@ function addressTransactions(afterId) {
             $('<a href="/block/' + item.block.hash + '">').text(item.block.height)
           ),
           $('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
-          $('<td class="has-text-right">').text(formatNumber(item.vouts[0].value)),
+          $('<td class="has-text-right">').text(formatNumber(vout.value)),
         ).appendTo('#addressTransactionsTable');
+      });
 
       // Sent
-      } else if (item.vins[0].vout.addresses[0].address === getUrlParameter()) {
+      $.each(item.vins, function(i, vin) {
         $('<tr>').append(
           $('<td class="has-text-left-desktop">').append(
             $('<span class="text-overflow-dynamic-container">').append(
               $('<span class="text-overflow-dynamic-ellipsis">').append(
-                $('<span>').text(item.vins[0].vout.n + ': ').append(
+                $('<span>').text(i + ': ').append(
                   $('<a href="/transaction/' + item.hash + '">').text(item.hash)
                 )
               )
@@ -347,13 +348,9 @@ function addressTransactions(afterId) {
             $('<a href="/block/' + item.block.hash + '">').text(item.block.height)
           ),
           $('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
-          $('<td class="has-text-right">').text(formatNumber(-item.vins[0].vout.value)),
+          $('<td class="has-text-right">').text(formatNumber(-vin.vout.value)),
         ).appendTo('#addressTransactionsTable');
-
-      // Should not happen
-      } else {
-        console.log("Please report this bug => Error with : " + JSON.stringify(item))
-      }
+      });
     });
     formatTableDataLabel('#addressTransactionsTable');
   });
@@ -367,7 +364,7 @@ function extractionBlocks(afterId) {
       // Clean table
       $("#extractionTable tbody tr").remove();
     }
-    getAfterId = data[data.length - 1].id
+    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
     $.each(data, function(i, item) {
       $('<tr>').append(
         $('<td class="has-text-right">').append(
