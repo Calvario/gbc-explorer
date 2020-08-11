@@ -3,7 +3,6 @@ import express from 'express';
 import path from 'path';
 import logger from 'morgan';
 import iController from './interfaces/iController';
-import Blockchain from './background/blockchain';
 import debug from 'debug';
 import 'reflect-metadata';
 
@@ -15,7 +14,6 @@ class App {
 
     this.initializeMiddlewares();
     this.initializeControllers(controllers);
-    this.initializeCronJobs();
   }
 
   public listen() {
@@ -36,33 +34,6 @@ class App {
     controllers.forEach((controller) => {
       this.app.use('/', controller.router);
     });
-  }
-
-  private initializeCronJobs() {
-    let isRunning = false;
-    const CronJob = require('cron').CronJob;
-    const blockchain = new Blockchain();
-
-    // Sync blockchain
-    const jobSync = new CronJob('10 * * * * *', async () => {
-      if(!isRunning) {
-        isRunning = true;
-        await blockchain.sync()
-        isRunning = false;
-      }
-    });
-
-    // Sync labels
-    const jobLabels = new CronJob('45 * * * * *', async () => {
-      if(!isRunning) {
-        isRunning = true;
-        await blockchain.updateLabelForAddresses(path.join(__dirname, '../'));
-        isRunning = false;
-      }
-    });
-
-    jobSync.start();
-    jobLabels.start();
   }
 }
 
