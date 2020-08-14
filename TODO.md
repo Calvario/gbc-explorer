@@ -1,0 +1,65 @@
+
+# Features
+- Network
+	- Versions, connections, node list (RGPD?)
+- Stalled blocks
+	- Block, hash, time, status, (length ?)
+- Mempool
+	- Stats (size, bytes, usage) and transactions in queue with details
+- Daily info
+	- Last block
+	- Number of blocks
+	- Avg blocks per minutes,
+	- Number of transactions
+	- Total out
+	- Avg difficulty + variation
+	- Total generation
+- Tools
+	- Push transaction
+	- Decode raw transaction
+- Proof of Stack support
+- Language (with local format) support
+- Currency support
+- Dark theme
+
+# Improvements
+- Rich list
+	- Rank
+	- Percent of coins
+	- Last change
+- Address
+	- Transaction balance evolution
+	- QR Code
+- Block/Transaction/Address screen
+	- Copy hash button
+- Tables
+	- Column visibility selection
+	- Filters
+	- CSV export
+- Block/Transaction screen
+	- Confirmation
+- Extraction for address screen
+	- Count total blocks and how many % for all blocks
+
+# Charts
+- Circulation
+- Inflation
+- Rich list wealth distribution
+- Stalled blocks (Reason, time)
+- Average block size
+- Median block size
+- Transactions in block
+- Transaction counts
+- Total transaction count
+- Transaction volume (coin)
+- Transaction per second
+- Average transaction amount (coin)
+- Median transaction amount
+- Unspent transactions
+- Generation
+- Difficulty
+- Miner distribution
+- Blockchain size history
+- Network versions
+- Network Geo location
+- Hashrate (calculated)

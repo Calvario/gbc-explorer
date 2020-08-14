@@ -1,0 +1,54 @@
+{
+  "name": "@calvario/gbc-explorer-backend",
+  "version": "0.4.0",
+  "description": "Global Blockchain Explorer RPC",
+  "author": "Steve Calvário",
+  "license": "GPL-3.0",
+  "keywords": [
+    "blockchain",
+    "blockchain-explorer",
+    "explorer",
+    "rpc"
+  ],
+  "homepage": "https://github.com/Calvario/gbc-explorer#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Calvario/gbc-explorer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Calvario/gbc-explorer/issues"
+  },
+  "main": "dist/server",
+  "types": "dist/server",
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist tsconfig.build.tsbuildinfo",
+    "compile": "tsc -b tsconfig.build.json",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@calvario/gbc-explorer-shared": "^0.4.0",
+    "async": "^3.2.0",
+    "bignumber.js": "^9.0.0",
+    "cron": "^1.8.2",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "pg": "^8.3.0",
+    "reflect-metadata": "^0.1.13",
+    "rpc-bitcoin": "^2.0.0",
+    "typeorm": "^0.2.25"
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "@types/async": "^3.0.2",
+    "@types/cron": "^1.7.2",
+    "@types/debug": "^4.1.5",
+    "@types/jest": "^26.0.9",
+    "@types/node": "^14.0.27",
+    "jest": "^26.3.0",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^8.10.2",
+    "tslint": "^6.1.3",
+    "typescript": "^3.9.7"
+  }
+}

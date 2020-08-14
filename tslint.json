@@ -3,11 +3,7 @@
     "extends": [
         "tslint:recommended"
     ],
-    "linterOptions": {
-      "exclude": [
-          "src/public/js/*.ts"
-      ]
-    },
+    "linterOptions": {},
     "jsRules": {},
     "rules": {},
     "rulesDirectory": []

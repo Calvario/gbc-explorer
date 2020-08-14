@@ -30,7 +30,9 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
 ### Install node modules
 
-    cd gbc-explorer && npm install
+    cd gbc-explorer
+    npm run bootstrap
+    npm run build
 
 ### Configure
 
@@ -38,30 +40,16 @@ Copy the ".env.example" to ".env" and edit it according your environment.
 Change logo on public/images/logo.png
 Change favicon on public
 
-### Before first start
-
-    npm run build
-
-### Start Explorer
-
-    npm run start
-
 ### Start Explorer with PM2
 
     npm install -g pm2
-    pm2 start dist/server.js --name "GBC-Explorer"
-
-### Stop Explorer
-
-    npm stop
-
-### Start Explorer with PM2
-
-    pm2 stop 0
+    pm2 start packages/frontend/dist/cluster.js --name "GBC-Explorer Frontend"
+    pm2 start packages/api/dist/cluster.js --name "GBC-Explorer API"
+    pm2 start packages/backend/dist/server.js --name "GBC-Explorer Backend"
 
 ### Wallet
 
-The wallet deamon need to be running with RPC & txindex
+The wallet daemon need to be running with RPC & txindex
 
     coind --daemon
 
