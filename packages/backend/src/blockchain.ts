@@ -322,7 +322,7 @@ async function createVout (transaction: EntityManager, transactionObj: mTransact
     n: voutInfo.n,
     type: voutInfo.scriptPubKey.type,
     addresses: addressesArrayObj,
-    transaction: transactionObj,
+    transaction: transactionObj
   };
 
   const newVout = transaction.create(mVout, voutData);
