@@ -1,4 +1,5 @@
 .env
+docker.env
 labels.json
 package-lock.json
 lerna-debug.log
