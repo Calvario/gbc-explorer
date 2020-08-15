@@ -2,7 +2,7 @@ import cluster from 'cluster';
 import os from 'os';
 import dotenv from 'dotenv';
 import path from 'path';
-import { createConnection } from 'typeorm';
+import { createConnection, getConnectionOptions } from 'typeorm';
 import App from './instance';
 import cHome from './controllers/cHome';
 import cBlock from './controllers/cBlock';
@@ -12,9 +12,11 @@ import cAddress from './controllers/cAddress';
 import cRPC from './controllers/cRPC';
 import debug from 'debug';
 
+const toRoot = '../../../';
+
 if (cluster.isMaster) {
   // Load ENV variables
-  dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+  dotenv.config({ path: path.resolve(__dirname, toRoot + '.env') });
 
   // Cluster
   const numWorkers = os.cpus().length;
@@ -37,7 +39,12 @@ if (cluster.isMaster) {
 else {
   (async () => {
     // Database connection
-    await createConnection()
+    const connectionOptions = await getConnectionOptions();
+    Object.assign(connectionOptions, {
+      entities: [ path.resolve(__dirname, toRoot + connectionOptions.entities ).toString() ],
+      migrations: [ path.resolve(__dirname, toRoot + connectionOptions.migrations).toString() ],
+    });
+    await createConnection(connectionOptions)
     .catch(error => {
       debug.log('Error while connecting to the database', error);
       return error;

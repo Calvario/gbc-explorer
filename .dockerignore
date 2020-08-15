@@ -1,0 +1,8 @@
+.dockerignore
+labels.json
+lerna-debug.log
+node_modules
+
+/packages/*/node_modules
+/packages/*/dist
+/packages/*/tsconfig.build.tsbuildinfo

@@ -5,15 +5,28 @@ import Blockchain from './blockchain';
 import dotenv from 'dotenv';
 import debug from 'debug';
 
+const toRoot = '../../../';
+
 // Cronjobs
 (async () => {
   // Load ENV variables
-  dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
+  dotenv.config({ path: path.resolve(__dirname, toRoot + '.env') });
 
   // Database connection
   const connectionOptions = await getConnectionOptions();
-  if (process.env.NODE_ENV === 'development')
+  Object.assign(connectionOptions, {
+    entities: [ path.resolve(__dirname, toRoot + connectionOptions.entities ).toString() ],
+    migrations: [ path.resolve(__dirname, toRoot + connectionOptions.migrations).toString() ],
+  });
+
+  if (process.env.NODE_ENV === 'development') {
+    debug.log("Synchronize");
     Object.assign(connectionOptions, { synchronize: true });
+  }
+  else {
+    debug.log("Migrations");
+    Object.assign(connectionOptions, { migrationsRun: true });
+  }
 
   await createConnection(connectionOptions)
   .catch(error => {

@@ -1,0 +1,67 @@
+version: "3"
+services:
+  redis:
+    container_name: gbc-explorer-redis
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  postgres:
+    container_name: gbc-explorer-postgres
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file:
+      - docker.env
+
+  backend:
+    container_name: gbc-explorer-backend
+    build:
+      context: .
+      dockerfile: ./packages/backend/Dockerfile
+    depends_on:
+      - postgres
+    command: ["npm", "--prefix", "packages/backend", "start"]
+
+  api:
+    container_name: gbc-explorer-api
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    depends_on:
+      - backend
+    command: ["npm", "--prefix", "packages/api", "start"]
+    ports:
+      - "3001:3001"
+
+  frontend:
+    container_name: gbc-explorer-frontend
+    build:
+      context: .
+      dockerfile: ./packages/frontend/Dockerfile
+    depends_on:
+      - api
+    command: ["npm", "--prefix", "packages/frontend", "start"]
+    ports:
+      - "3000:3000"
+
+  nginx:
+    container_name: gbc-explorer-nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
+    ports:
+      - 80:80
+    depends_on:
+      - api
+      - frontend
+
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
