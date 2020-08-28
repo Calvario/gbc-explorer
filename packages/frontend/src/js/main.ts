@@ -646,4 +646,17 @@ $(document).ready(() => {
     $("#extractionAddress").text(getUrlParameter());
     $("#extractionAddress").attr("href", '/address/' + getUrlParameter());
   }
+
+  // Page specific : FAQ
+  if ($(location).attr('pathname')!.indexOf('/faq') === 0) {
+    // Toggle div when from an anchor
+    const hash = window.location.hash;
+    if (hash !== "") {
+      $(hash).toggle();
+    }
+
+    $("#financial-disclaimer").click(() => {
+      $("#financial-disclaimer-content").toggle();
+    });
+  }
 });
