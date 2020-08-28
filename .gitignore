@@ -1,9 +1,9 @@
-.env
-docker.env
-labels.json
-package-lock.json
-lerna-debug.log
-node_modules
+/.env
+/docker.env
+/labels.json
+/package-lock.json
+/lerna-debug.log
+/node_modules
 
 /packages/*/package-lock.json
 /packages/*/node_modules

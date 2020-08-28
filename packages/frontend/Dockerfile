@@ -1,27 +1,30 @@
 # Base on offical Node.js Alpine image
 FROM node:alpine
 
-# Create app directory
+# Define app directory
 ENV APP_PATH /gbc-explorer
 WORKDIR $APP_PATH
 
-# Copy required files
-COPY ./package*.json ./
-COPY ./tsconfig*.json ./
-COPY ./tslint.json ./
-COPY ./lerna.json ./
-COPY ./.env ./
+# Copy main required files
+COPY ./package*.json ./tsconfig*.json ./tslint.json ./lerna.json ./.env ./
+# Copy dependecy
+COPY ./packages/shared/package*.json ./packages/shared/tsconfig*.json  ./packages/shared/
+COPY ./packages/shared/src  ./packages/shared/src
+# Copy package required files
+COPY ./packages/frontend/package*.json ./packages/frontend/tsconfig*.json ./packages/frontend/
 
-# install lerna local
+# Install required packages
 RUN npm install
-
-# Bundle app source
-COPY ./packages/shared ./packages/shared
-COPY ./packages/frontend ./packages/frontend
-
-# "lerna boostrap" will install all packages
 RUN npm run bootstrap
+
+# Build source
+COPY ./packages/frontend/src ./packages/frontend/src
 RUN npm run build
+
+# Copy static files
+COPY ./packages/frontend/public ./packages/frontend/public
+COPY ./packages/frontend/views ./packages/frontend/views
+COPY ./packages/frontend/swagger.json ./packages/frontend
 
 EXPOSE 3000
 CMD [ "npm", "--prefix", "packages/frontend", "run", "start" ]

@@ -30,6 +30,7 @@ class App {
     this.app.use('/assets/vendor/js/jquery', express.static(path.join(__dirname, '../../../node_modules/jquery/dist/')));
     this.app.use('/assets/vendor/js/chart.js', express.static(path.join(__dirname, '../../../node_modules/chart.js/dist/')));
     this.app.use('/assets/vendor/fontawesome-free', express.static(path.join(__dirname, '../../../node_modules/@fortawesome/fontawesome-free/')));
+    this.app.use('/assets/vendor/bootstrap-table', express.static(path.join(__dirname, '../../../node_modules/bootstrap-table/dist/')));
     this.app.use(logger(':remote-addr - [:date[clf]] :status ":method :url" :res[content-length] ":referrer" :response-time ms - :res[content-length]'));
     this.app.use(bodyParser.json());
   }

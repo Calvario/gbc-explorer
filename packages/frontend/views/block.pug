@@ -110,21 +110,33 @@ block content
                 span Block (JSON RPC)
 
       <!-- Transactions -->
-      div.table-container
-        table#blockTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
+      div#blockTransactionsDiv.table-container.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-detail-view="true"
+          data-detail-formatter="blockTransactionsDetails"
+          data-ajax="blockTransactions"
+          data-buttons-class="button"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#blockTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-left Transaction
-              th.has-text-right Inputs
-              th.has-text-right In (#{process.env.COIN_SYMBOL})
-              th.has-text-right From (amount)
-              th.has-text-right Outputs
-              th.has-text-right Out (#{process.env.COIN_SYMBOL})
-              th.has-text-right To (amount)
-              th.has-text-right Fee
-              th.has-text-right Size
+              th(data-halign="left" data-align="left" data-field="hash" data-formatter="blockTransactionsTransaction") Transaction
+              th(data-halign="right" data-align="right" data-field="inputC") Inputs
+              th(data-halign="right" data-align="right" data-field="inputT" data-formatter="formatNumberCoin") In
+              th(data-halign="right" data-align="right" data-field="outputC") Outputs
+              th(data-halign="right" data-align="right" data-field="outputT" data-formatter="formatNumberCoin") Out
+              th(data-halign="right" data-align="right" data-field="fee" data-visible="false" data-formatter="formatNumberCoin") Fee
+              th(data-halign="right" data-align="right" data-field="size" data-visible="false" data-formatter="formatBytes") Size
           tbody
 
       <!-- Block (JSON RPC) -->
-      div.container.is-hidden
-        pre#blockJSONPre
+      div#blockJSONDiv.container.is-hidden
+        pre

@@ -1,14 +1,12 @@
 declare var COIN_SYMBOL: string;
 declare var COINGECKO_SYMBOL: string;
 
-let getAfterId: number | undefined;
-let currentTab: string | undefined;
 let currentBlock: number | undefined;
-let allItemInfo: string[] | undefined;
 
 // General - Functions
-function formatBytes(a: number, b: number = 2) {
+function formatBytes(a: number) {
   if (0 === a) return "0 B";
+  const b = 2;
   const c = 0 > b ? 0 : b;
   const d = Math.floor(Math.log(a) / Math.log(1024));
   return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + " " + ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
@@ -40,7 +38,7 @@ function formatEpochToAge(epoch: number) {
   }
 }
 
-function formatEpochToDate(epoch: number){
+function formatEpochToDate(epoch: number) {
 
   const date = new Date(epoch * 1000);
 
@@ -52,22 +50,46 @@ function formatEpochToDate(epoch: number){
   const seconds = ("0" + date.getSeconds()).substr(-2);
 
   const dateTime = day + ' ' + month + ' ' + year
-    + ' '+ hours + ':' + minutes + ':' + seconds + '';
+    + ' ' + hours + ':' + minutes + ':' + seconds + '';
 
   return dateTime;
 }
 
-function formatNumber(nb: number, size = 5) {
+function formatNumber(nb: number, size: number = 5, symbol: string = '', locale: string = "en") {
+  if(isNaN(nb)) {
+    return '';
+  }
+
   const options = {
     minimumFractionDigits: size,
     maximumFractionDigits: size
   };
-  return Number(nb).toLocaleString('en', options);
+  return Number(nb).toLocaleString(locale, options) + (symbol !== '' ? ' ' + symbol : '');
+}
+
+function formatNumberPercentage(value: number) {
+  return formatNumber(value, 2, '%')
+}
+
+function formatNumberFiat(value: number) {
+  return formatNumber(value, 2, '$')
+}
+
+function formatNumberBTC(value: number) {
+  return formatNumber(value, 9)
+}
+
+function formatNumberCoin(value: number) {
+  return formatNumber(value, 5, COIN_SYMBOL)
+}
+
+function formatNumberDifficulty(value: number) {
+  return formatNumber(value, 5)
 }
 
 function formatJSON(json: string) {
   if (typeof json !== 'string') {
-     json = JSON.stringify(json, undefined, 2);
+    json = JSON.stringify(json, undefined, 2);
   }
   json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
@@ -87,15 +109,8 @@ function formatJSON(json: string) {
   });
 }
 
-function hideTableColumn(tableId: number, columnNb: number) {
-  $(tableId + 'tr > *:nth-child(' + columnNb + ')').hide();
-}
-
-function formatTableDataLabel(id: string) {
-  $(id + ' th').each((i,elem) => {
-    const num = i + 1;
-    $('table td:nth-child(' + num + ')').attr('data-label', $(elem).text());
-  });
+function addOverflowControl(value: string) {
+  return '<span class="text-overflow-dynamic-container"><span class="text-overflow-dynamic-ellipsis">' + value + '</span></span>';
 }
 
 function getUrlParameter() {
@@ -103,29 +118,22 @@ function getUrlParameter() {
   return pathname.substring(pathname.lastIndexOf('/') + 1);
 };
 
-function navigationControl(menuItem: string, itemInfo: string, pAllItemInfo: string[] = [], refresh: boolean = false){
-  // Reset get next afterId
-  getAfterId = undefined;
-
-  $("li").each(function() {
+function navigationControl(menuItem: string, itemInfo: string, pAllItemInfo: string[] = [], refresh: boolean = false) {
+  // Remove active menu
+  $("li").each(function () {
     $(this).removeClass("is-active");
   });
 
-  // Hide all
+  // Hide all divs
   pAllItemInfo.forEach((element) => {
-    $(element).parent().addClass("is-hidden");
+    $(element).addClass("is-hidden");
   });
 
   // Set active menu
   $(menuItem).parent().addClass('is-active');
 
-  // Remove hidden
-  $(itemInfo).parent().removeClass('is-hidden');
-
-  // Async auto refresh
-  if (refresh === true) {
-    currentTab = menuItem;
-  }
+  // Remove hidden on div
+  $(itemInfo).removeClass('is-hidden');
 }
 
 function createNotification(message: string) {
@@ -148,23 +156,42 @@ function createNotification(message: string) {
 
 // Home page - Functions
 function updateLayoutMarketBoxes() {
-  const link =  "https://api.coingecko.com/api/v3/simple/price?ids=" + COINGECKO_SYMBOL + "&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true";
+  const link = "https://api.coingecko.com/api/v3/simple/price?ids=" + COINGECKO_SYMBOL + "&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true";
   $.get(link, (data, textStatus, jqXHR) => {
-    $('#layoutBTCPrice').text(data[COINGECKO_SYMBOL].btc);
-    $('#layoutUSDPrice').text(formatNumber(data[COINGECKO_SYMBOL].usd, 2) + ' $');
-    $('#layoutMarketCap').text(formatNumber(data[COINGECKO_SYMBOL].usd_market_cap, 2) + ' $');
+    $('#layoutBTCPrice').text(formatNumberBTC(data[COINGECKO_SYMBOL].btc));
+    $('#layoutUSDPrice').text(formatNumberFiat(data[COINGECKO_SYMBOL].usd));
+    $('#layoutMarketCap').text(formatNumberFiat(data[COINGECKO_SYMBOL].usd_market_cap));
   });
 
   $.get('/rest/api/1/rpc/getmininginfo', (data, textStatus, jqXHR) => {
-    $('#layoutNetworkHash').text(formatNumber(data["nethashrate (kH/m)"], 2) + ' kH/m');
+    $('#layoutNetworkHash').text(formatNumber(data["nethashrate (kH/m)"], 2, 'kH/m'));
   });
 
   $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
-    $('#layoutSupply').text(formatNumber(data.totalsupply, 0));
+    $('#layoutSupply').text(formatNumberCoin(data.totalsupply));
   });
 }
 
-function newBlockCheck(blockHeight: number) {
+function homeBlocks(params: any) {
+  $.ajax({
+      type: "GET",
+      url: "/rest/api/1/block?limit=100",
+      success: (data) => {
+        // Check for notification
+        if (data[0] !== undefined) homeBlocksCheckNew(data[0].height);
+
+        params.success({
+          "rows": data,
+          "total": data.length
+        })
+      },
+      error: (err) => {
+        params.error(err);
+      }
+  });
+}
+
+function homeBlocksCheckNew(blockHeight: number) {
   if (currentBlock === undefined) {
     currentBlock = blockHeight;
   } else if (Number(blockHeight) > Number(currentBlock)) {
@@ -173,242 +200,294 @@ function newBlockCheck(blockHeight: number) {
   }
 }
 
-function homeBlocks(afterId: number | undefined) {
-  const pagination = afterId === undefined ? '' : '?limit=100&afterId=' + afterId;
-  $.get('/rest/api/1/block' + pagination, (data, textStatus, jqXHR) => {
-    if (afterId === undefined) {
-      // Clean tables
-      $("#homeBlocksTable tbody tr").remove();
+function homeBlocksBlockLink(value: string, row: any) {
+  return '<a href="/block/' + row.hash + '">' + value + '</a>';
+}
+
+function homeBlocksExtractedLink(value: string, row: any) {
+  const link = '<a href="/extraction/' + value + '">' + (row.miner.label !== null ? row.miner.label : value) + '</a>';
+  return addOverflowControl(link);
+}
+
+function homeTransactions(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/transaction?limit=100",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
     }
-    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
-    // Check for notification
-    if(data[0] !== undefined) newBlockCheck(data[0].height);
-    $.each(data, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').append(
-          $('<a href="/block/' + item.hash + '">').text(item.height)
-        ),
-        $('<td class="has-text-right">').text(formatEpochToAge(item.time)),
-        $('<td class="has-text-right">').text(item.nTx),
-        $('<td class="has-text-right">').text(item.inputC),
-        $('<td class="has-text-right">').text(item.outputC),
-        $('<td class="has-text-right">').text(formatNumber(item.outputT)),
-        $('<td class="has-text-right">').text(formatNumber(item.generation)),
-        $('<td class="has-text-right">').text(formatNumber(item.feesT)),
-        $('<td class="has-text-right">').text(formatBytes(item.size,2)),
-        $('<td class="has-text-right">').text(formatNumber(item.difficulty)),
-        $('<td class="has-text-left-desktop">').append(
-          $('<span class="text-overflow-dynamic-container">').append(
-            $('<span class="text-overflow-dynamic-ellipsis">').append(
-              $('<a href="/extraction/' + item.miner.address + '">').text((item.miner.label !== null ? item.miner.label : item.miner.address ))
-            )
-          )
-        )
-      ).appendTo('#homeBlocksTable');
-    });
-    formatTableDataLabel('#homeBlocksTable');
   });
 }
 
-function homeTransactions(afterId: number | undefined) {
-  const pagination = afterId === undefined ? '' : '?limit=100&afterId=' + afterId;
-  $.get('/rest/api/1/transaction' + pagination, (data, textStatus, jqXHR) => {
-    if (afterId === undefined) {
-      // Clean table
-      $("#homeTransactionsTable tbody tr").remove();
+function homeTransactionsBlockLink(value: string, row: any) {
+  return '<a href="/block/' + row.block.hash + '">' + value + '</a>';
+}
+
+function homeTransactionsTransactionLink(value: string) {
+  const link = '<a href="/transaction/' + value + '">' + value + '</a>';
+  return addOverflowControl(link);
+}
+
+function homeExtraction(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/extraction?limit=100",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
     }
-    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
-    $.each(data, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').append(
-          $('<a href="/block/' + item.block.hash + '">').text(item.block.height)
-        ),
-        $('<td class="has-text-left-desktop">').append(
-          $('<span class="text-overflow-dynamic-container">').append(
-            $('<span class="text-overflow-dynamic-ellipsis">').append(
-              $('<a href="/transaction/' + item.hash + '">').text(item.hash)
-            )
-          )
-        ),
-        $('<td class="has-text-right">').text(formatEpochToAge(item.time)),
-        $('<td class="has-text-right">').text(item.inputC),
-        $('<td class="has-text-right">').text(item.outputC),
-        $('<td class="has-text-right">').text(formatNumber(item.outputT)),
-        $('<td class="has-text-right">').text(formatNumber(item.fee)),
-        $('<td class="has-text-right">').text(formatBytes(item.size,2))
-      ).appendTo('#homeTransactionsTable');
-    });
-    formatTableDataLabel('#homeTransactionsTable');
   });
 }
 
-function homeAddresses() {
-  $.get('/rest/api/1/address', (data, textStatus, jqXHR) => {
-    $("#homeAddressesTable tbody tr").remove();
-    $.each(data, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').text(Number(i) + 1),
-        $('<td class="has-text-left-desktop">').append(
-          $('<span class="text-overflow-dynamic-container">').append(
-            $('<span class="text-overflow-dynamic-ellipsis">').append(
-              $('<a href="/address/' + item.address + '">').text((item.label !== null ? item.label : item.address ))
-            )
-          )
-        ),
-        $('<td class="has-text-right">').text(formatNumber(item.balance)),
-        $('<td class="has-text-right">').text(item.nTx),
-        $('<td class="has-text-right">').text(item.inputC),
-        $('<td class="has-text-right">').text(item.outputC)
-      ).appendTo('#homeAddressesTable');
-    });
-    formatTableDataLabel('#homeAddressesTable');
+function homeExtractionAddressLink(value: string) {
+  const link = '<a href="/address/' + value + '">' + value + '</a>';
+  return addOverflowControl(link);
+}
+
+function homeExtractionExtractionLink(value: string, row: any) {
+  const link = '<a href="/extraction/' + row.address + '">' + value + '</a>';
+  return addOverflowControl(link);
+}
+
+function homeAddresses(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/address?limit=100",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
   });
 }
 
-function homeExtraction() {
-  $.get('/rest/api/1/extraction', (data, textStatus, jqXHR) => {
-    $("#homeExtractionTable tbody tr").remove();
-    $.each(data, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').text(Number(i) + 1),
-        $('<td class="has-text-left-desktop">').append(
-          $('<span class="text-overflow-dynamic-container">').append(
-            $('<span class="text-overflow-dynamic-ellipsis">').text(item.label)
-          )
-        ),
-        $('<td class="has-text-left-desktop">').append(
-          $('<span class="text-overflow-dynamic-container">').append(
-            $('<span class="text-overflow-dynamic-ellipsis">').append(
-              $('<a href="/extraction/' + item.address + '">').text(item.address)
-            )
-          )
-        ),
-        $('<td class="has-text-right">').text(item.count)
-      ).appendTo('#homeExtractionTable');
-    });
-    formatTableDataLabel('#homeExtractionTable');
+function homeAddressesAddressLink(value: string, row: any) {
+  const link = '<a href="/address/' + value + '">' + (row.label !== null ? row.label : value) + '</a>';
+  return addOverflowControl(link);
+}
+
+function homeMarket(params: any) {
+  const link = "https://api.coingecko.com/api/v3/coins/" + COINGECKO_SYMBOL + "/tickers?id=" + COINGECKO_SYMBOL;
+  $.ajax({
+    type: "GET",
+    url: link,
+    success: (data) => {
+      params.success({
+        "rows": data.tickers,
+        "total": data.tickers.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
   });
 }
 
-function homeMarket() {
-  const link =  "https://api.coingecko.com/api/v3/coins/" + COINGECKO_SYMBOL + "/tickers?id=" + COINGECKO_SYMBOL;
-  $.get(link, (data, textStatus, jqXHR) => {
-    // Clean table
-    $("#homeMarketTable tbody tr").remove();
-    $.each(data.tickers, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').text(item.market.name),
-        $('<td class="has-text-right">').text(item.base + '/' + item.target),
-        $('<td class="has-text-right">').text(formatNumber(item.converted_last.usd, 2) + ' $'),
-        $('<td class="has-text-right">').text(formatNumber(item.converted_last.btc, 9)),
-        $('<td class="has-text-right">').text(formatNumber(item.volume, 9)),
-        $('<td class="has-text-right">').text(formatNumber(item.converted_volume.btc, 9)),
-        $('<td class="has-text-right">').text(formatNumber(item.converted_volume.usd, 2) + ' $'),
-        $('<td class="has-text-right">').text(formatNumber(item.bid_ask_spread_percentage, 2) + ' %'),
-      ).appendTo('#homeMarketTable');
-    });
-    formatTableDataLabel('#homeMarketTable');
+function homeMarketPair(value: string, row: any) {
+  return row.base + '/' + row.target;
+}
+
+// Block page - Functions
+function blockTransactions(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/block/" + getUrlParameter() + "/transactions",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
   });
+}
+
+function blockTransactionsTransaction(value: string, row: any) {
+  const link = '<a href="/transaction/' + value + '">' + value + '</a>';
+  return addOverflowControl(link);
+}
+
+function blockTransactionsDetails(index: string, row: any, detail: any) {
+  const subTableColumns: any[] = [];
+  const subTableData: any[] = [];
+  const size = row.vins.length >= row.vouts.length ? row.vins.length : row.vouts.length;
+
+  subTableColumns.push({
+    title: 'Value',
+    halign: 'right',
+    align: 'right',
+    field: 'vin.vout.value',
+    formatter: 'formatNumberCoin',
+  });
+
+  subTableColumns.push({
+    title: 'From',
+    halign: 'left',
+    align: 'left',
+    formatter: 'blockTransactionsVin',
+  });
+
+  subTableColumns.push({
+    title: 'Value',
+    halign: 'right',
+    align: 'right',
+    field: 'vout.value',
+    formatter: 'formatNumberCoin',
+  });
+
+  subTableColumns.push({
+    title: 'To',
+    halign: 'left',
+    align: 'left',
+    formatter: 'blockTransactionsVout',
+  });
+
+  for (let i = 0; i < size; i++) {
+    subTableData.push({
+      vin: row.vins[i] !== undefined ? row.vins[i] : undefined,
+      vout: row.vouts[i] !== undefined ? row.vouts[i] : undefined,
+    })
+  }
+
+  return detail.html('<table></table>').find('table').bootstrapTable({
+    columns: subTableColumns,
+    data: subTableData,
+  })
+}
+
+function blockTransactionsVin(value: string, row: any) {
+  if(row.vin === null || row.vin === undefined) {
+    return '';
+  } else if (row.vin.vout === null || row.vin.vout === undefined) {
+    return '<p class="has-text-primary">Coinbase</p>'
+  } else {
+    return addOverflowControl('<a href="/address/' + row.vin.vout.addresses[0].address + '">' + row.vin.vout.addresses[0].address + '</a>');
+  }
+}
+
+function blockTransactionsVout(value: string, row: any) {
+  if(row.vout === null || row.vout === undefined) {
+    return '';
+  } else {
+    return addOverflowControl('<a href="/address/' + row.vout.addresses[0].address + '">' + row.vout.addresses[0].address + '</a></span>');
+  }
+}
+
+// Transaction page - Functions
+function transactionVinPrevious(value: string, row: any) {
+  if (row.vout !== null && row.vout !== undefined) {
+    return addOverflowControl(
+      '<span>' + row.vout.n + ': <a href="/transaction/' + row.vout.transaction.hash + '">' + row.vout.transaction.hash + '</a></span>');
+  } else {
+    return '<p class="has-text-primary">N/A</p>';
+  }
+}
+
+function transactionVinAddress(value: string, row: any) {
+  if (row.vout !== null && row.vout !== undefined) {
+    return addOverflowControl('<a href="/address/' + row.vout.addresses[0].address + '">' + row.vout.addresses[0].address + '</a>')
+  } else {
+    return '<p class="has-text-primary">Coinbase</p>';
+  }
+}
+
+function transactionVinAmount(value: string, row: any) {
+  if (row.vout !== null && row.vout !== undefined) {
+    return '<p>' + row.vout.value + '</p>';
+  } else {
+    return '<p class="has-text-primary">N/A</p>';
+  }
+}
+
+function transactionVoutRedeemed(value: string, row: any) {
+  if (row.vin !== null && row.vin !== undefined) {
+    return addOverflowControl('<a href="/transaction/' + row.vin.transaction.hash + '">' + row.vin.transaction.hash + '</a>');
+  } else {
+    return '<p class="has-text-primary">Not yet redeemed</p>';
+  }
+}
+
+function transactionVoutAddress(value: string, row: any) {
+  return addOverflowControl('<a href="/address/' + row.addresses[0].address + '">' + row.addresses[0].address + '</a></span>');
 }
 
 // Address page - Functions
-function addressTransactions(afterId: number | undefined) {
-  const pagination = afterId === undefined ? '' : '?limit=100&afterId=' + afterId;
-  $.get('/rest/api/1/address/' + getUrlParameter() + '/transactions' + pagination, (data, textStatus, jqXHR) => {
-    if (afterId === undefined) {
-      // Clean table
-      $("#addressTransactionsTable tbody tr").remove();
+function addressTransactions(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/address/" + getUrlParameter() + "/transactions?limit=100",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
     }
-    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
-    $.each(data, (i, item) => {
-      // Received
-      $.each(item.vouts, (i2, vout) => {
-        $('<tr>').append(
-          $('<td class="has-text-left-desktop">').append(
-            $('<span class="text-overflow-dynamic-container">').append(
-              $('<span class="text-overflow-dynamic-ellipsis">').append(
-                $('<span>').text(vout.n + ': ').append(
-                  $('<a href="/transaction/' + item.hash + '">').text(item.hash)
-                )
-              )
-            )
-          ),
-          $('<td class="has-text-right">').append(
-            $('<a href="/block/' + item.block.hash + '">').text(item.block.height)
-          ),
-          $('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
-          $('<td class="has-text-right">').text(formatNumber(vout.value)),
-        ).appendTo('#addressTransactionsTable');
-      });
-
-      // Sent
-      $.each(item.vins, (i3, vin) => {
-        $('<tr>').append(
-          $('<td class="has-text-left-desktop">').append(
-            $('<span class="text-overflow-dynamic-container">').append(
-              $('<span class="text-overflow-dynamic-ellipsis">').append(
-                $('<span>').text(i.toString() + ': ').append(
-                  $('<a href="/transaction/' + item.hash + '">').text(item.hash)
-                )
-              )
-            )
-          ),
-          $('<td class="has-text-right">').append(
-            $('<a href="/block/' + item.block.hash + '">').text(item.block.height)
-          ),
-          $('<td class="has-text-right">').text(formatEpochToDate(item.block.time)),
-          $('<td class="has-text-right">').text(formatNumber(-vin.vout.value)),
-        ).appendTo('#addressTransactionsTable');
-      });
-    });
-    formatTableDataLabel('#addressTransactionsTable');
   });
 }
 
+function addressTransactionsTransaction(value: string, row: any) {
+  const nVout = row.vout_n !== null ? '<span>' + row.vout_n + ': </span>' : '';
+  const link = nVout + '<a href="/transaction/' + value + '">' + value + '</a>';
+  return addOverflowControl(link);
+}
+
+function addressTransactionsBlock(value: string, row: any) {
+  return '<a href="/block/' + row.block_hash + '">' + row.block_height + '</a>';
+}
+
+function addressTransactionsValue(value: string, row: any) {
+  return formatNumberCoin(row.vout_value !== null ? row.vout_value : - row.vinvout_value);
+}
+
 // Extraction page - Functions
-function extractionBlocks(afterId: number | undefined) {
-  const pagination = afterId === undefined ? '' : '?limit=100&afterId=' + afterId;
-  $.get('/rest/api/1/extraction/' + getUrlParameter() + pagination, (data, textStatus, jqXHR) => {
-    if (afterId === undefined) {
-      // Clean table
-      $("#extractionTable tbody tr").remove();
+function extractionBlocks(params: any) {
+  $.ajax({
+    type: "GET",
+    url: '/rest/api/1/extraction/' + getUrlParameter() + "?limit=100",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
     }
-    getAfterId = data.length >= 1 ? data[data.length - 1].id : getAfterId;
-    $.each(data, (i, item) => {
-      $('<tr>').append(
-        $('<td class="has-text-right">').append(
-          $('<a href="/block/' + item.hash + '">').text(item.height)
-        ),
-        $('<td class="has-text-right">').text(formatEpochToDate(item.time)),
-        $('<td class="has-text-right">').text(formatNumber(item.difficulty)),
-        $('<td class="has-text-right">').text(formatNumber(item.generation)),
-        $('<td class="has-text-right">').text(formatNumber(item.feesT)),
-      ).appendTo('#extractionTable');
-    });
-    formatTableDataLabel('#extractionTable');
   });
+}
+
+function extractionBlockBlockLink(value: string, row: any) {
+  return '<a href="/block/' + row.hash + '">' + value + '</a>';
 }
 
 // Mapping
 $(document).ready(() => {
 
-  // General dropdown
-  $(".dropdown .button").click(function (){
-    const dropdown = $(this).parents('.dropdown');
-    dropdown.toggleClass('is-active');
-    dropdown.focusout(function(event) {
-      if (this.contains(event.currentTarget)) {
-        return;
-      }
-      $(this).removeClass('is-active');
-    });
-  });
-
   // Layout: Search
   $('#layoutSearch').keypress((e) => {
-        if(e.which === 13) {
+    if (e.which === 13) {
       $.get('/rest/api/1/general?search=' + $('#layoutSearch').val(), (data, textStatus, jqXHR) => {
-        if(data.length === 1) {
+        if (data.length === 1) {
           window.location.replace('/' + data[0].type + '/' + data[0]._id);
         }
       });
@@ -424,62 +503,38 @@ $(document).ready(() => {
   // Page specific : Home
   if ($(location).attr('pathname') === '/') {
 
-    allItemInfo = ['#homeBlocksTable', '#homeTransactionsTable',
-      '#homeAddressesTable', '#homeMempoolTable', '#homeExtractionTable',
-      '#homeMarketTable', '#homeNewsWidget'];
+    const allItemInfo = ['#homeBlocksDiv', '#homeTransactionsDiv',
+      '#homeAddressesDiv', '#homeExtractionDiv',
+      '#homeMarketDiv', '#homeNewsDiv'];
 
     $('#homeBlocks').click(() => {
-      navigationControl('#homeBlocks', "#homeBlocksTable", allItemInfo, true);
-      homeBlocks(getAfterId);
-    });
-
-    $('#homeBlocksGetMore').click(() => {
-      homeBlocks(getAfterId);
-      // Avoid auto refresh
-      currentTab = undefined;
+      navigationControl('#homeBlocks', "#homeBlocksDiv", allItemInfo, true);
     });
 
     $('#homeTransactions').click(() => {
-      navigationControl('#homeTransactions', "#homeTransactionsTable", allItemInfo, true);
-      homeTransactions(getAfterId);
-    });
-
-    $('#homeTransactionsGetMore').click(() => {
-      homeTransactions(getAfterId);
-      // Avoid auto refresh
-      currentTab = undefined;
+      navigationControl('#homeTransactions', "#homeTransactionsDiv", allItemInfo, true);
     });
 
     $('#homeAddresses').click(() => {
-      navigationControl('#homeAddresses', "#homeAddressesTable", allItemInfo, true);
-      homeAddresses();
+      navigationControl('#homeAddresses', "#homeAddressesDiv", allItemInfo, true);
     });
 
     $('#homeExtraction').click(() => {
-      navigationControl('#homeExtraction', "#homeExtractionTable", allItemInfo, true);
-      homeExtraction();
+      navigationControl('#homeExtraction', "#homeExtractionDiv", allItemInfo, true);
     });
 
     $('#homeMarket').click(() => {
-      navigationControl('#homeMarket', "#homeMarketTable", allItemInfo);
-      homeMarket();
+      navigationControl('#homeMarket', "#homeMarketDiv", allItemInfo);
     });
 
     $('#homeNews').click(() => {
-      navigationControl('#homeNews', "#homeNewsWidget", allItemInfo);
+      navigationControl('#homeNews', "#homeNewsDiv", allItemInfo);
     });
 
     // Page initialization
     updateLayoutMarketBoxes();
-    homeBlocks(getAfterId);
 
     // Auto refresh
-    setInterval(() => {
-      if (currentTab !== undefined)
-        window.Function(currentTab)();
-      },
-      30000
-    );
     setInterval(
       updateLayoutMarketBoxes,
       60000
@@ -488,9 +543,10 @@ $(document).ready(() => {
 
   // Page specific : Block
   if ($(location).attr('pathname')!.indexOf('/block') === 0) {
-    allItemInfo = ['#blockTransactionsTable', '#blockJSONPre'];
+    const allItemInfo = ['#blockTransactionsDiv', '#blockJSONDiv'];
 
     $('#blockTransactions').click(() => {
+      navigationControl('#blockTransactions', '#blockTransactionsDiv', allItemInfo);
       $.get('/rest/api/1/block/' + getUrlParameter(), (data, textStatus, jqXHR) => {
         $('#blockHeight').text(data.height);
         $('#blockHash').text(data.hash);
@@ -507,61 +563,12 @@ $(document).ready(() => {
         $('#blockMiner').attr("href", '/extraction/' + data.miner.address);
         $('#blockMiner').text(data.miner.label !== null ? data.miner.label : data.miner.address);
       });
-
-      $.get('/rest/api/1/block/' + getUrlParameter() + '/transactions', (data, textStatus, jqXHR) => {
-        navigationControl('#blockTransactions', '#blockTransactionsTable', allItemInfo);
-        $("#blockTransactionsTable tbody tr").remove();
-        $.each(data, (i, item) => {
-          $('<tr>').append(
-            $('<td class="has-text-left-desktop">').append(
-              $('<span class="text-overflow-dynamic-container">').append(
-                $('<span class="text-overflow-dynamic-ellipsis">').append(
-                  $('<a href="/transaction/' + item.hash + '">').text(item.hash)
-                )
-              )
-            ),
-            $('<td class="has-text-right">').text(item.inputC),
-            $('<td class="has-text-right">').text(item.inputT),
-            $('<td class="has-text-right">').append(
-              $.map(item.vins, (vin, i2) => {
-                if (vin.vout !== null && vin.vout !== undefined) {
-                  return $('<span class="text-overflow-dynamic-container">').append(
-                    $('<span class="text-overflow-dynamic-ellipsis">').append(
-                      $('<span>').text(vin.vout.value + ' ').append(
-                        $('<a href="/address/' + vin.vout.addresses[0].address + '">').text(vin.vout.addresses[0].address)
-                      )
-                    )
-                  )
-                } else {
-                  return $('<p class="has-text-primary">').text('Coinbase')
-                }
-              })
-            ),
-            $('<td class="has-text-right">').text(item.outputC),
-            $('<td class="has-text-right">').text(item.outputT),
-            $('<td class="has-text-right">').append(
-              $.map(item.vouts, (vout, i3) => {
-                return $('<span class="text-overflow-dynamic-container">').append(
-                  $('<span class="text-overflow-dynamic-ellipsis">').append(
-                    $('<span>').text(vout.value + ' ').append(
-                      $('<a href="/address/' + vout.addresses[0].address + '">').text(vout.addresses[0].address)
-                    )
-                  )
-                )
-              })
-            ),
-            $('<td class="has-text-right">').text(item.fee),
-            $('<td class="has-text-right">').text(formatBytes(item.size,2))
-          ).appendTo('#blockTransactionsTable');
-        });
-        formatTableDataLabel('#blockTransactionsTable');
-      });
     });
 
     $('#blockJSON').click(() => {
-      navigationControl('#blockJSON', '#blockJSONPre', allItemInfo);
+      navigationControl('#blockJSON', '#blockJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getblock/' + getUrlParameter() + '?verbosity=2', (data, textStatus, jqXHR) => {
-        $('#blockJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
+        $('#blockJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
       });
     });
 
@@ -572,7 +579,7 @@ $(document).ready(() => {
   // Page specific : Transaction
   if ($(location).attr('pathname')!.indexOf('/transaction') === 0) {
 
-    allItemInfo = ['#transactionVinsTable', '#transactionVoutsTable', '#transactionJSONPre'];
+    const allItemInfo = ['#transactionVinsDiv', '#transactionVoutsDiv', '#transactionJSONDiv'];
 
     function getTransaction() {
       $.get('/rest/api/1/transaction/' + getUrlParameter(), (data, textStatus, jqXHR) => {
@@ -587,95 +594,33 @@ $(document).ready(() => {
         $('#transactionOut').text(' ( ' + data.outputT + ' )');
         $('#transactionFee').text(data.fee);
 
-        $("#transactionVinsTable tbody tr").remove();
-        $.each(data.vins, (i, item) => {
-          $('<tr>').append(
-            $('<td class="has-text-right">').text(i.toString()),
-            $('<td class="has-text-left-desktop">').append(
-              () => {
-                if (item.vout !== null && item.vout !== undefined) {
-                  return $('<span class="text-overflow-dynamic-container">').append(
-                    $('<span class="text-overflow-dynamic-ellipsis">').append(
-                      $('<span>').text(item.vout.n + ': ').append(
-                        $('<a href="/transaction/' + item.vout.transaction.hash + '">').text(item.vout.transaction.hash)
-                      )
-                    )
-                  )
-                } else {
-                  return $('<p class="has-text-primary">').text('N/A')
-                }
-              }
-            ),
-            $('<td class="has-text-left-desktop">').append(
-              () => {
-                if (item.vout !== null && item.vout !== undefined) {
-                  return $('<span class="text-overflow-dynamic-container">').append(
-                    $('<span class="text-overflow-dynamic-ellipsis">').append(
-                      $('<a href="/address/' + item.vout.addresses[0].address + '">').text(item.vout.addresses[0].address)
-                    )
-                  )
-                } else {
-                  return $('<p class="has-text-primary">').text('Coinbase')
-                }
-              }
-            ),
-            $('<td class="has-text-right">').append(
-              () => {
-                if (item.vout !== null && item.vout !== undefined) {
-                  return $('<p>').text(item.vout.value)
-                } else {
-                  return $('<p class="has-text-primary">').text('N/A')
-                }
-              }
-            )
-          ).appendTo('#transactionVinsTable');
+        ($("#transactionVinsTable") as any).bootstrapTable({
+          data: {
+            "rows": data.vins,
+            "total": data.vins.length
+          }
         });
-        formatTableDataLabel('#transactionVinsTable');
-
-        // VOUT
-        $("#transactionVoutsTable tbody tr").remove();
-        $.each(data.vouts, (i, item) => {
-          $('<tr>').append(
-            $('<td class="has-text-right">').text(item.n),
-            $('<td class="has-text-left-desktop">').append(
-              () => {
-                if (item.vin !== null && item.vin !== undefined) {
-                  return $('<span class="text-overflow-dynamic-container">').append(
-                    $('<span class="text-overflow-dynamic-ellipsis">').append(
-                      $('<a href="/transaction/' + item.vin.transaction.hash + '">').text(item.vin.transaction.hash)
-                    )
-                  )
-                } else {
-                  return $('<p class="has-text-primary">').text('Not yet redeemed')
-                }
-              }
-            ),
-            $('<td class="has-text-left-desktop">').append(
-              $('<span class="text-overflow-dynamic-container">').append(
-                $('<span class="text-overflow-dynamic-ellipsis">').append(
-                  $('<a href="/address/' + item.addresses[0].address + '">').text(item.addresses[0].address)
-                )
-              )
-            ),
-            $('<td class="has-text-right">').text(item.value)
-          ).appendTo('#transactionVoutsTable');
-        });
-        formatTableDataLabel('#transactionVoutsTable');
+        ($("#transactionVoutsTable") as any).bootstrapTable({
+          data: {
+            "rows": data.vouts,
+            "total": data.vouts.length
+          }
+        })
       });
     }
 
     $('#transactionVins').click(() => {
-      navigationControl('#transactionVins', '#transactionVinsTable', allItemInfo);
+      navigationControl('#transactionVins', '#transactionVinsDiv', allItemInfo);
     });
 
     $('#transactionVouts').click(() => {
-      navigationControl('#transactionVouts', '#transactionVoutsTable', allItemInfo);
+      navigationControl('#transactionVouts', '#transactionVoutsDiv', allItemInfo);
     });
 
     $('#transactionJSON').click(() => {
-      navigationControl('#transactionJSON', '#transactionJSONPre', allItemInfo);
+      navigationControl('#transactionJSON', '#transactionJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getrawtransaction/' + getUrlParameter() + '?verbose=true', (data, textStatus, jqXHR) => {
-        $('#transactionJSONPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
+        $('#transactionJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
       });
     });
 
@@ -694,26 +639,11 @@ $(document).ready(() => {
       $('#addressInputs').text(data.inputC);
       $('#addressOutputs').text(data.outputC);
     });
-
-    $('#addressGetMore').click(() => {
-      addressTransactions(getAfterId);
-    });
-
-    // Page initialization
-    addressTransactions(getAfterId);
   }
 
   // Page specific : Extraction
   if ($(location).attr('pathname')!.indexOf('/extraction') === 0) {
-    $("#extractionTable tbody tr").remove();
     $("#extractionAddress").text(getUrlParameter());
     $("#extractionAddress").attr("href", '/address/' + getUrlParameter());
-
-    $('#extractionGetMore').click(() => {
-      extractionBlocks(getAfterId);
-    });
-
-    // Page initialization
-    extractionBlocks(getAfterId);
   }
 });

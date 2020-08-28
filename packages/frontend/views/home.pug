@@ -6,19 +6,19 @@ block content
     div.columns.is-centered.is-mobile.is-multiline.is-variable.is-1
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold BTC Price
+          p.has-text-weight-semibold BTC Price 
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutBTCPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold USD Price
+          p.has-text-weight-semibold USD Price 
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutUSDPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
       div.column.is-one-fifth-desktop.is-half-mobile
         div.box.has-text-centered
-          p.has-text-weight-semibold Market Cap
+          p.has-text-weight-semibold Market Cap 
             a(href="/faq#financial-disclaimer") *
           p
             a#layoutMarketCap(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
@@ -69,83 +69,150 @@ block content
                 span News
 
       <!-- Blocks -->
-      div.table-container
-        table#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
+      div#homeBlocksDiv.table-container.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeBlocks"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Height
-              th.has-text-right Age
-              th.has-text-right Txs
-              th.has-text-right Inputs
-              th.has-text-right Outputs
-              th.has-text-right Out (#{process.env.COIN_SYMBOL})
-              th.has-text-right Generation
-              th.has-text-right Fees
-              th.has-text-right Size
-              th.has-text-right Difficulty
-              th.has-text-left Extracted by
+              th(data-halign="right" data-align="right" data-field="height" data-sortable="true" data-formatter="homeBlocksBlockLink") Height
+              th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
+              th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
+              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true" data-visible="false") Outputs
+              th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
+              th(data-halign="right" data-align="right" data-field="generation" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Generation
+              th(data-halign="right" data-align="right" data-field="feesT" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Fees
+              th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
+              th(data-halign="right" data-align="right" data-field="difficulty" data-sortable="true" data-formatter="formatNumberDifficulty") Difficulty
+              th(data-halign="left" data-align="left" data-field="miner.address" data-formatter="homeBlocksExtractedLink") Extracted by
           tbody
-        a#homeBlocksGetMore Display 100 more (Disable auto refresh)
 
       <!-- Transactions -->
-      div.table-container.is-hidden
-        table#homeTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
+      div#homeTransactionsDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeTransactions"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Block
-              th.has-text-left Transaction
-              th.has-text-right Time
-              th.has-text-right Inputs
-              th.has-text-right Outputs
-              th.has-text-right Out (#{process.env.COIN_SYMBOL})
-              th.has-text-right Fee
-              th.has-text-right Size
-          tbody
-        a#homeTransactionsGetMore Display 100 more (Disable auto refresh)
+              th(data-halign="right" data-align="right" data-field="block.height" data-sortable="true" data-formatter="homeTransactionsBlockLink") Block
+              th(data-halign="left" data-align="left" data-field="hash" data-formatter="homeTransactionsTransactionLink") Transaction
+              th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
+              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
+              th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
+              th(data-halign="right" data-align="right" data-field="fee" data-sortable="true" data-formatter="formatNumberCoin") Fees
+              th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
 
       <!-- Extraction -->
-      div.table-container.is-hidden
-        table#homeExtractionTable.table.is-striped.is-hoverable.is-fullwidth
+      div#homeExtractionDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeExtraction"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeExtractionTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Rank
-              th.has-text-left Pool/Miner
-              th.has-text-left Address
-              th.has-text-right Last 100
+              th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
+              th(data-halign="left" data-align="left" data-field="label") Pool/Miner
+              th(data-halign="left" data-align="left" data-field="address" data-formatter="homeExtractionAddressLink") Address
+              th(data-halign="right" data-align="right" data-field="count" data-sortable="true" data-formatter="homeExtractionExtractionLink") Last 100
           tbody
 
       <!-- Rich List -->
-      div.table-container.is-hidden
-        table#homeAddressesTable.table.is-striped.is-hoverable.is-fullwidth
+      div#homeAddressesDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeAddresses"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeAddressesTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Rank
-              th.has-text-left Address
-              th.has-text-right Balance (#{process.env.COIN_SYMBOL})
-              th.has-text-right Transactions
-              th.has-text-right Inputs
-              th.has-text-right Outputs
+              th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
+              th(data-halign="left" data-align="left" data-field="address" data-formatter="homeAddressesAddressLink") Address
+              th(data-halign="right" data-align="right" data-field="balance" data-sortable="true" data-formatter="formatNumberCoin") Balance
+              th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
+              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
           tbody
 
       <!-- Market -->
-      div.container.is-hidden
-        table#homeMarketTable.table.is-striped.is-hoverable.is-fullwidth
-            thead
-              tr
-                th.has-text-right Exchange
-                th.has-text-right Pair
-                th.has-text-right USD Price
-                th.has-text-right BTC Price
-                th.has-text-right VRM Volume
-                th.has-text-right BTC Volume
-                th.has-text-right USD Volume
-                th.has-text-right Bid/Ask Spread
+      div#homeMarketDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeMarket"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeMarketTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th(data-halign="right" data-align="right" data-field="market.name" data-sortable="true") Exchange
+              th(data-halign="right" data-align="right" data-field="base" data-sortable="true" data-formatter="homeMarketPair") Pair
+              th(data-halign="right" data-align="right" data-field="converted_last.usd" data-sortable="true" data-formatter="formatNumberFiat") USD Price
+              th(data-halign="right" data-align="right" data-field="converted_last.btc" data-sortable="true" data-formatter="formatNumberBTC") BTC Price
+              th(data-halign="right" data-align="right" data-field="volume" data-sortable="true" data-formatter="formatNumberCoin") VRM Volume
+              th(data-halign="right" data-align="right" data-field="converted_volume.usd" data-sortable="true" data-formatter="formatNumberFiat") USD Volume
+              th(data-halign="right" data-align="right" data-field="converted_volume.btc" data-sortable="true" data-formatter="formatNumberBTC") BTC Volume
+              th(data-halign="right" data-align="right" data-field="bid_ask_spread_percentage" data-sortable="true" data-formatter="formatNumberPercentage") Bid/Ask Spread
             tbody
-        p.has-text-right.has-text-weight-semibold Datasource
+        p.has-text-right.has-text-weight-semibold Datasource 
           a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
 
       <!-- News -->
-      div.container.is-hidden
-        div#homeNewsWidget
+      div#homeNewsDiv.container.is-hidden
+        div
           script(src="https://widgets.coingecko.com/coingecko-beam-widget.js")
           coingecko-beam-widget(type="coins" height="0" locale="en" project-id=`${process.env.COINGECKO_SYMBOL}`)

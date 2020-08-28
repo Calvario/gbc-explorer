@@ -23,10 +23,17 @@ class Address implements iController {
 
   private getRichAddresses = async (request: Request, response: Response)  => {
     const qB = this.repository.createQueryBuilder("address")
-    .orderBy("balance", "DESC")
+    .select("ROW_NUMBER() OVER (ORDER BY address.balance DESC)", "rank")
+    .addSelect("address.address", "address")
+    .addSelect("address.label", "label")
+    .addSelect("address.balance", "balance")
+    .addSelect("address.nTx", "nTx")
+    .addSelect("address.inputC", "inputC")
+    .addSelect("address.outputC", "outputC")
+    .orderBy("address.balance", "DESC")
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
-    await qB.getMany()
+    await qB.getRawMany()
     .then(addresses => {
       return response.json(addresses);
     })
@@ -50,9 +57,16 @@ class Address implements iController {
 
   private getTransactionsForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.hash;
-    const qB = createQueryBuilder(mTransaction, "transaction")
-    qB.innerJoinAndSelect("transaction.block", "block")
-    .leftJoinAndSelect("transaction.vins", "vin", "vin.transaction = transaction.id AND vin.id IN " + qB.subQuery()
+    const qB = createQueryBuilder(mTransaction, "transaction");
+    qB.select("transaction.hash", "transaction_hash")
+    .addSelect("block.hash", "block_hash")
+    .addSelect("block.height", "block_height")
+    .addSelect("block.time", "block_time")
+    .addSelect("vout.n", "vout_n")
+    .addSelect("vout.value", "vout_value")
+    .addSelect("vinvout.value", "vinvout_value")
+    .innerJoin("transaction.block", "block")
+    .leftJoin("transaction.vins", "vin", "vin.transaction = transaction.id AND vin.id IN " + qB.subQuery()
       .select("vin.id")
       .from(mVin, "vin")
       .innerJoin("vin.vout", "vout")
@@ -60,8 +74,8 @@ class Address implements iController {
       .where("address.address = :address", { address: addressHash })
       .getQuery()
     )
-    .leftJoinAndSelect("vin.vout", "vinvout")
-    .leftJoinAndSelect("transaction.vouts", "vout", "vout.transaction = transaction.id AND vout.id IN " + qB.subQuery()
+    .leftJoin("vin.vout", "vinvout")
+    .leftJoin("transaction.vouts", "vout", "vout.transaction = transaction.id AND vout.id IN " + qB.subQuery()
       .select("vout.id")
       .from(mVout, "vout")
       .innerJoin("vout.addresses", "address")
@@ -74,7 +88,7 @@ class Address implements iController {
     if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
-    await qB.getMany()
+    await qB.getRawMany()
     .then(transactions => {
       return response.json(transactions);
     })

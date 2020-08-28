@@ -30,7 +30,8 @@ class Block implements iController {
     })
     .then(async lastBlock => {
       const qB = this.repository.createQueryBuilder("block")
-      .select("COUNT(miner.address)", "count")
+      .select("ROW_NUMBER() OVER (ORDER BY COUNT(miner.address) DESC)", "rank")
+      .addSelect("COUNT(miner.address)", "count")
       .addSelect("miner.id", "id")
       .addSelect("miner.address", "address")
       .addSelect("miner.label", "label")

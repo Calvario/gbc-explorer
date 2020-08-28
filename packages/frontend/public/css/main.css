@@ -7,13 +7,13 @@ body {
   flex-direction: column;
 }
 
-
 /*
 General design : Overflow
 https://stackoverflow.com/a/41534940
 */
 .text-overflow-dynamic-container {
   position: relative;
+  min-width: 5em;
   max-width: 100%;
   padding: 0 !important;
   display: -webkit-flex;
@@ -95,48 +95,11 @@ https://github.com/buefy/buefy/issues/364#issuecomment-408530192
 }
 
 /*
-Mobile views : Tables
-https://codepen.io/AllThingsSmitty/pen/MyqmdM
+Mobile views : Card view fix
 */
-@media screen and (max-width: 768px) {
-  table {
-    border: 0;
-  }
-
-  table caption {
-    font-size: 1.3em;
-  }
-
-  table thead {
-    border: none;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
-  }
-
-  table tr, table tbody tr:last-child th {
-    border-bottom: 3px solid #ddd !important; /* Bulma override */
-    display: block;
-    margin-bottom: .625em;
-    width: 100%;
-  }
-
-  table td, table tbody tr:last-child td{
-    border-bottom: 1px solid #ddd !important; /* Bulma override */
-    display: block;
-    font-size: .8em;
-    text-align: right !important;  /* Bulma override */
-  }
-
-  table td::before {
-    content: attr(data-label);
-    float: left;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding-right: 5%;
-  }
+.card-view-title {
+  width: 40%;
+}
+.card-view-value {
+  width: 60%;
 }

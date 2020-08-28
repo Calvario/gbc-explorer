@@ -95,27 +95,46 @@ block content
                 span Transaction (JSON RPC)
 
       <!-- Inputs -->
-      div.table-container
-        table#transactionVinsTable.table.is-striped.is-hoverable.is-fullwidth
+      div#transactionVinsDiv.table-container.pr-1.pl-1
+        table(
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-buttons-class="button"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#transactionVinsTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Index
-              th.has-text-left Previous output
-              th.has-text-left Address
-              th.has-text-right Amount (#{process.env.COIN_SYMBOL})
+              th(data-halign="left" data-align="left" data-formatter="transactionVinPrevious") Previous output
+              th(data-halign="left" data-align="left" data-formatter="transactionVinAddress") Address
+              th(data-halign="right" data-align="right" data-formatter="transactionVinAmount") Amount
           tbody
 
       <!-- Outputs -->
-      div.table-container.is-hidden
-        table#transactionVoutsTable.table.is-striped.is-hoverable.is-fullwidth
+      div#transactionVoutsDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-buttons-class="button"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#transactionVoutsTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th.has-text-right Index
-              th.has-text-left Redeemed In
-              th.has-text-left Address
-              th.has-text-right Amount (#{process.env.COIN_SYMBOL})
+              th(data-halign="right" data-align="right" data-field="n" data-sortable="true") Index
+              th(data-halign="left" data-align="left" data-field="label" data-formatter="transactionVoutRedeemed") Redeemed In
+              th(data-halign="left" data-align="left" data-field="address" data-formatter="transactionVoutAddress") Address
+              th(data-halign="right" data-align="right" data-field="value" data-formatter="formatNumberCoin" data-sortable="true") Amount
           tbody
 
       <!-- Transaction (JSON RPC) -->
-      div.container.is-hidden
-        pre#transactionJSONPre
+      div#transactionJSONDiv.container.is-hidden
+        pre

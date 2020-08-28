@@ -16,6 +16,7 @@ head
   link(rel="manifest" href="/assets/site.webmanifest")
   link(rel='stylesheet' href='/assets/css/main.css')
   link(rel='stylesheet' href='/assets/vendor/css/bulma/bulma.min.css')
+  link(rel='stylesheet' href='/assets/vendor/bootstrap-table/themes/bulma/bootstrap-table-bulma.min.css')
   link(rel='stylesheet' href='/assets/vendor/fontawesome-free/css/all.min.css')
 
 body.has-background-light
@@ -110,7 +111,10 @@ body.has-background-light
   script.
     var COIN_SYMBOL = "#{process.env.COIN_SYMBOL}";
     var COINGECKO_SYMBOL = "#{process.env.COINGECKO_SYMBOL}";
-    var APP_API_PUBLIC_LINK = "#{process.env.APP_API_PUBLIC_LINK}";
   script(src='/assets/vendor/js/jquery/jquery.min.js')
   script(src='/assets/vendor/js/chart.js/Chart.min.js')
+  script(src='/assets/vendor/bootstrap-table/bootstrap-table.min.js')
+  script(src='/assets/vendor/bootstrap-table/themes/bulma/bootstrap-table-bulma.min.js')
+  script(src='/assets/vendor/bootstrap-table/extensions/mobile/bootstrap-table-mobile.min.js')
+  script(src='/assets/vendor/bootstrap-table/extensions/auto-refresh/bootstrap-table-auto-refresh.min.js')
   script(src='/assets/js/main.js')

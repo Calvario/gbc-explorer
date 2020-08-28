@@ -5,22 +5,20 @@ FROM node:alpine
 ENV APP_PATH /gbc-explorer
 WORKDIR $APP_PATH
 
-# Copy required files
-COPY ./package*.json ./
-COPY ./tsconfig*.json ./
-COPY ./tslint.json ./
-COPY ./lerna.json ./
-COPY ./.env ./
+# Copy main required files
+COPY ./package*.json ./tsconfig*.json ./tslint.json ./lerna.json ./.env ./
+# Copy dependecy
+COPY ./packages/shared/package*.json ./packages/shared/tsconfig*.json  ./packages/shared/
+COPY ./packages/shared/src  ./packages/shared/src
+# Copy package required files
+COPY ./packages/api/package*.json ./packages/api/tsconfig*.json ./packages/api/
 
-# install lerna local
+# Install required packages
 RUN npm install
-
-# Bundle app source
-COPY ./packages/shared ./packages/shared
-COPY ./packages/api ./packages/api
-
-# "lerna boostrap" will install all packages
 RUN npm run bootstrap
+
+# Build source
+COPY ./packages/api ./packages/api
 RUN npm run build
 
 EXPOSE 3001

@@ -51,7 +51,7 @@ const toRoot = '../../../';
   const jobLabels = new CronJob('45 * * * * *', async () => {
     if(!isRunning) {
       isRunning = true;
-      await blockchain.updateLabelForAddresses(path.join(__dirname, '../'));
+      await blockchain.updateLabelForAddresses(path.join(__dirname, toRoot));
       isRunning = false;
     }
   });
