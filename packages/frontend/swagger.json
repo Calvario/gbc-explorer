@@ -720,6 +720,39 @@
         }
       }
     },
+    "/block/{hash}/confirmations":{
+      "get":{
+        "tags":[
+          "Block"
+        ],
+        "summary":"Get block confirmations",
+        "description":"",
+        "operationId":"blockConfirmations",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"hash",
+            "description":"Block hash",
+            "type":"string",
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
     "/block/{hash}/transactions":{
       "get":{
         "tags":[
@@ -727,7 +760,7 @@
         ],
         "summary":"Get block transactions",
         "description":"",
-        "operationId":"blockHashTransaction",
+        "operationId":"blockTransaction",
         "produces":[
           "application/json"
         ],

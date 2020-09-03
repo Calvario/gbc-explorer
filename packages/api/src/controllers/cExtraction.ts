@@ -19,10 +19,6 @@ class Block implements iController {
     this.router.get(`${this.path}/:addressHash`, stringValidator(), this.getExtractionForAddress);
   }
 
-  private getExtractionPage = (request: Request, response: Response) => {
-    return response.render('extraction');
-  }
-
   private getExtractionStats = async (request: Request, response: Response) => {
     await this.repository.findOneOrFail({
       select: [ "height" ],
@@ -37,6 +33,7 @@ class Block implements iController {
       .addSelect("miner.label", "label")
       .innerJoin("block.miner", "miner")
       .where("height >= :height", { height: lastBlock.height - 100 })
+      .andWhere("block.onMainChain = true")
       .groupBy("miner.address")
       .addGroupBy("miner.label")
       .addGroupBy("miner.id")
@@ -63,6 +60,7 @@ class Block implements iController {
     const qB = this.repository.createQueryBuilder("block")
     .innerJoin("block.miner", "miner")
     .where("miner.address = :address", { address: addressHash })
+    .andWhere("block.onMainChain = true")
     .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));

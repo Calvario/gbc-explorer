@@ -81,7 +81,7 @@ class Home implements iController {
     } else if(numRegex.test(searchPattern)) {
       await this.blockRepository.find({
         select: ["hash"],
-        where: { height: searchPattern },
+        where: { height: searchPattern, onMainChain: true },
         take: 10
       }).then(blocks => {
         for (const block of blocks) {

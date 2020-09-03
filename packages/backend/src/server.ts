@@ -47,6 +47,15 @@ const toRoot = '../../../';
     }
   });
 
+  // Check chain tips
+  const jobChainTips = new CronJob('15 * * * * *', async () => {
+    if(!isRunning) {
+      isRunning = true;
+      await blockchain.checkChainTips()
+      isRunning = false;
+    }
+  });
+
   // Sync labels
   const jobLabels = new CronJob('45 * * * * *', async () => {
     if(!isRunning) {
@@ -57,5 +66,6 @@ const toRoot = '../../../';
   });
 
   jobSync.start();
+  jobChainTips.start();
   jobLabels.start();
 })();

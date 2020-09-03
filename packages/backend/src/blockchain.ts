@@ -78,6 +78,22 @@ class Blockchain {
       });
     }
   }
+
+  public checkChainTips = async () => {
+    // Get the list of chains
+    const chainTips = await this.client.getchaintips()
+    .catch(error => {
+      debug.log(error);
+    });
+
+    // Remove active chain block
+    chainTips.shift();
+
+    // Loop on each chain
+    for(const chain of chainTips) {
+      await manageSideChain(this.client, chain.hash, chain.status, chain.branchlen);
+    }
+  }
 }
 
 export default Blockchain;
@@ -90,27 +106,59 @@ async function loop(rpc: RPCClient, start: number, end: number) {
     .catch(error => {
       debug.log(error);
     });
-    const blockInfo = await rpc.getblock({blockhash: blockHash, verbosity: 2})
-    .catch(error => {
-      debug.log(error)
-    });
+    await getAllFromBlockHash(rpc, blockHash);
+    debug.log('-- END Heigh: ' + counter);
+    // Jump to the next block
+    counter++
+  }
+}
 
-    // Create a big transaction
-    await getManager().transaction(async transactionalEntityManager => {
-      // 1. Create block
-      await createBlock(transactionalEntityManager, blockInfo)
-      .then(async (blockObj: mBlock) => {
-        // Initialization of block update variable
-        let blockInputC: BigNumber = new BigNumber(0);
-        let blockInputT: BigNumber = new BigNumber(0);
-        let blockOutputC: BigNumber = new BigNumber(0);
-        let blockOutputT: BigNumber = new BigNumber(0);
-        let blockFeesT: BigNumber = new BigNumber(0);
-        let blockGeneration: BigNumber = new BigNumber(0);
-        let blockMiner: mAddress | undefined;
+async function getAllFromBlockHash(rpc: RPCClient, blockHash: string) {
+  const blockInfo = await rpc.getblock({blockhash: blockHash, verbosity: 2})
+  .catch(error => {
+    debug.log(error)
+  });
 
-        // 2. Loop on each transaction
-        for(const transactionInfo of blockInfo.tx) {
+  // Create a big transaction
+  await getManager().transaction(async transactionalEntityManager => {
+    // 1. Create block
+    await createBlock(transactionalEntityManager, blockInfo)
+    .then(async (blockObj: mBlock) => {
+      // Initialization of block update variable
+      let blockInputC: BigNumber = new BigNumber(0);
+      let blockInputT: BigNumber = new BigNumber(0);
+      let blockOutputC: BigNumber = new BigNumber(0);
+      let blockOutputT: BigNumber = new BigNumber(0);
+      let blockFeesT: BigNumber = new BigNumber(0);
+      let blockGeneration: BigNumber = new BigNumber(0);
+      let blockMiner: mAddress | undefined;
+
+      // 2. Loop on each transaction
+      for(const transactionInfo of blockInfo.tx) {
+        // In case the transaction already exist because of side chain
+        const getTransaction = await transactionalEntityManager.findOne(mTransaction, {
+          where:{ txid: transactionInfo.txid}
+        })
+        .catch((error: any) => {
+          debug.log(error);
+        });
+
+        // We update the transaction with the new blockId
+        if (getTransaction !== undefined && blockObj.onMainChain === true) {
+          getTransaction.block = blockObj;
+          await transactionalEntityManager.save(getTransaction)
+          .catch((error: any) => {
+            debug.log(error);
+          });
+
+          blockInputC = blockInputC.plus(getTransaction.inputC!);
+          blockInputT = blockInputT.plus(getTransaction.inputT!);
+          blockOutputC = blockOutputC.plus(getTransaction.outputC!);
+          blockOutputT = blockOutputT.plus(getTransaction.outputT!);
+          blockFeesT = blockFeesT.plus(getTransaction.fee!);
+        }
+        // New transaction
+        else {
           // 3. Create Transaction
           await createTransaction(transactionalEntityManager, blockObj, transactionInfo)
           .then( async (transactionObj: mTransaction) => {
@@ -124,7 +172,7 @@ async function loop(rpc: RPCClient, start: number, end: number) {
             // 4. Loop for each VINs
             for(const vinInfo of transactionInfo.vin) {
               // 5. Check the VOUT transaction associated with the VIN
-              await checkVinTransaction(transactionalEntityManager, vinInfo)
+              await checkVinTransaction(blockObj.onMainChain ,transactionalEntityManager, vinInfo)
               .then (async (vinVout: mVout) => {
                 // 6. Create VIN
                 await createVin(transactionalEntityManager, transactionObj, vinVout, vinInfo);
@@ -140,7 +188,7 @@ async function loop(rpc: RPCClient, start: number, end: number) {
             // 7. Loop for each VOUTs
             for (const voutInfo of transactionInfo.vout) {
               // 8. Loop for each addresses and search them (or create them if needed) returning an array with ID's
-              await checkVoutAddresses(transactionalEntityManager, voutInfo)
+              await checkVoutAddresses(blockObj.onMainChain, transactionalEntityManager, voutInfo)
               .then(async addressesArrayObj => {
                 // 9. Create VOUT
                 await createVout(transactionalEntityManager, transactionObj, addressesArrayObj, voutInfo);
@@ -169,26 +217,23 @@ async function loop(rpc: RPCClient, start: number, end: number) {
             })
           });
         }
+      }
 
-        // 11. Update block
-        await updateBlock(transactionalEntityManager, blockObj, blockInputC.toNumber(), blockInputT, blockOutputC.toNumber(), blockOutputT, blockFeesT, blockMiner, blockGeneration)
-        .catch(error => {
-          debug.log(error);
-        })
-        .then(async () => {
-          if(blockObj.height !== 1) {
-            await updatePreviousBlock(transactionalEntityManager, blockObj);
-          }
-        });
-        debug.log('-- END Heigh: ' + counter);
-      })
+      // 11. Update block
+      await updateBlock(transactionalEntityManager, blockObj, blockInputC.toNumber(), blockInputT, blockOutputC.toNumber(), blockOutputT, blockFeesT, blockMiner, blockGeneration)
       .catch(error => {
         debug.log(error);
       })
-    });
-    // Jump to the next block
-    counter++
-  }
+      .then(async () => {
+        if(blockObj.height !== 1 && blockObj.onMainChain === true) {
+          await updatePreviousBlock(transactionalEntityManager, blockObj);
+        }
+      });
+    })
+    .catch(error => {
+      debug.log(error);
+    })
+  });
 }
 
 async function createBlock(transaction: EntityManager, blockInfo: any): Promise<any> {
@@ -296,7 +341,7 @@ async function createVin (transaction: EntityManager, transactionObj: mTransacti
   });
 }
 
-async function checkVinTransaction (transaction: EntityManager, vinInfo: any): Promise<any> {
+async function checkVinTransaction (onMainChain: boolean, transaction: EntityManager, vinInfo: any): Promise<any> {
   if (vinInfo.txid !== undefined && vinInfo.vout !== undefined) {
     return await transaction.findOneOrFail(mTransaction, { txid: vinInfo.txid })
     .then(async transactionObj => {
@@ -305,7 +350,9 @@ async function checkVinTransaction (transaction: EntityManager, vinInfo: any): P
         relations: ["addresses"]
       });
     }).then(async vout => {
-      await updateAddress(transaction, vout.addresses[0], 0, new BigNumber(0), 1, new BigNumber(vout.value))
+      if (onMainChain === true) {
+        await updateAddress(transaction, vout.addresses[0], 0, new BigNumber(0), 1, new BigNumber(vout.value))
+      }
       return vout;
     }).catch(error => {
       debug.log(error);
@@ -332,25 +379,27 @@ async function createVout (transaction: EntityManager, transactionObj: mTransact
   });
 }
 
-async function checkVoutAddresses (transaction: EntityManager, voutInfo: any): Promise<any> {
+async function checkVoutAddresses (onMainChain: boolean, transaction: EntityManager, voutInfo: any): Promise<any> {
   const promiseAddressesArrayObj: mAddress[] = voutInfo.scriptPubKey.addresses.map(async (addressHash: string) => {
     const address = await transaction.findOne(mAddress, ({ address: addressHash }))
     if (address !== undefined) {
-      await updateAddress(transaction, address, 1, new BigNumber(voutInfo.value), 0, new BigNumber(0))
+      if (onMainChain === true) {
+        await updateAddress(transaction, address, 1, new BigNumber(voutInfo.value), 0, new BigNumber(0))
+      }
       return address;
     } else {
-      return await createAddress(transaction, addressHash, new BigNumber(voutInfo.value));
+      return await createAddress(onMainChain, transaction, addressHash, new BigNumber(voutInfo.value));
     }
   }, {concurrency: 1});
   return await Promise.all(promiseAddressesArrayObj);
 }
 
-async function createAddress (transaction: EntityManager, addressHash: string, inputBalance: BigNumber): Promise<any> {
+async function createAddress (onMainChain: boolean, transaction: EntityManager, addressHash: string, inputBalance: BigNumber): Promise<any> {
   const addressData: mAddress = {
     address: addressHash,
-    nTx: 1,
-    balance: inputBalance.toNumber(),
-    inputC: 1,
+    nTx: onMainChain === true ? 1 : 0,
+    balance: onMainChain === true ? inputBalance.toNumber() : 0,
+    inputC: onMainChain === true ? 1 : 0,
     outputC: 0,
   };
 
@@ -364,6 +413,112 @@ async function createAddress (transaction: EntityManager, addressHash: string, i
 async function updateAddress (transaction: EntityManager, addressObj: mAddress, inputC: number, inputT: BigNumber, outputC: number, outputT: BigNumber): Promise<any> {
   addressObj.nTx += 1;
   addressObj.balance = inputC === 1 ? new BigNumber(addressObj.balance).plus(inputT).toNumber() : new BigNumber(addressObj.balance).minus(outputT).toNumber();
+  addressObj.inputC += inputC;
+  addressObj.outputC += outputC;
+
+  return await transaction.update(mAddress, addressObj.id!, addressObj)
+  .catch((error: any) => {
+    debug.log(error);
+  });
+}
+
+async function manageSideChain (rpc: RPCClient, sideBlockHash: string, status: string, branchlen: number): Promise<any> {
+  // Create a big transaction
+  return await getManager().transaction(async transactionalEntityManager => {
+    let workingSideBlockHash = sideBlockHash;
+    for (let i = 0; i < branchlen; i++) {
+      // Find the block on the database
+      await transactionalEntityManager.findOne(mBlock, {
+        where: { hash : workingSideBlockHash }
+      })
+      .then(async blockObj => {
+        // We have the side chain block on the database
+        if (blockObj !== undefined) {
+          // If we already managed it, we move the next one
+          if (blockObj.onMainChain === false) {
+            return;
+          }
+
+          // Get the hash of the main chain block
+          const mainBlockHash = await rpc.getblockhash({height: blockObj.height})
+          .catch(error => {
+            debug.log(error);
+          });
+          // Check if we have already inserted it
+          await transactionalEntityManager.findOne(mBlock, {
+            where: { hash : mainBlockHash }
+          }).then(async mainBlockObj => {
+            if (mainBlockObj === undefined) {
+              debug.log("Height : " + blockObj.height + " - Slide chain block detected (" + workingSideBlockHash + 
+                "), inserting block of main chain (" + mainBlockHash + ")");
+              await getAllFromBlockHash(rpc, mainBlockHash);
+            }
+          })
+          .then(async () => {
+            // Update the side chain block as not on the mainchain
+            blockObj.onMainChain = false;
+            await transactionalEntityManager.update(mBlock, blockObj.id!, blockObj)
+            .catch((error: any) => {
+              debug.log(error);
+            });
+
+            // Update the addresses information
+            await transactionalEntityManager.createQueryBuilder(mTransaction, "transaction")
+            .innerJoin("transaction.block", "block")
+            .innerJoinAndSelect("transaction.vins", "vin")
+            .leftJoinAndSelect("vin.vout", "vinvout")
+            .leftJoinAndSelect("vinvout.addresses", "vinaddress")
+            .innerJoinAndSelect("transaction.vouts", "vout")
+            .innerJoinAndSelect("vout.addresses", "address")
+            .where("block.hash = :hash", { hash: workingSideBlockHash })
+            .orderBy("transaction.id", "ASC")
+            .addOrderBy("vin.id", "ASC")
+            .addOrderBy("vout.n", "ASC")
+            .getMany()
+            .then(async transactions => {
+              for (const transaction of transactions) {
+                // Loop for each VIN
+                for (const vin of transaction.vins!) {
+                  if (vin.coinbase === false && vin.vout !== undefined) {
+                    await removeOnAddress(transactionalEntityManager, vin.vout.addresses[0], 0, new BigNumber(0), -1, new BigNumber(vin.vout.value));
+                  }
+                }
+
+                // Loop for each VOUT
+                for (const vout of transaction.vouts!) {
+                  await removeOnAddress(transactionalEntityManager, vout.addresses[0], -1, new BigNumber(vout.value), 0, new BigNumber(0));
+                }
+              }
+              workingSideBlockHash = blockObj.previousblockhash;
+            })
+            .catch((error) => {
+              debug.log(error);
+            });
+          });
+        }
+        // Add the block for history
+        else {
+          const block = await rpc.getblock({blockhash: workingSideBlockHash, verbosity: 2})
+          .then(async rpcBlock => {
+            await getAllFromBlockHash(rpc, workingSideBlockHash)
+            workingSideBlockHash = rpcBlock.previousblockhash;
+          })
+          .catch(error => {
+            debug.log(error);
+          });
+        }
+      })
+      .catch((error) => {
+        debug.log(error);
+        return;
+      });
+    }
+  });
+}
+
+async function removeOnAddress(transaction: EntityManager, addressObj: mAddress, inputC: number, inputT: BigNumber, outputC: number, outputT: BigNumber): Promise<any> {
+  addressObj.nTx -= 1;
+  addressObj.balance = inputC === -1 ? new BigNumber(addressObj.balance).minus(inputT).toNumber() : new BigNumber(addressObj.balance).plus(outputT).toNumber();
   addressObj.inputC += inputC;
   addressObj.outputC += outputC;
 

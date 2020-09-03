@@ -1,4 +1,5 @@
 declare var COIN_SYMBOL: string;
+declare var COIN_CONFIRMATIONS: string;
 declare var COINGECKO_SYMBOL: string;
 
 let currentBlock: number | undefined;
@@ -548,7 +549,18 @@ $(document).ready(() => {
     $('#blockTransactions').click(() => {
       navigationControl('#blockTransactions', '#blockTransactionsDiv', allItemInfo);
       $.get('/rest/api/1/block/' + getUrlParameter(), (data, textStatus, jqXHR) => {
-        $('#blockHeight').text(data.height);
+        $('#blockHeight').text('"' + data.height + '"');
+        $.get('/rest/api/1/block/' + getUrlParameter() + '/confirmations', (confirmations) => {
+          const iIcon = $('<i></i>').addClass('fas fa-check');
+          const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
+          if (data.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
+            $('#blockConfirmation').text(confirmations.confirmations).addClass("is-success").append(spanIcon);
+          } else if (data.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
+            $('#blockConfirmation').text(confirmations.confirmations).addClass("is-warning").append(spanIcon);
+          } else {
+            $('#blockConfirmation').text("Rejected").addClass("is-danger");
+          }
+        });
         $('#blockHash').text(data.hash);
         $('#blockTime').text(formatEpochToDate(data.time));
         $('#blockTransactionsCount').text(data.nTx);
@@ -584,6 +596,17 @@ $(document).ready(() => {
     function getTransaction() {
       $.get('/rest/api/1/transaction/' + getUrlParameter(), (data, textStatus, jqXHR) => {
         $('#transactionId').text(data.hash);
+        $.get('/rest/api/1/block/' + data.block.hash + '/confirmations', (confirmations) => {
+          const iIcon = $('<i></i>').addClass('fas fa-check');
+          const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
+          if (data.block.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
+            $('#transactionConfirmation').text(confirmations.confirmations).addClass("is-success").append(spanIcon);
+          } else if (data.block.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
+            $('#transactionConfirmation').text(confirmations.confirmations).addClass("is-warning").append(spanIcon);
+          } else {
+            $('#transactionConfirmation').text("Rejected").addClass("is-danger");
+          }
+        });
         $('#transactionBlock').text(data.block.height);
         $('#transactionBlock').attr("href", '/block/' + data.block.hash);
         $('#transactionTime').text(formatEpochToDate(data.time));

@@ -83,6 +83,7 @@ class Address implements iController {
       .getQuery()
     )
     .where("(vin.id IS NOT NULL OR vout.id IS NOT NULL)")
+    .andWhere("block.onMainChain = true")
     .orderBy("transaction.id", "DESC")
     .addOrderBy("vin.id", "ASC")
     if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());

@@ -22,8 +22,9 @@ class Transaction implements iController {
   private getLatestTransactions = async (request: Request, response: Response) => {
     const qB = this.repository.createQueryBuilder("transaction")
     .innerJoinAndSelect("transaction.block", "block")
+    .where("block.onMainChain = true")
     .orderBy("block.height", "DESC")
-    if (request.query.afterId !== undefined) qB.where("transaction.id < " + request.query.afterId.toString());
+    if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
     await qB.getMany()
