@@ -42,16 +42,16 @@ const toRoot = '../../../';
   const jobSync = new CronJob('10 * * * * *', async () => {
     if(!isRunning) {
       isRunning = true;
-      await blockchain.sync()
+      await blockchain.sync();
       isRunning = false;
     }
   });
 
   // Check chain tips
-  const jobChainTips = new CronJob('15 * * * * *', async () => {
+  const jobChainTips = new CronJob('40 * * * * *', async () => {
     if(!isRunning) {
       isRunning = true;
-      await blockchain.checkChainTips()
+      await blockchain.checkChainTips();
       isRunning = false;
     }
   });
