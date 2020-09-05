@@ -65,7 +65,7 @@ class Block implements iController {
   private getBlockConfirmations = async (request: Request, response: Response) => {
     const blockHash = request.params.hash;
     await this.repository.createQueryBuilder("block")
-    .select("(SELECT MAX(height) FROM block) - block.height", "confirmations")
+    .select("(SELECT MAX(height) FROM block) - block.height + 1", "confirmations")
     .where("block.hash = :hash", { hash: blockHash })
     .getRawOne()
     .then(block => {
