@@ -1,9 +1,5 @@
 
 # Features
-- Network
-	- Versions, connections, node list (RGPD?)
-- Stalled blocks
-	- Block, hash, time, status, (length ?)
 - Mempool
 	- Stats (size, bytes, usage) and transactions in queue with details
 - Daily info
@@ -33,11 +29,8 @@
 - Block/Transaction/Address screen
 	- Copy hash button
 - Tables
-	- Column visibility selection
 	- Filters
 	- CSV export
-- Block/Transaction screen
-	- Confirmation
 - Extraction for address screen
 	- Count total blocks and how many % for all blocks
 

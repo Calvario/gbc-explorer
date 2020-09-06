@@ -9,25 +9,11 @@ BigNumber.config({ DECIMAL_PLACES: 9 })
 
 class Blockchain {
 
-  public client: RPCClient;
-  public blockRepository = getRepository(mBlock);
-  public addressRepository = getRepository(mAddress);
+  private blockRepository = getRepository(mBlock);
+  private addressRepository = getRepository(mAddress);
 
-  constructor() {
-    this.client = this.rpcConnection();
-  }
-
-  private rpcConnection() {
-    const url = process.env.RPC_HOST;
-    const user = process.env.RPC_USERNAME;
-    const pass = String(process.env.RPC_PASSWORD);
-    const port = Number(process.env.RPC_PORT);
-    const timeout = Number(process.env.RPC_TIMEOUT);
-    return new RPCClient({ url, port, timeout, user, pass });
-  }
-
-  public sync = async () => {
-    const lastBlock = await this.client.getblockcount()
+  public sync = async (rpcClient: RPCClient) => {
+    const lastBlock = await rpcClient.getblockcount()
     .catch(error => {
       debug.log(error);
     });
@@ -37,10 +23,10 @@ class Blockchain {
       order: { height: 'DESC' }
     })
     .then(async (block) => {
-      await loop(this.client, Number(block.height) + 1, lastBlock);
+      await loop(rpcClient, Number(block.height) + 1, lastBlock);
     })
     .catch(async () => {
-      await loop(this.client, 1, lastBlock);
+      await loop(rpcClient, 1, lastBlock);
     })
   }
 
@@ -79,9 +65,9 @@ class Blockchain {
     }
   }
 
-  public checkChainTips = async () => {
+  public checkChainTips = async (rpcClient: RPCClient) => {
     // Get the list of chains
-    const chainTips = await this.client.getchaintips()
+    const chainTips = await rpcClient.getchaintips()
     .catch(error => {
       debug.log(error);
     });
@@ -91,7 +77,7 @@ class Blockchain {
 
     // Loop on each chain
     for(const chain of chainTips) {
-      await manageSideChain(this.client, chain.hash, chain.status, chain.branchlen);
+      await manageSideChain(rpcClient, chain.hash, chain.status, chain.branchlen);
     }
   }
 }
@@ -452,7 +438,7 @@ async function manageSideChain (rpc: RPCClient, sideBlockHash: string, status: s
           where: { hash : mainBlockHash }
         }).then(async mainBlockObj => {
           if (mainBlockObj === undefined) {
-            debug.log("Height : " + blockObj.height + " - Slide chain block detected (" + workingSideBlockHash + 
+            debug.log("Height : " + blockObj.height + " - Slide chain block detected (" + workingSideBlockHash +
               "), inserting block of main chain (" + mainBlockHash + ")");
             await getAllFromBlockHash(rpc, mainBlockHash);
           }

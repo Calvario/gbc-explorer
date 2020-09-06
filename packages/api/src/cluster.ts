@@ -9,6 +9,7 @@ import cBlock from './controllers/cBlock';
 import cExtraction from './controllers/cExtraction';
 import cTransaction from './controllers/cTransaction';
 import cAddress from './controllers/cAddress';
+import cPeer from './controllers/cPeer';
 import cRPC from './controllers/cRPC';
 import debug from 'debug';
 
@@ -57,6 +58,7 @@ else {
         new cExtraction(),
         new cTransaction(),
         new cAddress(),
+        new cPeer(),
         new cRPC(),
       ],
     );

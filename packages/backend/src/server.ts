@@ -1,9 +1,11 @@
 import path from 'path';
+import debug from 'debug';
+import dotenv from 'dotenv';
+import { RPCClient } from 'rpc-bitcoin';
 import { createConnection, getConnectionOptions } from 'typeorm';
 import cron from 'cron';
 import Blockchain from './blockchain';
-import dotenv from 'dotenv';
-import debug from 'debug';
+import Peer from './peer';
 
 const toRoot = '../../../';
 
@@ -34,15 +36,29 @@ const toRoot = '../../../';
     return error;
   });
 
+  // RPC Connection
+  const url = process.env.RPC_HOST;
+  const user = process.env.RPC_USERNAME;
+  const pass = String(process.env.RPC_PASSWORD);
+  const port = Number(process.env.RPC_PORT);
+  const timeout = Number(process.env.RPC_TIMEOUT);
+  const rpcClient = new RPCClient({ url, port, timeout, user, pass });
+
+  // Cron
   let isRunning = false;
   const CronJob = cron.CronJob;
   const blockchain = new Blockchain();
+
+  // Sync Peers
+  const jobGetPeers = new CronJob('30 * * * * *', async () => {
+    await Peer(rpcClient);
+  });
 
   // Sync blockchain
   const jobSync = new CronJob('10 * * * * *', async () => {
     if(!isRunning) {
       isRunning = true;
-      await blockchain.sync();
+      await blockchain.sync(rpcClient);
       isRunning = false;
     }
   });
@@ -51,7 +67,7 @@ const toRoot = '../../../';
   const jobChainTips = new CronJob('40 * * * * *', async () => {
     if(!isRunning) {
       isRunning = true;
-      await blockchain.checkChainTips();
+      await blockchain.checkChainTips(rpcClient);
       isRunning = false;
     }
   });
@@ -65,6 +81,7 @@ const toRoot = '../../../';
     }
   });
 
+  jobGetPeers.start();
   jobSync.start();
   jobChainTips.start();
   jobLabels.start();

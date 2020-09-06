@@ -261,6 +261,39 @@ function homeExtractionExtractionLink(value: string, row: any) {
   return addOverflowControl(link);
 }
 
+function homeNetwork(params: any) {
+  $.ajax({
+    type: "GET",
+    url: "/rest/api/1/peer",
+    success: (data) => {
+      params.success({
+        "rows": data,
+        "total": data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
+  });
+}
+
+function homeNetworkAddNodeButton(value: string)  {
+  const link = '<button onclick="homeNetworkAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
+  return link;
+}
+
+function homeNetworkAddNodeModal(version: number)  {
+  $.get('/rest/api/1/peer/' + version, (data, textStatus, jqXHR) => {
+    let peersList: string = '';
+    $('#homeNetworkModal').toggleClass("is-active");
+    $('#homeNetworkModalTitle').text(data.subVersion);
+    for(const peer of data.peers) {
+      peersList += '<p>addnode=' + peer.ip + (peer.port !== null ? ':' + peer.port : '') + '</p>';
+    }
+    $('#homeNetworkPre').html(peersList);
+  });
+}
+
 function homeAddresses(params: any) {
   $.ajax({
     type: "GET",
@@ -505,8 +538,14 @@ $(document).ready(() => {
   if ($(location).attr('pathname') === '/') {
 
     const allItemInfo = ['#homeBlocksDiv', '#homeTransactionsDiv',
-      '#homeAddressesDiv', '#homeExtractionDiv',
+      '#homeAddressesDiv', '#homeExtractionDiv', '#homeNetworkDiv',
       '#homeMarketDiv', '#homeNewsDiv'];
+
+    // Toggle div when from an anchor
+    const hash = window.location.hash;
+    if (hash !== "") {
+      navigationControl(hash, hash +"Div", allItemInfo, true);
+    }
 
     $('#homeBlocks').click(() => {
       navigationControl('#homeBlocks', "#homeBlocksDiv", allItemInfo, true);
@@ -516,12 +555,20 @@ $(document).ready(() => {
       navigationControl('#homeTransactions', "#homeTransactionsDiv", allItemInfo, true);
     });
 
-    $('#homeAddresses').click(() => {
-      navigationControl('#homeAddresses', "#homeAddressesDiv", allItemInfo, true);
+    $('#homeNetwork').click(() => {
+      navigationControl('#homeNetwork', "#homeNetworkDiv", allItemInfo, true);
+    });
+
+    $('#homeNetworkModalClose').click(() => {
+      $('#homeNetworkModal').toggleClass("is-active");
     });
 
     $('#homeExtraction').click(() => {
       navigationControl('#homeExtraction', "#homeExtractionDiv", allItemInfo, true);
+    });
+
+    $('#homeAddresses').click(() => {
+      navigationControl('#homeAddresses', "#homeAddressesDiv", allItemInfo, true);
     });
 
     $('#homeMarket').click(() => {

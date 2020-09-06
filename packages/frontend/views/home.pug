@@ -38,32 +38,37 @@ block content
         div.container
           ul#homeMenu
             li.is-active
-              a#homeBlocks
+              a(href="#homeBlocks")#homeBlocks
                 span.icon.is-small
                   i.fas.fa-cube(aria-hidden="true")
                 span Blocks
             li
-              a#homeTransactions
+              a(href="#homeTransactions")#homeTransactions
                 span.icon.is-small
                   i.fas.fa-exchange-alt(aria-hidden="true")
                 span Transactions
             li
-              a#homeExtraction
+              a(href="#homeExtraction")#homeExtraction
                 span.icon.is-small
                   i.fas.fa-tools(aria-hidden="true")
                 span Extraction
             li
-              a#homeAddresses
+              a(href="#homeNetwork")#homeNetwork
+                span.icon.is-small
+                  i.fas.fa-network-wired(aria-hidden="true")
+                span Network
+            li
+              a(href="#homeAddresses")#homeAddresses
                 span.icon.is-small
                   i.fas.fa-wallet(aria-hidden="true")
                 span Rich list
             li
-              a#homeMarket
+              a(href="#homeMarket")#homeMarket
                 span.icon.is-small
                   i.fas.fa-hand-holding-usd(aria-hidden="true")
                 span Markets
             li
-              a#homeNews
+              a(href="#homeNews")#homeNews
                 span.icon.is-small
                   i.fas.fa-newspaper(aria-hidden="true")
                 span News
@@ -152,6 +157,41 @@ block content
               th(data-halign="left" data-align="left" data-field="address" data-formatter="homeExtractionAddressLink") Address
               th(data-halign="right" data-align="right" data-field="count" data-sortable="true" data-formatter="homeExtractionExtractionLink") Last 100
           tbody
+
+      <!-- Network -->
+      div#homeNetworkDiv.table-container.is-hidden.pr-1.pl-1
+        table(
+          data-toggle="table"
+          data-show-toggle="true"
+          data-mobile-responsive="true"
+          data-ajax="homeNetwork"
+          data-buttons-class="button"
+          data-show-refresh="true"
+          data-show-fullscreen="true"
+          data-show-columns="true"
+          data-show-columns-toggle-all="true"
+          data-auto-refresh="true"
+          data-pagination="true"
+          data-page-size="10"
+          data-pagination-successively-size="1"
+        )#homeNetworkTable.table.is-striped.is-hoverable.is-fullwidth
+          thead
+            tr
+              th(data-halign="right" data-align="right" data-field="version_subVersion" data-sortable="true") Sub. Version
+              th(data-halign="right" data-align="right" data-field="version_version" data-sortable="true") Protocol
+              th(data-halign="right" data-align="right" data-field="version_count" data-sortable="true") Count (24h)
+              th(data-halign="right" data-align="right" data-field="version_id" data-formatter="homeNetworkAddNodeButton") AddNode (24h)
+          tbody
+        div#homeNetworkModal.modal
+          div.modal-background
+          div.modal-card
+            header.modal-card-head
+              p.modal-card-title AddNode for
+                span#homeNetworkModalTitle.ml-2
+              button#homeNetworkModalClose.delete(aria-label="close" on)
+            section.modal-card-body
+              p Seen by explorer wallet in the last 24 hours:
+              pre#homeNetworkPre
 
       <!-- Rich List -->
       div#homeAddressesDiv.table-container.is-hidden.pr-1.pl-1

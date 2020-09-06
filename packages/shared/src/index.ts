@@ -3,5 +3,8 @@ import mTransaction from './entity/mTransaction';
 import mAddress from './entity/mAddress';
 import mVin from './entity/mVin';
 import mVout from './entity/mVout';
+import mPeer from './entity/mPeer';
+import mCountry from './entity/mCountry';
+import mPeerVersion from './entity/mPeerVersion';
 
-export { mBlock, mTransaction, mAddress, mVin, mVout };
+export { mBlock, mTransaction, mAddress, mVin, mVout, mPeer, mCountry, mPeerVersion };
