@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getRepository, createQueryBuilder } from "typeorm";
+import { getRepository } from "typeorm";
 import iController from '../interfaces/iController';
 import stringValidator from '../middlewares/mStringValidator';
 import { mPeerVersion } from '@calvario/gbc-explorer-shared';

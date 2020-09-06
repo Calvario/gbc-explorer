@@ -4,7 +4,7 @@ import { RPCClient } from "rpc-bitcoin";
 import { getManager, EntityManager } from "typeorm";
 import { mCountry, mPeerVersion, mPeer } from '@calvario/gbc-explorer-shared';
 
-export default function sync(rpc: RPCClient) {
+export default async function sync(rpc: RPCClient) {
   rpc.getpeerinfo()
   .then(async peerInfo => {
     // Create a big transaction
