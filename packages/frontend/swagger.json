@@ -28,6 +28,10 @@
       "description":"Internal API"
     },
     {
+      "name":"Peer",
+      "description":"Internal API"
+    },
+    {
       "name":"Transaction",
       "description":"Internal API"
     },
@@ -851,6 +855,63 @@
             "description":"Number of results (max 100)",
             "type":"integer",
             "required":false
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/peer":{
+      "get":{
+        "tags":[
+          "Peer"
+        ],
+        "summary":"Get peers statistics",
+        "description":"",
+        "operationId":"peer",
+        "produces":[
+          "application/json"
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/peer/{versionId}":{
+      "get":{
+        "tags":[
+          "Peer"
+        ],
+        "summary":"Get all peers for a specific version",
+        "description":"",
+        "operationId":"peersForVersion",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"versionId",
+            "description":"Version ID",
+            "type":"string",
+            "required":true
           }
         ],
         "responses":{
