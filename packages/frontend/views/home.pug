@@ -1,258 +1,377 @@
 extends layout
 block content
 
-  <!-- Market Info -->
-  div.container.pb-4
-    div.columns.is-centered.is-mobile.is-multiline.is-variable.is-1
-      div.column.is-one-fifth-desktop.is-half-mobile
-        div.box.has-text-centered
-          p.has-text-weight-semibold BTC Price 
-            a(href="/faq#financial-disclaimer-content") *
-          p
-            a#layoutBTCPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
-      div.column.is-one-fifth-desktop.is-half-mobile
-        div.box.has-text-centered
-          p.has-text-weight-semibold USD Price 
-            a(href="/faq#financial-disclaimer-content") *
-          p
-            a#layoutUSDPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
-      div.column.is-one-fifth-desktop.is-half-mobile
-        div.box.has-text-centered
-          p.has-text-weight-semibold Market Cap 
-            a(href="/faq#financial-disclaimer-content") *
-          p
-            a#layoutMarketCap(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
-      div.column.is-one-fifth-desktop.is-half-mobile
-        div.box.has-text-centered
-          p.has-text-weight-semibold Network Hash
-          p#layoutNetworkHash 0 kH/m
-      div.column.is-one-fifth-desktop.is-full-mobile
-        div.box.has-text-centered
-          p.has-text-weight-semibold #{process.env.COIN_SYMBOL} Current Supply
-          span#layoutSupply 0
+  div.columns.is-multiline
+    <!-- Market Info -->
+    div.column.is-full
+      div.columns.is-centered.is-mobile.is-multiline.is-variable.is-1
+        div.column.is-one-fifth-desktop.is-half-mobile
+          div.box.has-text-centered
+            p.has-text-weight-semibold BTC Price 
+              a(href="/faq#financial-disclaimer-content") *
+            p
+              a#layoutBTCPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+        div.column.is-one-fifth-desktop.is-half-mobile
+          div.box.has-text-centered
+            p.has-text-weight-semibold USD Price 
+              a(href="/faq#financial-disclaimer-content") *
+            p
+              a#layoutUSDPrice(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+        div.column.is-one-fifth-desktop.is-half-mobile
+          div.box.has-text-centered
+            p.has-text-weight-semibold Market Cap 
+              a(href="/faq#financial-disclaimer-content") *
+            p
+              a#layoutMarketCap(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") 0
+        div.column.is-one-fifth-desktop.is-half-mobile
+          div.box.has-text-centered
+            p.has-text-weight-semibold 
+              if process.env.COIN_TYPE == 'PoW'
+                | Network Hash
+              else if process.env.COIN_TYPE == 'PoST'
+                | Interest rate
+            p#layoutNetworkHash
+              if process.env.COIN_TYPE == 'PoW'
+                | 0 KH/m
+              else if process.env.COIN_TYPE == 'PoST'
+                | 0%
+        div.column.is-one-fifth-desktop.is-full-mobile
+          div.box.has-text-centered
+            p.has-text-weight-semibold #{process.env.COIN_SYMBOL} Current Supply
+            span#layoutSupply 0
 
-  div.container.pb-4
-    div.box
-      <!-- Navigation -->
-      nav.tabs.is-boxed.is-centered
-        div.container
-          ul#homeMenu
-            li.is-active
-              a(href="#homeBlocks")#homeBlocks
-                span.icon.is-small
-                  i.fas.fa-cube(aria-hidden="true")
-                span Blocks
-            li
-              a(href="#homeTransactions")#homeTransactions
-                span.icon.is-small
-                  i.fas.fa-exchange-alt(aria-hidden="true")
-                span Transactions
-            li
-              a(href="#homeExtraction")#homeExtraction
-                span.icon.is-small
-                  i.fas.fa-tools(aria-hidden="true")
-                span Extraction
-            li
-              a(href="#homeNetwork")#homeNetwork
-                span.icon.is-small
-                  i.fas.fa-network-wired(aria-hidden="true")
-                span Network
-            li
-              a(href="#homeAddresses")#homeAddresses
-                span.icon.is-small
-                  i.fas.fa-wallet(aria-hidden="true")
-                span Rich list
-            li
-              a(href="#homeMarket")#homeMarket
-                span.icon.is-small
-                  i.fas.fa-hand-holding-usd(aria-hidden="true")
-                span Markets
-            li
-              a(href="#homeNews")#homeNews
-                span.icon.is-small
-                  i.fas.fa-newspaper(aria-hidden="true")
-                span News
-
-      <!-- Blocks -->
-      div#homeBlocksDiv.table-container.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeBlocks"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="height" data-sortable="true" data-formatter="homeBlocksBlockLink") Height
-              th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
-              th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
-              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
-              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true" data-visible="false") Outputs
-              th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
-              th(data-halign="right" data-align="right" data-field="generation" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Generation
-              th(data-halign="right" data-align="right" data-field="feesT" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Fees
-              th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
-              th(data-halign="right" data-align="right" data-field="difficulty" data-sortable="true" data-formatter="formatNumberDifficulty") Difficulty
-              th(data-halign="left" data-align="left" data-field="miner.address" data-formatter="homeBlocksExtractedLink") Extracted by
-          tbody
-
-      <!-- Transactions -->
-      div#homeTransactionsDiv.table-container.is-hidden.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeTransactions"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="block.height" data-sortable="true" data-formatter="homeTransactionsBlockLink") Block
-              th(data-halign="left" data-align="left" data-field="hash" data-formatter="homeTransactionsTransactionLink") Transaction
-              th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
-              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
-              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
-              th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
-              th(data-halign="right" data-align="right" data-field="fee" data-sortable="true" data-formatter="formatNumberCoin") Fees
-              th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
-
-      <!-- Extraction -->
-      div#homeExtractionDiv.table-container.is-hidden.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeExtraction"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeExtractionTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
-              th(data-halign="left" data-align="left" data-field="label") Pool/Miner
-              th(data-halign="left" data-align="left" data-field="address" data-formatter="homeExtractionAddressLink") Address
-              th(data-halign="right" data-align="right" data-field="count" data-sortable="true" data-formatter="homeExtractionExtractionLink") Last 100
-          tbody
-
-      <!-- Network -->
-      div#homeNetworkDiv.table-container.is-hidden.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeNetwork"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeNetworkTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="version_subVersion" data-sortable="true") Sub. Version
-              th(data-halign="right" data-align="right" data-field="version_version" data-sortable="true") Protocol
-              th(data-halign="right" data-align="right" data-field="version_count" data-sortable="true") Count (24h)
-              th(data-halign="right" data-align="right" data-field="version_id" data-formatter="homeNetworkAddNodeButton") AddNode (24h)
-          tbody
-        div#homeNetworkModal.modal
-          div.modal-background
-          div.modal-card
-            header.modal-card-head
-              p.modal-card-title AddNode for
-                span#homeNetworkModalTitle.ml-2
-              button#homeNetworkModalClose.delete(aria-label="close" on)
-            section.modal-card-body
-              p Seen by explorer wallet in the last 24 hours:
-              pre#homeNetworkPre
-
-      <!-- Rich List -->
-      div#homeAddressesDiv.table-container.is-hidden.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeAddresses"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeAddressesTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
-              th(data-halign="left" data-align="left" data-field="address" data-formatter="homeAddressesAddressLink") Address
-              th(data-halign="right" data-align="right" data-field="balance" data-sortable="true" data-formatter="formatNumberCoin") Balance
-              th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
-              th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
-              th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
-          tbody
-
-      <!-- Market -->
-      div#homeMarketDiv.table-container.is-hidden.pr-1.pl-1
-        table(
-          data-toggle="table"
-          data-show-toggle="true"
-          data-mobile-responsive="true"
-          data-ajax="homeMarket"
-          data-buttons-class="button"
-          data-show-refresh="true"
-          data-show-fullscreen="true"
-          data-show-columns="true"
-          data-show-columns-toggle-all="true"
-          data-auto-refresh="true"
-          data-pagination="true"
-          data-page-size="10"
-          data-pagination-successively-size="1"
-        )#homeMarketTable.table.is-striped.is-hoverable.is-fullwidth
-          thead
-            tr
-              th(data-halign="right" data-align="right" data-field="market.name" data-sortable="true") Exchange
-              th(data-halign="right" data-align="right" data-field="base" data-sortable="true" data-formatter="homeMarketPair") Pair
-              th(data-halign="right" data-align="right" data-field="converted_last.usd" data-sortable="true" data-formatter="formatNumberFiat") USD Price
-              th(data-halign="right" data-align="right" data-field="converted_last.btc" data-sortable="true" data-formatter="formatNumberBTC") BTC Price
-              th(data-halign="right" data-align="right" data-field="volume" data-sortable="true" data-formatter="formatNumberCoin") VRM Volume
-              th(data-halign="right" data-align="right" data-field="converted_volume.usd" data-sortable="true" data-formatter="formatNumberFiat") USD Volume
-              th(data-halign="right" data-align="right" data-field="converted_volume.btc" data-sortable="true" data-formatter="formatNumberBTC") BTC Volume
-              th(data-halign="right" data-align="right" data-field="bid_ask_spread_percentage" data-sortable="true" data-formatter="formatNumberPercentage") Bid/Ask Spread
+    <!-- Content -->
+    div.column.is-full
+      div#homeDivsContainer.box
+        <!-- Blocks -->
+        div#homeBlocksDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Latest blocks
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeBlocks"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeBlocksTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="height" data-sortable="true" data-formatter="homeBlocksBlockLink") Height
+                th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
+                th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
+                th(data-halign="left" data-align="left" data-field="hash" data-visible="false" data-formatter="addOverflowControl") Hash
+                th(data-halign="right" data-align="right" data-field="mint" data-visible="false" data-formatter="formatNumberMint") Mint
+                th(data-halign="right" data-align="right" data-field="version" data-sortable="true" data-visible="false") Version
+                th(data-halign="left" data-align="left" data-field="merkleroot" data-visible="false" data-formatter="addOverflowControl") Merkleroot
+                th(data-halign="right" data-align="right" data-field="nonce" data-sortable="true" data-visible="false") Nonce
+                th(data-halign="left" data-align="left" data-field="bits" data-visible="false" data-formatter="addOverflowControl") Bits
+                <!-- PoST -->
+                if process.env.COIN_TYPE == 'PoST'
+                  th(data-halign="left" data-align="left" data-field="chaintrust" data-visible="false" data-formatter="addOverflowControl") Chain trust
+                  th(data-halign="left" data-align="left" data-field="blocktrust" data-visible="false" data-formatter="addOverflowControl") Block trust
+                  th(data-halign="left" data-align="left" data-field="flags" data-visible="false" data-formatter="addOverflowControl") Flags
+                  th(data-halign="left" data-align="left" data-field="proofhash" data-visible="false" data-formatter="addOverflowControl") Proof hash
+                  th(data-halign="left" data-align="left" data-field="entropybit" data-visible="false") Entropy bit
+                  th(data-halign="left" data-align="left" data-field="modifier" data-visible="false" data-formatter="addOverflowControl") Modifier
+                  th(data-halign="left" data-align="left" data-field="modifierchecksum" data-visible="false" data-formatter="addOverflowControl") Modifier checksum
+                  th(data-halign="left" data-align="left" data-field="signature" data-visible="false" data-formatter="addOverflowControl") Signature
+                
+                th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+                th(data-halign="right" data-align="right" data-field="inputT" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Out
+                th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true" data-visible="false") Outputs
+                th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
+                th(data-halign="right" data-align="right" data-field="generation" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Generation
+                th(data-halign="right" data-align="right" data-field="feesT" data-sortable="true" data-visible="false" data-formatter="formatNumberCoin") Fees
+                th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
+                <!-- PoW -->
+                if process.env.COIN_TYPE == 'PoW'
+                  th(data-halign="right" data-align="right" data-field="vsize" data-sortable="true" data-visible="false" data-formatter="formatBytes") VSize
+                  th(data-halign="right" data-align="right" data-field="weight" data-sortable="true" data-visible="false" data-formatter="formatBytes") Weight
+                  th(data-halign="left" data-align="left" data-field="chainwork" data-sortable="true" data-visible="false" data-formatter="addOverflowControl") Chainwork
+                
+                th(data-halign="right" data-align="right" data-field="difficulty" data-sortable="true" data-formatter="formatNumberDifficulty") Difficulty
+                th(data-halign="left" data-align="left" data-field="miner.address" data-formatter="homeBlocksExtractedLink") Extracted by
             tbody
-        p.has-text-right.has-text-weight-semibold Datasource 
-          a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
 
-      <!-- News -->
-      div#homeNewsDiv.container.is-hidden
-        div
-          script(src="https://widgets.coingecko.com/coingecko-beam-widget.js")
-          coingecko-beam-widget(type="coins" height="0" locale="en" project-id=`${process.env.COINGECKO_SYMBOL}`)
+        <!-- Transactions -->
+        div#homeTransactionsDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Latest transactions
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeTransactions"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="block.height" data-sortable="true" data-formatter="homeTransactionsBlockLink") Block
+                th(data-halign="left" data-align="left" data-field="txid" data-formatter="homeTransactionsTransactionLink") Transaction
+                th(data-halign="right" data-align="right" data-field="version" data-visible="false" data-sortable="true") Version
+                th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
+                th(data-halign="right" data-align="right" data-field="locktime" data-visible="false" data-sortable="true") Locktime
+                th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+                th(data-halign="right" data-align="right" data-field="inputT" data-visible="false" data-sortable="true" data-formatter="formatNumberCoin") In
+                th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
+                th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
+                th(data-halign="right" data-align="right" data-field="fee" data-sortable="true" data-formatter="formatNumberCoin") Fees
+
+                <!-- PoW -->
+                if process.env.COIN_TYPE == 'PoW'
+                  th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
+                  th(data-halign="right" data-align="right" data-field="vsize" data-visible="false" data-sortable="true" data-formatter="formatBytes") VSize
+                  th(data-halign="right" data-align="right" data-field="weight" data-visible="false" data-sortable="true" data-formatter="formatBytes") Weight
+
+        <!-- Extraction -->
+        div#homeExtractionDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Extraction
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeExtraction"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeExtractionTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
+                th(data-halign="left" data-align="left" data-field="label") 
+                  if process.env.COIN_TYPE == 'PoW'
+                    | Pool/Miner
+                  else if process.env.COIN_TYPE == 'PoST'
+                    | Staker
+                th(data-halign="left" data-align="left" data-field="address" data-formatter="homeExtractionAddressLink") Address
+                th(data-halign="right" data-align="right" data-field="count" data-sortable="true" data-formatter="homeExtractionExtractionLink") Last 100
+            tbody
+
+        <!-- Peers -->
+        div#homePeersDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Peers found in the last 24 hours 
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homePeers"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-show-footer="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homePeersTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="version_subVersion" data-sortable="true" data-footer-formatter="returnTotalString") Sub. Version
+                th(data-halign="right" data-align="right" data-field="version_version" data-sortable="true") Protocol
+                th(data-halign="right" data-align="right" data-field="version_count" data-sortable="true" data-footer-formatter="countTotalTable") Count
+                th(data-halign="right" data-align="right" data-field="version_id" data-formatter="homePeersAddNodeButton") AddNode
+            tbody
+          div#homePeersModal.modal
+            div.modal-background
+            div.modal-card
+              header.modal-card-head
+                p.modal-card-title AddNode for
+                  span#homePeersModalTitle.ml-2
+                button#homePeersModalClose.delete(aria-label="close" on)
+              section.modal-card-body
+                p Seen by explorer wallet in the last 24 hours:
+                pre#homePeersPre
+
+        <!-- Mempool -->
+        //-
+          div#homeMempoolDiv.table-container.is-hidden
+            h1.is-size-4.has-text-weight-bold Mempool transactions
+            table(
+              data-toggle="table"
+              data-show-toggle="true"
+              data-mobile-responsive="true"
+              data-ajax="homeMempool"
+              data-buttons-class="button"
+              data-show-refresh="true"
+              data-show-fullscreen="true"
+              data-show-columns="true"
+              data-show-columns-toggle-all="true"
+              data-auto-refresh="true"
+              data-auto-refresh-status="false"
+              data-pagination="true"
+              data-page-size="10"
+              data-pagination-successively-size="1"
+            )#homeMempoolTable.table.is-striped.is-hoverable.is-fullwidth
+              thead
+                tr
+                  th(data-halign="left" data-align="left" data-field="txid" data-formatter="homeTransactionsTransactionLink") Transaction
+                  th(data-halign="right" data-align="right" data-field="version" data-visible="false" data-sortable="true") Version
+                  th(data-halign="right" data-align="right" data-field="time" data-formatter="formatEpochToAge") Time
+                  th(data-halign="right" data-align="right" data-field="locktime" data-visible="false" data-sortable="true") Locktime
+                  th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+                  th(data-halign="right" data-align="right" data-field="inputT" data-visible="false" data-sortable="true" data-formatter="formatNumberCoin") In
+                  th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
+                  th(data-halign="right" data-align="right" data-field="outputT" data-sortable="true" data-formatter="formatNumberCoin") Out
+                  th(data-halign="right" data-align="right" data-field="fee" data-sortable="true" data-formatter="formatNumberCoin") Fees
+
+                  <!-- PoW -->
+                  if process.env.COIN_TYPE == 'PoW'
+                    th(data-halign="right" data-align="right" data-field="size" data-sortable="true" data-formatter="formatBytes") Size
+                    th(data-halign="right" data-align="right" data-field="vsize" data-visible="false" data-sortable="true" data-formatter="formatBytes") VSize
+                    th(data-halign="right" data-align="right" data-field="weight" data-visible="false" data-sortable="true" data-formatter="formatBytes") Weight
+
+        <!-- Rich List -->
+        div#homeRichListDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Rich list per address
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeRichList"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeRichListTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="rank" data-sortable="true") Rank
+                th(data-halign="left" data-align="left" data-field="address" data-formatter="homeRichListAddressLink") Address
+                th(data-halign="right" data-align="right" data-field="balance" data-sortable="true" data-formatter="formatNumberCoin") Balance
+                th(data-halign="right" data-align="right" data-field="nTx" data-sortable="true") Txs
+                th(data-halign="right" data-align="right" data-field="inputC" data-sortable="true" data-visible="false") Inputs
+                th(data-halign="right" data-align="right" data-field="outputC" data-sortable="true") Outputs
+            tbody
+
+        <!-- Push transaction -->
+        div#homePushTxDiv.is-hidden
+          h1.is-size-4.has-text-weight-bold Push transaction
+          br
+          div.field.is-horizontal
+            div.field-body
+              div.field
+                div.control
+                  textarea(placeholder="Paste a raw transaction here in hex format to broadcast it over the network")#homePushTxHex.textarea
+          div.field
+            div.field-label
+            div.field-body
+              div.field
+                div.control
+                  button#homePushTxButton.button Push transaction
+
+        <!-- Decode transaction -->
+        div#homeDecodeTxDiv.is-hidden
+          h1.is-size-4.has-text-weight-bold Decode transaction
+          br
+          div.field.is-horizontal
+            div.field-body
+              div.field
+                div.control
+                  textarea(placeholder="Paste a raw transaction here to decode it to JSON")#homeDecodeTxHex.textarea
+          div.field
+            div.field-label
+            div.field-body
+              div.field
+                div.control
+                  button#homeDecodeTxButton.button Decode transaction
+          div#homeDecodeTxModal.modal
+            div.modal-background
+            div.modal-card
+              header.modal-card-head
+                p.modal-card-title Decoded JSON transaction
+                button#homeDecodeTxModalClose.delete(aria-label="close" on)
+              section.modal-card-body
+                pre#homeDecodeTxModalPre
+
+        <!-- Charts -->
+        div#homeChartsDiv.is-hidden
+          h1.is-size-4.has-text-weight-bold Charts
+          br
+          div.field.has-addons.has-addons-centered
+            div.control
+              div.select
+                select#homeChartSelect
+                  option(selected="true" disabled="disabled") Choose graph
+                  option(value='circulation') Circulation
+                  option(value='difficulty') Difficulty
+                  option(value='blockchainSize') Blockchain size
+                  option(value='transactionVolume') Transaction volume
+
+            div.control
+              button#homeChartResetZoom.button Reset zoom
+
+          div(style="min-height:50vh")
+            canvas#myChart
+
+        <!-- Market -->
+        div#homeMarketDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Market per exchange and pair
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeMarket"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-show-footer="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeMarketTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="market.name" data-sortable="true" data-footer-formatter="returnTotalString") Exchange
+                th(data-halign="right" data-align="right" data-field="base" data-sortable="true" data-formatter="homeMarketPair") Pair
+                th(data-halign="right" data-align="right" data-field="converted_last.usd" data-sortable="true" data-formatter="formatNumberFiat") USD Price
+                th(data-halign="right" data-align="right" data-field="converted_last.btc" data-sortable="true" data-formatter="formatNumberBTC") BTC Price
+                th(data-halign="right" data-align="right" data-field="volume" data-sortable="true" data-formatter="formatNumberCoin" data-footer-formatter="formatNumberCoinTotalTable") #{process.env.COIN_SYMBOL} Volume
+                th(data-halign="right" data-align="right" data-field="converted_volume.usd" data-sortable="true" data-formatter="formatNumberFiat" data-footer-formatter="formatNumberFiatTableTotal") USD Volume
+                th(data-halign="right" data-align="right" data-field="converted_volume.btc" data-sortable="true" data-formatter="formatNumberBTC" data-footer-formatter="formatNumberBTCTotalTable") BTC Volume
+                th(data-halign="right" data-align="right" data-field="bid_ask_spread_percentage" data-sortable="true" data-formatter="formatNumberPercentage") Bid/Ask Spread
+              tbody
+          p.has-text-right.has-text-weight-semibold Datasource 
+            a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
+
+        <!-- News -->
+        div#homeNewsDiv.container.is-hidden
+          h1.is-size-4.has-text-weight-bold News
+          div
+            script(src="https://widgets.coingecko.com/coingecko-beam-widget.js")
+            coingecko-beam-widget(type="coins" height="0" locale="en" project-id=`${process.env.COINGECKO_SYMBOL}`)

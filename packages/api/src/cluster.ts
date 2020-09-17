@@ -10,6 +10,7 @@ import cExtraction from './controllers/cExtraction';
 import cTransaction from './controllers/cTransaction';
 import cAddress from './controllers/cAddress';
 import cPeer from './controllers/cPeer';
+import cChart from './controllers/cChart';
 import cRPC from './controllers/cRPC';
 import debug from 'debug';
 
@@ -59,6 +60,7 @@ else {
         new cTransaction(),
         new cAddress(),
         new cPeer(),
+        new cChart(),
         new cRPC(),
       ],
     );

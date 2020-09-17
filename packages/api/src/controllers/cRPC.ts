@@ -23,8 +23,9 @@ class RPC implements iController {
     return new RPCClient({ url, port, timeout, user, pass });
   }
 
-    private initializeRoutes() {
+  private initializeRoutes() {
     // API
+    this.router.get(`${this.path}/decoderawtransaction/:rawTransaction`, stringValidator(), this.decoderawtransaction);
     this.router.get(`${this.path}/getaddressinfo/:address`, stringValidator(), this.getaddressinfo);
     this.router.get(`${this.path}/getblock/:hash`, stringValidator(), this.getblock);
     this.router.get(`${this.path}/getblockchaininfo`, this.getblockchaininfo);
@@ -44,7 +45,8 @@ class RPC implements iController {
     this.router.get(`${this.path}/getrawtransaction/:txid`, stringValidator(), this.getrawtransaction);
     this.router.get(`${this.path}/gettxoutproof`, stringValidator(), this.gettxoutproof);
     this.router.get(`${this.path}/gettxoutsetinfo`, this.gettxoutsetinfo);
-}
+    this.router.get(`${this.path}/sendrawtransaction/:rawTransaction`, stringValidator(), this.sendrawtransaction);
+  }
 
   private verbosityCheck(verbosity: string) {
     if (Number(verbosity) === 0)
@@ -57,18 +59,32 @@ class RPC implements iController {
       return undefined;
   }
 
+  private decoderawtransaction = async (request: Request, response: Response) => {
+    const rawTransaction: string = request.params.rawTransaction;
+    await this.client.decoderawtransaction({
+      hexstring: rawTransaction
+    })
+      .then(txJSON => {
+        return response.json(txJSON);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
+  }
+
   private getaddressinfo = async (request: Request, response: Response) => {
-    const qAddress: string = request.params.hash;
+    const qAddress: string = request.params.address;
     await this.client.getaddressinfo({
       address: qAddress
     })
-    .then(addressInfo => {
-      return response.json(addressInfo);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(addressInfo => {
+        return response.json(addressInfo);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getblock = async (request: Request, response: Response) => {
@@ -78,35 +94,35 @@ class RPC implements iController {
       blockhash: qBlockHash,
       verbosity: qVerbosity
     })
-    .then(block => {
-      return response.json(block);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500);
-    });
+      .then(block => {
+        return response.json(block);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500);
+      });
   }
 
   private getblockchaininfo = async (request: Request, response: Response) => {
     await this.client.getblockchaininfo()
-    .then(blockchainInfo => {
-      return response.json(blockchainInfo);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(blockchainInfo => {
+        return response.json(blockchainInfo);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getblockcount = async (request: Request, response: Response) => {
     await this.client.getblockcount()
-    .then(blockCount => {
-      return response.json(blockCount);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(blockCount => {
+        return response.json(blockCount);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getblockhash = async (request: Request, response: Response) => {
@@ -114,40 +130,40 @@ class RPC implements iController {
     await this.client.getblockhash({
       height: qHeight
     })
-    .then(blockHash => {
-      return response.json(blockHash);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(blockHash => {
+        return response.json(blockHash);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getblockstats = async (request: Request, response: Response) => {
     const qBlock: string = request.params.block;
-    const qStats: undefined | string[] = request.query.stat === undefined ? undefined :  [request.query.stat.toString()]; // TODO: Allow array of strings
+    const qStats: undefined | string[] = request.query.stat === undefined ? undefined : [request.query.stat.toString()]; // TODO: Allow array of strings
     await this.client.getblockstats({
       hash_or_height: qBlock,
       stats: qStats
     })
-    .then(blockStats => {
-      return response.json(blockStats);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(blockStats => {
+        return response.json(blockStats);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getchaintips = async (request: Request, response: Response) => {
     await this.client.getchaintips()
-    .then(chainTips => {
-      return response.json(chainTips);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(chainTips => {
+        return response.json(chainTips);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getchaintxstats = async (request: Request, response: Response) => {
@@ -157,35 +173,35 @@ class RPC implements iController {
       nblocks: qNBlocks,
       blockhash: qBlockHash
     })
-    .then(chainTxStats => {
-      return response.json(chainTxStats);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(chainTxStats => {
+        return response.json(chainTxStats);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getconnectioncount = async (request: Request, response: Response) => {
     await this.client.getconnectioncount()
-    .then(connectionCount => {
-      return response.json(connectionCount);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(connectionCount => {
+        return response.json(connectionCount);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getdifficulty = async (request: Request, response: Response) => {
     await this.client.getdifficulty()
-    .then(difficulty => {
-      return response.json(difficulty);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(difficulty => {
+        return response.json(difficulty);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getmempoolancestors = async (request: Request, response: Response) => {
@@ -195,13 +211,13 @@ class RPC implements iController {
       txid: qTxID,
       verbose: qVerbose
     })
-    .then(mempoolAncestors => {
-      return response.json(mempoolAncestors);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(mempoolAncestors => {
+        return response.json(mempoolAncestors);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getmempooldescendants = async (request: Request, response: Response) => {
@@ -211,13 +227,13 @@ class RPC implements iController {
       txid: qTxID,
       verbose: qVerbose
     })
-    .then(mempoolDescendants => {
-      return response.json(mempoolDescendants);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(mempoolDescendants => {
+        return response.json(mempoolDescendants);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getmempoolentry = async (request: Request, response: Response) => {
@@ -225,35 +241,35 @@ class RPC implements iController {
     await this.client.getmempoolentry({
       txid: qTxID
     })
-    .then(mempoolEntry => {
-      return response.json(mempoolEntry);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(mempoolEntry => {
+        return response.json(mempoolEntry);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getmempoolinfo = async (request: Request, response: Response) => {
     await this.client.getmempoolinfo()
-    .then(mempoolInfo => {
-      return response.json(mempoolInfo);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(mempoolInfo => {
+        return response.json(mempoolInfo);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getmininginfo = async (request: Request, response: Response) => {
     await this.client.getmininginfo()
-    .then(miningInfo => {
-      return response.json(miningInfo);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(miningInfo => {
+        return response.json(miningInfo);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getrawmempool = async (request: Request, response: Response) => {
@@ -261,13 +277,13 @@ class RPC implements iController {
     await this.client.getrawmempool({
       verbose: qVerbose
     })
-    .then(rawMempool => {
-      return response.json(rawMempool);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(rawMempool => {
+        return response.json(rawMempool);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private getrawtransaction = async (request: Request, response: Response) => {
@@ -277,13 +293,13 @@ class RPC implements iController {
       txid: qTxID,
       verbose: qVerbose
     })
-    .then(rawTransaction => {
-      return response.json(rawTransaction);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(rawTransaction => {
+        return response.json(rawTransaction);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private gettxoutproof = async (request: Request, response: Response) => {
@@ -296,24 +312,38 @@ class RPC implements iController {
       txids: [qTxID],
       blockhash: qBlockHash
     })
-    .then(txOutProof => {
-      return response.json(txOutProof);
-    })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(txOutProof => {
+        return response.json(txOutProof);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 
   private gettxoutsetinfo = async (request: Request, response: Response) => {
     await this.client.gettxoutsetinfo()
-    .then(txoutSetInfo => {
-      return response.json(txoutSetInfo);
+      .then(txoutSetInfo => {
+        return response.json(txoutSetInfo);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
+  }
+
+  private sendrawtransaction = async (request: Request, response: Response) => {
+    const rawTransaction: string = request.params.rawTransaction;
+    await this.client.sendrawtransaction({
+      hexstring: rawTransaction
     })
-    .catch(error => {
-      debug.log(error)
-      return response.sendStatus(500)
-    });
+      .then(txId => {
+        return response.json(txId);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
   }
 }
 

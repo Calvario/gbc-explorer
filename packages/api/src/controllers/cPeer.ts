@@ -10,7 +10,7 @@ class Peer implements iController {
   public path = '/rest/api/1/peer';
   public router = Router();
   private repository = getRepository(mPeerVersion);
-  private lastDay = new Date(new Date().getTime() - 86400000).toISOString();;
+  private lastDay = new Date(new Date().getTime() - 86400000).toISOString();
 
   constructor() {
     this.initializeRoutes();

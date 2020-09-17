@@ -1,16 +1,18 @@
 declare var COIN_SYMBOL: string;
+declare var COIN_TYPE: string;
 declare var COIN_CONFIRMATIONS: string;
 declare var COINGECKO_SYMBOL: string;
 
+let myChart: Chart | undefined;
 let currentBlock: number | undefined;
 
 // General - Functions
 function formatBytes(a: number) {
-  if (0 === a) return "0 B";
+  if (0 === a) return '0 B';
   const b = 2;
   const c = 0 > b ? 0 : b;
   const d = Math.floor(Math.log(a) / Math.log(1024));
-  return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + " " + ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d]
+  return parseFloat((a / Math.pow(1024, d)).toFixed(c)) + ' ' + ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][d]
 }
 
 function formatEpochToAge(epoch: number) {
@@ -27,13 +29,13 @@ function formatEpochToAge(epoch: number) {
   // If it's older then 30 days display the date
   if (days < 30) {
     if (days !== 0)
-      return days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+      return days + 'd ' + hours + 'h ' + minutes + 'm ' + seconds + 's ';
     else if (hours !== 0)
-      return hours + "h " + minutes + "m " + seconds + "s ";
+      return hours + 'h ' + minutes + 'm ' + seconds + 's ';
     else if (minutes !== 0)
-      return minutes + "m " + seconds + "s ";
+      return minutes + 'm ' + seconds + 's ';
     else
-      return seconds + "s ";
+      return seconds + 's ';
   } else {
     return formatEpochToDate(epoch);
   }
@@ -45,10 +47,10 @@ function formatEpochToDate(epoch: number) {
 
   const year = date.getFullYear();
   const month = date.toLocaleString('default', { month: 'short' });
-  const day = ("0" + date.getDate()).substr(-2);
-  const hours = ("0" + date.getHours()).substr(-2);
-  const minutes = ("0" + date.getMinutes()).substr(-2);
-  const seconds = ("0" + date.getSeconds()).substr(-2);
+  const day = ('0' + date.getDate()).substr(-2);
+  const hours = ('0' + date.getHours()).substr(-2);
+  const minutes = ('0' + date.getMinutes()).substr(-2);
+  const seconds = ('0' + date.getSeconds()).substr(-2);
 
   const dateTime = day + ' ' + month + ' ' + year
     + ' ' + hours + ':' + minutes + ':' + seconds + '';
@@ -56,7 +58,7 @@ function formatEpochToDate(epoch: number) {
   return dateTime;
 }
 
-function formatNumber(nb: number, size: number = 5, symbol: string = '', locale: string = "en") {
+function formatNumber(nb: number, size: number = 5, symbol: string = '') {
   if(isNaN(nb)) {
     return '';
   }
@@ -65,7 +67,7 @@ function formatNumber(nb: number, size: number = 5, symbol: string = '', locale:
     minimumFractionDigits: size,
     maximumFractionDigits: size
   };
-  return Number(nb).toLocaleString(locale, options) + (symbol !== '' ? ' ' + symbol : '');
+  return Number(nb).toLocaleString(undefined, options) + (symbol !== '' ? ' ' + symbol : '');
 }
 
 function formatNumberPercentage(value: number) {
@@ -86,6 +88,10 @@ function formatNumberCoin(value: number) {
 
 function formatNumberDifficulty(value: number) {
   return formatNumber(value, 5)
+}
+
+function formatNumberMint(value: number) {
+  return formatNumber(value, 8)
 }
 
 function formatJSON(json: string) {
@@ -119,34 +125,63 @@ function getUrlParameter() {
   return pathname.substring(pathname.lastIndexOf('/') + 1);
 };
 
-function navigationControl(menuItem: string, itemInfo: string, pAllItemInfo: string[] = [], refresh: boolean = false) {
-  // Remove active menu
-  $("li").each(function () {
-    $(this).removeClass("is-active");
-  });
+function navigationControl(itemInfo: string) {
+  $("#homeDivsContainer > div").each(function() {
+    const divId = '#' + this.id;
+    if (divId !== itemInfo) {
+      // Hide div
+      $(divId).addClass('is-hidden');
 
-  // Hide all divs
-  pAllItemInfo.forEach((element) => {
-    $(element).addClass("is-hidden");
+      // Avoid getting all tables autorefreshing
+      const bsTable = ($(divId).find('table') as any);
+      const bsTableOption = bsTable.bootstrapTable('getOptions')
+      if (bsTableOption.autoRefreshStatus === true) {
+        bsTable.bootstrapTable('refreshOptions', {autoRefreshStatus: false});
+        clearInterval(bsTableOption.autoRefreshFunction);
+      }
+    } else {
+      // Remove hidden
+      $(divId).removeClass('is-hidden');
+
+      // Enable auto-refresh
+      const bsTable = ($(divId).find('table') as any);
+      const bsTableOption = bsTable.bootstrapTable('getOptions')
+      if (bsTableOption.autoRefreshStatus === false) {
+        ($(divId).find('table') as any).bootstrapTable('refreshOptions', {autoRefreshStatus: true});
+      }
+    }
+  });
+}
+
+
+function tabsControl(menuItem: string, itemInfo: string, pAllItemInfo: string[] = [], refresh: boolean = false) {
+  // Remove active menu
+  $('li').each(function () {
+    $(this).removeClass('is-active');
   });
 
   // Set active menu
   $(menuItem).parent().addClass('is-active');
 
-  // Remove hidden on div
-  $(itemInfo).removeClass('is-hidden');
+  pAllItemInfo.forEach((element) => {
+    if (element !== itemInfo) {
+      // Add Hidden
+      $(element).addClass('is-hidden');
+    } else {
+      // Remove hidden
+      $(element).removeClass('is-hidden');
+    }
+  });
 }
 
 function createNotification(message: string) {
   if (location.protocol === 'https:') {
-    if (!("Notification" in window)) {
-      alert("This browser does not support desktop notification");
-    } else if (Notification.permission === "granted") {
+    if (Notification.permission === 'granted') {
       const n = new Notification(message);
       setTimeout(n.close.bind(n), 5000);
-    } else if (Notification.permission !== "denied") {
+    } else if (Notification.permission !== 'denied') {
       Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
+        if (permission === 'granted') {
           const n = new Notification(message);
           setTimeout(n.close.bind(n), 5000);
         }
@@ -155,9 +190,39 @@ function createNotification(message: string) {
   }
 }
 
+function getObjectValueByPath(path: string, obj: object) {
+  return path.split('.').reduce((prev: any, curr:any) => {
+      return prev ? prev[curr] : null
+  }, obj || self)
+}
+
+function returnTotalString(this: any, data: any) {
+  return 'Total'
+}
+
+function countTotalTable(this: any, data: any) {
+  return data.map((row: any) => {
+    return + getObjectValueByPath(this.field, row);
+  }).reduce((sum: any, i: any) => {
+    return sum + i;
+  }, 0);
+}
+
+function formatNumberFiatTableTotal(this: any, data: any) {
+  return formatNumber(countTotalTable.call(this, data), 2, '$')
+}
+
+function formatNumberBTCTotalTable(this: any, data: any) {
+  return formatNumber(countTotalTable.call(this, data), 9)
+}
+
+function formatNumberCoinTotalTable(this: any, data: any) {
+  return formatNumber(countTotalTable.call(this, data), 5, COIN_SYMBOL)
+}
+
 // Home page - Functions
 function updateLayoutMarketBoxes() {
-  const link = "https://api.coingecko.com/api/v3/simple/price?ids=" + COINGECKO_SYMBOL + "&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true";
+  const link = 'https://api.coingecko.com/api/v3/simple/price?ids=' + COINGECKO_SYMBOL + '&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true';
   $.get(link, (data, textStatus, jqXHR) => {
     $('#layoutBTCPrice').text(formatNumberBTC(data[COINGECKO_SYMBOL].btc));
     $('#layoutUSDPrice').text(formatNumberFiat(data[COINGECKO_SYMBOL].usd));
@@ -165,25 +230,29 @@ function updateLayoutMarketBoxes() {
   });
 
   $.get('/rest/api/1/rpc/getmininginfo', (data, textStatus, jqXHR) => {
-    $('#layoutNetworkHash').text(formatNumber(data["nethashrate (kH/m)"], 2, 'kH/m'));
+    if (COIN_TYPE === 'PoW')
+      $('#layoutNetworkHash').text(formatNumber(data['nethashrate (kH/m)'], 2, 'kH/m'));
+    if (COIN_TYPE === 'PoST')
+      $('#layoutNetworkHash').text(formatNumberPercentage(Number(data.stakeinterest)));
   });
 
-  $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
-    $('#layoutSupply').text(formatNumberCoin(data.totalsupply));
-  });
+  if (COIN_TYPE === 'PoW')
+    $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
+      $('#layoutSupply').text(formatNumberCoin(data.totalsupply));
+    });
 }
 
 function homeBlocks(params: any) {
   $.ajax({
-      type: "GET",
-      url: "/rest/api/1/block?limit=100",
+      type: 'GET',
+      url: '/rest/api/1/block?limit=100',
       success: (data) => {
         // Check for notification
         if (data[0] !== undefined) homeBlocksCheckNew(data[0].height);
 
         params.success({
-          "rows": data,
-          "total": data.length
+          'rows': data,
+          'total': data.length
         })
       },
       error: (err) => {
@@ -196,7 +265,7 @@ function homeBlocksCheckNew(blockHeight: number) {
   if (currentBlock === undefined) {
     currentBlock = blockHeight;
   } else if (Number(blockHeight) > Number(currentBlock)) {
-    createNotification("New block " + blockHeight + ', previous: ' + currentBlock);
+    createNotification('New block ' + blockHeight + ', previous: ' + currentBlock);
     currentBlock = blockHeight;
   }
 }
@@ -212,12 +281,12 @@ function homeBlocksExtractedLink(value: string, row: any) {
 
 function homeTransactions(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/transaction?limit=100",
+    type: 'GET',
+    url: '/rest/api/1/transaction?limit=100',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -237,12 +306,12 @@ function homeTransactionsTransactionLink(value: string) {
 
 function homeExtraction(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/extraction?limit=100",
+    type: 'GET',
+    url: '/rest/api/1/extraction?limit=100',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -261,14 +330,14 @@ function homeExtractionExtractionLink(value: string, row: any) {
   return addOverflowControl(link);
 }
 
-function homeNetwork(params: any) {
+function homePeers(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/peer",
+    type: 'GET',
+    url: '/rest/api/1/peer',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -277,31 +346,31 @@ function homeNetwork(params: any) {
   });
 }
 
-function homeNetworkAddNodeButton(value: string)  {
-  const link = '<button onclick="homeNetworkAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
+function homePeersAddNodeButton(value: string)  {
+  const link = '<button onclick="homePeersAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
   return link;
 }
 
-function homeNetworkAddNodeModal(version: number)  {
+function homePeersAddNodeModal(version: number)  {
   $.get('/rest/api/1/peer/' + version, (data, textStatus, jqXHR) => {
     let peersList: string = '';
-    $('#homeNetworkModal').toggleClass("is-active");
-    $('#homeNetworkModalTitle').text(data.subVersion);
+    $('#homePeersModal').toggleClass('is-active');
+    $('#homePeersModalTitle').text(data.subVersion);
     for(const peer of data.peers) {
       peersList += '<p>addnode=' + peer.ip + (peer.port !== null ? ':' + peer.port : '') + '</p>';
     }
-    $('#homeNetworkPre').html(peersList);
+    $('#homePeersPre').html(peersList);
   });
 }
 
-function homeAddresses(params: any) {
+function homeRichList(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/address?limit=100",
+    type: 'GET',
+    url: '/rest/api/1/address?limit=100',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -310,20 +379,20 @@ function homeAddresses(params: any) {
   });
 }
 
-function homeAddressesAddressLink(value: string, row: any) {
+function homeRichListAddressLink(value: string, row: any) {
   const link = '<a href="/address/' + value + '">' + (row.label !== null ? row.label : value) + '</a>';
   return addOverflowControl(link);
 }
 
 function homeMarket(params: any) {
-  const link = "https://api.coingecko.com/api/v3/coins/" + COINGECKO_SYMBOL + "/tickers?id=" + COINGECKO_SYMBOL;
+  const link = 'https://api.coingecko.com/api/v3/coins/' + COINGECKO_SYMBOL + '/tickers?id=' + COINGECKO_SYMBOL;
   $.ajax({
-    type: "GET",
+    type: 'GET',
     url: link,
     success: (data) => {
       params.success({
-        "rows": data.tickers,
-        "total": data.tickers.length
+        'rows': data.tickers,
+        'total': data.tickers.length
       })
     },
     error: (err) => {
@@ -336,15 +405,326 @@ function homeMarketPair(value: string, row: any) {
   return row.base + '/' + row.target;
 }
 
+interface ChartConfiguration {
+  ctx: CanvasRenderingContext2D,
+  chartType: Chart.ChartType,
+  labelsArray: string[],
+  datasets : {
+    label: string,
+    data: number[],
+    color: string,
+    yAxisID: string
+  }[],
+  scalesYAxes?: {
+    type: string,
+    display: boolean,
+    position: string,
+    id: string,
+    ticks?: any,
+    gridLines?: {
+      drawOnChartArea: boolean,
+    },
+  }[]
+}
+
+function createChart (chartConfiguration: ChartConfiguration) {
+  const datasetsArray = [];
+  const scalesYAxes: any[] = [];
+  for (const dataset of chartConfiguration.datasets) {
+    datasetsArray.push(
+      {
+        label: dataset.label,
+        pointRadius: 0,
+        data: dataset.data,
+        backgroundColor: dataset.color,
+        borderWidth: 1,
+        yAxisID: dataset.yAxisID,
+      },
+    )
+  }
+  if (chartConfiguration.scalesYAxes !== undefined)  {
+    for (const scalesYAxe of chartConfiguration.scalesYAxes) {
+      const data: any = {
+        type: scalesYAxe.type,
+        display: scalesYAxe.display,
+        position: scalesYAxe.position,
+        id: scalesYAxe.id,
+      }
+      if (Object.keys(scalesYAxe.ticks).length !== 0) {
+        data.ticks = scalesYAxe.ticks
+      }
+      if (scalesYAxe.gridLines !== undefined) {
+        data.gridLines = scalesYAxe.gridLines;
+      }
+      scalesYAxes.push(data);
+    }
+  }
+  const defaultYAxes = [{
+    type: 'linear',
+    display: true,
+    position: 'left',
+    id: 'y-axis-1',
+  }, {
+    type: 'linear',
+    display: true,
+    position: 'right',
+    id: 'y-axis-2',
+    gridLines: {
+      drawOnChartArea: false,
+    },
+  }];
+  const scales = {
+    xAxes: [{
+      type: 'time',
+      display: true,
+      time: {
+        tooltipFormat:'DD MMM YYYY'
+      }
+    }],
+    yAxes: scalesYAxes.length === 0 ? defaultYAxes : scalesYAxes
+  }
+  myChart = new Chart(chartConfiguration.ctx, {
+    type: chartConfiguration.chartType,
+    data: {
+      labels: chartConfiguration.labelsArray,
+      datasets: datasetsArray,
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: chartConfiguration.chartType === 'pie' ? undefined : scales,
+      plugins: {
+        zoom: {
+          zoom: {
+            enabled: true,
+            drag: true,
+            mode: 'x',
+            speed: 0.1,
+            threshold: 2,
+            sensitivity: 3,
+          }
+        }
+      }
+    }
+  });
+}
+
+function homeCharts(chart: string) {
+  // Variables
+  if (myChart !== undefined) {
+    myChart.destroy();
+  }
+  const chartCtx = (document.getElementById('myChart')! as HTMLCanvasElement).getContext('2d')!;
+
+  switch (chart) {
+    case 'circulation': {
+      $.get('/rest/api/1/chart/circulation', (data, textStatus, jqXHR) => {
+        const time = [];
+        const amounts = [];
+        const generations = [];
+        const inflations = [];
+
+        for (const row of data) {
+          time.push(row.time);
+          amounts.push(row.amount);
+          generations.push(row.generation);
+          inflations.push(row.inflation);
+        }
+
+        const chartConfiguration: ChartConfiguration = {
+          ctx: chartCtx,
+          chartType: 'line',
+          labelsArray: time,
+          datasets: [
+            {
+              label: 'Inflation',
+              data: inflations,
+              color: 'rgba(54, 162, 235, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Circulation',
+              data: amounts,
+              color: 'rgba(255, 99, 132, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+            {
+              label: 'Generation',
+              data: generations,
+              color: 'rgba(35,43,43, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+          ]
+        }
+        createChart(chartConfiguration);
+      });
+      break;
+    }
+    case 'difficulty': {
+      $.get('/rest/api/1/chart/difficulty', (data, textStatus, jqXHR) => {
+        const time = [];
+        const blocks = [];
+        const difficulty = [];
+        const transactions = [];
+
+        for (const row of data) {
+          time.push(row.time);
+          blocks.push(row.blocks);
+          difficulty.push(row.difficulty);
+          transactions.push(row.transactions);
+        }
+
+        const chartConfiguration: ChartConfiguration = {
+          ctx: chartCtx,
+          chartType: 'line',
+          labelsArray: time,
+          datasets: [
+            {
+              label: 'Difficulty',
+              data: difficulty,
+              color: 'rgba(255, 99, 132, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Blocks',
+              data: blocks,
+              color: 'rgba(35,43,43, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+            {
+              label: 'Transactions',
+              data: transactions,
+              color: 'rgba(54, 162, 235, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+          ]
+        }
+        createChart(chartConfiguration);
+      });
+      break;
+    }
+    case 'blockchainSize': {
+      $.get('/rest/api/1/chart/blockchainSize', (data, textStatus, jqXHR) => {
+        const time = [];
+        const sizes = [];
+        const avgBlockSizes = [];
+        const avgTransactions = [];
+
+        for (const row of data) {
+          time.push(row.time);
+          sizes.push(row.size);
+          avgBlockSizes.push(row.avgblocksize);
+          avgTransactions.push(row.avgtransactions);
+        }
+
+        const chartConfiguration: ChartConfiguration = {
+          ctx: chartCtx,
+          chartType: 'line',
+          labelsArray: time,
+          datasets: [
+            {
+              label: 'Blockchain size',
+              data: sizes,
+              color: 'rgba(255, 99, 132, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Avg block size',
+              data: avgBlockSizes,
+              color: 'rgba(35,43,43, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Avg transactions per block',
+              data: avgTransactions,
+              color: 'rgba(54, 162, 235, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+          ]
+        }
+        createChart(chartConfiguration);
+      });
+      break;
+    }
+    case 'transactionVolume': {
+      $.get('/rest/api/1/chart/transactionVolume', (data, textStatus, jqXHR) => {
+        const time = [];
+        const volumes = [];
+        const avgAmounts = [];
+        const avgFees = [];
+
+        for (const row of data) {
+          time.push(row.time);
+          volumes.push(row.volume);
+          avgAmounts.push(row.avgAmount);
+          avgFees.push(row.avgFee);
+        }
+
+        const chartConfiguration: ChartConfiguration = {
+          ctx: chartCtx,
+          chartType: 'line',
+          labelsArray: time,
+          datasets: [
+            {
+              label: 'Volume',
+              data: volumes,
+              color: 'rgba(255, 99, 132, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Avg output',
+              data: avgAmounts,
+              color: 'rgba(35,43,43, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Avg Fee',
+              data: avgFees,
+              color: 'rgba(54, 162, 235, 0.2)',
+              yAxisID: 'y-axis-2'
+            },
+          ],
+          scalesYAxes: [{
+            type: 'logarithmic',
+            display: true,
+            position: 'left',
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 8.1,
+              callback: (value:any, index:any, values:any) => {
+                return value;
+              }
+            },
+            id: 'y-axis-1',
+          }, {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            id: 'y-axis-2',
+            ticks: { },
+            gridLines: {
+              drawOnChartArea: false,
+            },
+          }],
+        }
+        createChart(chartConfiguration);
+      });
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+}
+
 // Block page - Functions
 function blockTransactions(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/block/" + getUrlParameter() + "/transactions",
+    type: 'GET',
+    url: '/rest/api/1/block/' + getUrlParameter() + '/transactions',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -428,7 +808,7 @@ function blockTransactionsVout(value: string, row: any) {
 function transactionVinPrevious(value: string, row: any) {
   if (row.vout !== null && row.vout !== undefined) {
     return addOverflowControl(
-      '<span>' + row.vout.n + ': <a href="/transaction/' + row.vout.transaction.hash + '">' + row.vout.transaction.hash + '</a></span>');
+      '<span>' + row.vout.n + ': <a href="/transaction/' + row.vout.transaction.txid + '">' + row.vout.transaction.txid + '</a></span>');
   } else {
     return '<p class="has-text-primary">N/A</p>';
   }
@@ -452,7 +832,7 @@ function transactionVinAmount(value: string, row: any) {
 
 function transactionVoutRedeemed(value: string, row: any) {
   if (row.vin !== null && row.vin !== undefined) {
-    return addOverflowControl('<a href="/transaction/' + row.vin.transaction.hash + '">' + row.vin.transaction.hash + '</a>');
+    return addOverflowControl('<a href="/transaction/' + row.vin.transaction.txid + '">' + row.vin.transaction.txid + '</a>');
   } else {
     return '<p class="has-text-primary">Not yet redeemed</p>';
   }
@@ -465,12 +845,12 @@ function transactionVoutAddress(value: string, row: any) {
 // Address page - Functions
 function addressTransactions(params: any) {
   $.ajax({
-    type: "GET",
-    url: "/rest/api/1/address/" + getUrlParameter() + "/transactions?limit=100",
+    type: 'GET',
+    url: '/rest/api/1/address/' + getUrlParameter() + '/transactions?limit=100',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -496,12 +876,12 @@ function addressTransactionsValue(value: string, row: any) {
 // Extraction page - Functions
 function extractionBlocks(params: any) {
   $.ajax({
-    type: "GET",
-    url: '/rest/api/1/extraction/' + getUrlParameter() + "?limit=100",
+    type: 'GET',
+    url: '/rest/api/1/extraction/' + getUrlParameter() + '?limit=100',
     success: (data) => {
       params.success({
-        "rows": data,
-        "total": data.length
+        'rows': data,
+        'total': data.length
       })
     },
     error: (err) => {
@@ -515,11 +895,11 @@ function extractionBlockBlockLink(value: string, row: any) {
 }
 
 // Mapping
-$(document).ready(() => {
+$(() => {
 
   // Layout: Search
-  $('#layoutSearch').keypress((e) => {
-    if (e.which === 13) {
+  $('#layoutSearch').on('keypress', (e) => {
+    if (e.key === 'Enter') {
       $.get('/rest/api/1/general?search=' + $('#layoutSearch').val(), (data, textStatus, jqXHR) => {
         if (data.length === 1) {
           window.location.replace('/' + data[0].type + '/' + data[0]._id);
@@ -529,55 +909,88 @@ $(document).ready(() => {
   });
 
   // Layout: Menu
-  $(".navbar-burger").click(() => {
-    $(".navbar-burger").toggleClass("is-active");
-    $(".navbar-menu").toggleClass("is-active");
+  $('.navbar-burger').on('click',() => {
+    $('.navbar-burger').toggleClass('is-active');
+    $('.navbar-menu').toggleClass('is-active');
+  });
+
+  $('div.navbar-item').on('click', function (e: any) {
+    // Dropdown button
+    if($(e.target).hasClass('navbar-link')) {
+      $('div.navbar-item').each(function () {
+        $(this).removeClass('is-active')
+      });
+      $(this).toggleClass('is-active');
+    }
   });
 
   // Page specific : Home
   if ($(location).attr('pathname') === '/') {
 
-    const allItemInfo = ['#homeBlocksDiv', '#homeTransactionsDiv',
-      '#homeAddressesDiv', '#homeExtractionDiv', '#homeNetworkDiv',
-      '#homeMarketDiv', '#homeNewsDiv'];
-
-    // Toggle div when from an anchor
+    // Direct link with anchor
     const hash = window.location.hash;
-    if (hash !== "") {
-      navigationControl(hash, hash +"Div", allItemInfo, true);
+    if (hash !== '') {
+      navigationControl(hash + 'Div');
+    } else {
+      navigationControl('#homeBlocksDiv');
     }
 
-    $('#homeBlocks').click(() => {
-      navigationControl('#homeBlocks', "#homeBlocksDiv", allItemInfo, true);
+    // OnClick select the good div
+    $('a.navbar-item').on('click', function (e: any) {
+      // Get div content
+      const contentHash = $(this).attr('href')!.substr(1)
+      navigationControl(contentHash + 'Div');
+      // Close menu
+      $('div.navbar-item').each(function () {
+        $(this).removeClass('is-active')
+      });
+      $('.navbar-burger').removeClass('is-active');
+      $('.navbar-menu').removeClass('is-active');
     });
 
-    $('#homeTransactions').click(() => {
-      navigationControl('#homeTransactions', "#homeTransactionsDiv", allItemInfo, true);
+    // Push TX
+    $('#homePushTxButton').on('click', () => {
+      const hex: string = String($('#homePushTxHex').val());
+      if (hex !== '') {
+        $.get('/rest/api/1/rpc/sendrawtransaction/' + hex, (data, textStatus, jqXHR) => {
+          alert(data)
+        })
+          .fail(() => {
+            alert('You request was rejected by the blockchain');
+          });
+      }
     });
 
-    $('#homeNetwork').click(() => {
-      navigationControl('#homeNetwork', "#homeNetworkDiv", allItemInfo, true);
+    // Decode TX
+    $('#homeDecodeTxButton').on('click', () => {
+      const hex: string = String($('#homeDecodeTxHex').val());
+      $.get('/rest/api/1/rpc/decoderawtransaction/' + hex, (data, textStatus, jqXHR) => {
+        $('#homeDecodeTxModalPre').html(formatJSON(JSON.stringify(data, undefined, 2)));
+        $('#homeDecodeTxModal').toggleClass('is-active');
+      })
+        .fail(() => {
+          alert('You request was rejected by the blockchain');
+        });
     });
 
-    $('#homeNetworkModalClose').click(() => {
-      $('#homeNetworkModal').toggleClass("is-active");
+    $('#homeDecodeTxModalClose').on('click',() => {
+      $('#homeDecodeTxModal').toggleClass('is-active');
     });
 
-    $('#homeExtraction').click(() => {
-      navigationControl('#homeExtraction', "#homeExtractionDiv", allItemInfo, true);
+    // Peers
+    $('#homePeersModalClose').on('click',() => {
+      $('#homePeersModal').toggleClass('is-active');
     });
 
-    $('#homeAddresses').click(() => {
-      navigationControl('#homeAddresses', "#homeAddressesDiv", allItemInfo, true);
+    // Charts
+    $("#homeChartSelect").on('change', function () {
+      const chartType = String($(this).val());
+      homeCharts(chartType);
     });
 
-    $('#homeMarket').click(() => {
-      navigationControl('#homeMarket', "#homeMarketDiv", allItemInfo);
-    });
-
-    $('#homeNews').click(() => {
-      navigationControl('#homeNews', "#homeNewsDiv", allItemInfo);
-    });
+    $('#homeChartResetZoom').on('click', () => {
+      (myChart as any).resetZoom();
+    })
 
     // Page initialization
     updateLayoutMarketBoxes();
@@ -593,19 +1006,19 @@ $(document).ready(() => {
   if ($(location).attr('pathname')!.indexOf('/block') === 0) {
     const allItemInfo = ['#blockTransactionsDiv', '#blockJSONDiv'];
 
-    $('#blockTransactions').click(() => {
-      navigationControl('#blockTransactions', '#blockTransactionsDiv', allItemInfo);
+    $('#blockTransactions').on('click',() => {
+      tabsControl('#blockTransactions', '#blockTransactionsDiv', allItemInfo);
       $.get('/rest/api/1/block/' + getUrlParameter(), (data, textStatus, jqXHR) => {
         $('#blockHeight').text('"' + data.height + '"');
         $.get('/rest/api/1/block/' + getUrlParameter() + '/confirmations', (confirmations) => {
           const iIcon = $('<i></i>').addClass('fas fa-check');
           const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
           if (data.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
-            $('#blockConfirmation').text(confirmations.confirmations).addClass("is-success").append(spanIcon);
+            $('#blockConfirmation').text(confirmations.confirmations).addClass('is-success').append(spanIcon);
           } else if (data.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
-            $('#blockConfirmation').text(confirmations.confirmations).addClass("is-warning").append(spanIcon);
+            $('#blockConfirmation').text(confirmations.confirmations).addClass('is-warning').append(spanIcon);
           } else {
-            $('#blockConfirmation').text("Rejected").addClass("is-danger");
+            $('#blockConfirmation').text('Rejected').addClass('is-danger');
           }
         });
         $('#blockHash').text(data.hash);
@@ -619,20 +1032,20 @@ $(document).ready(() => {
         $('#blockFees').text(data.feesT);
         $('#blockDifficulty').text(data.difficulty);
         $('#blockGeneration').text(data.generation);
-        $('#blockMiner').attr("href", '/extraction/' + data.miner.address);
+        $('#blockMiner').attr('href', '/extraction/' + data.miner.address);
         $('#blockMiner').text(data.miner.label !== null ? data.miner.label : data.miner.address);
       });
     });
 
-    $('#blockJSON').click(() => {
-      navigationControl('#blockJSON', '#blockJSONDiv', allItemInfo);
+    $('#blockJSON').on('click',() => {
+      tabsControl('#blockJSON', '#blockJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getblock/' + getUrlParameter() + '?verbosity=2', (data, textStatus, jqXHR) => {
         $('#blockJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
       });
     });
 
     // Page initialization
-    $("#blockTransactions").trigger('click');
+    $('#blockTransactions').trigger('click');
   }
 
   // Page specific : Transaction
@@ -642,20 +1055,25 @@ $(document).ready(() => {
 
     function getTransaction() {
       $.get('/rest/api/1/transaction/' + getUrlParameter(), (data, textStatus, jqXHR) => {
-        $('#transactionId').text(data.hash);
-        $.get('/rest/api/1/block/' + data.block.hash + '/confirmations', (confirmations) => {
-          const iIcon = $('<i></i>').addClass('fas fa-check');
-          const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
-          if (data.block.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
-            $('#transactionConfirmation').text(confirmations.confirmations).addClass("is-success").append(spanIcon);
-          } else if (data.block.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
-            $('#transactionConfirmation').text(confirmations.confirmations).addClass("is-warning").append(spanIcon);
-          } else {
-            $('#transactionConfirmation').text("Rejected").addClass("is-danger");
-          }
-        });
-        $('#transactionBlock').text(data.block.height);
-        $('#transactionBlock').attr("href", '/block/' + data.block.hash);
+        $('#transactionId').text(data.txid);
+        if (data.block !== null) {
+          $('#transactionBlock').text(data.block.height);
+          $('#transactionBlock').attr('href', '/block/' + data.block.hash);
+          $.get('/rest/api/1/block/' + data.block.hash + '/confirmations', (confirmations) => {
+            const iIcon = $('<i></i>').addClass('fas fa-check');
+            const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
+            if (data.block.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
+              $('#transactionConfirmation').text(confirmations.confirmations).addClass('is-success').append(spanIcon);
+            } else if (data.block.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
+              $('#transactionConfirmation').text(confirmations.confirmations).addClass('is-warning').append(spanIcon);
+            } else {
+              $('#transactionConfirmation').text('Rejected').addClass('is-danger');
+            }
+          });
+        } else {
+          $('#transactionBlock').text('MemPool');
+          $('#transactionConfirmation').text('MemPool').addClass('is-info');
+        }
         $('#transactionTime').text(formatEpochToDate(data.time));
         $('#transactionSize').text(formatBytes(data.size));
         $('#transactionInputs').text(data.inputC);
@@ -664,31 +1082,31 @@ $(document).ready(() => {
         $('#transactionOut').text(' ( ' + data.outputT + ' )');
         $('#transactionFee').text(data.fee);
 
-        ($("#transactionVinsTable") as any).bootstrapTable({
+        ($('#transactionVinsTable') as any).bootstrapTable({
           data: {
-            "rows": data.vins,
-            "total": data.vins.length
+            'rows': data.vins,
+            'total': data.vins.length
           }
         });
-        ($("#transactionVoutsTable") as any).bootstrapTable({
+        ($('#transactionVoutsTable') as any).bootstrapTable({
           data: {
-            "rows": data.vouts,
-            "total": data.vouts.length
+            'rows': data.vouts,
+            'total': data.vouts.length
           }
         })
       });
     }
 
-    $('#transactionVins').click(() => {
-      navigationControl('#transactionVins', '#transactionVinsDiv', allItemInfo);
+    $('#transactionVins').on('click',() => {
+      tabsControl('#transactionVins', '#transactionVinsDiv', allItemInfo);
     });
 
-    $('#transactionVouts').click(() => {
-      navigationControl('#transactionVouts', '#transactionVoutsDiv', allItemInfo);
+    $('#transactionVouts').on('click',() => {
+      tabsControl('#transactionVouts', '#transactionVoutsDiv', allItemInfo);
     });
 
-    $('#transactionJSON').click(() => {
-      navigationControl('#transactionJSON', '#transactionJSONDiv', allItemInfo);
+    $('#transactionJSON').on('click',() => {
+      tabsControl('#transactionJSON', '#transactionJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getrawtransaction/' + getUrlParameter() + '?verbose=true', (data, textStatus, jqXHR) => {
         $('#transactionJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
       });
@@ -713,20 +1131,20 @@ $(document).ready(() => {
 
   // Page specific : Extraction
   if ($(location).attr('pathname')!.indexOf('/extraction') === 0) {
-    $("#extractionAddress").text(getUrlParameter());
-    $("#extractionAddress").attr("href", '/address/' + getUrlParameter());
+    $('#extractionAddress').text(getUrlParameter());
+    $('#extractionAddress').attr('href', '/address/' + getUrlParameter());
   }
 
   // Page specific : FAQ
   if ($(location).attr('pathname')!.indexOf('/faq') === 0) {
     // Toggle div when from an anchor
     const hash = window.location.hash;
-    if (hash !== "") {
+    if (hash !== '') {
       $(hash).toggle();
     }
 
-    $("#financial-disclaimer").click(() => {
-      $("#financial-disclaimer-content").toggle();
+    $('#financial-disclaimer').on('click',() => {
+      $('#financial-disclaimer-content').toggle();
     });
   }
 });

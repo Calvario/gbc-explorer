@@ -16,7 +16,7 @@ class Transaction implements iController {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, stringValidator(), this.getLatestTransactions);
-    this.router.get(`${this.path}/:hash`, stringValidator(), this.getTransactionByHash);
+    this.router.get(`${this.path}/:txid`, stringValidator(), this.getTransactionByTxId);
   }
 
   private getLatestTransactions = async (request: Request, response: Response) => {
@@ -37,19 +37,19 @@ class Transaction implements iController {
     });
   }
 
-  private getTransactionByHash = async (request: Request, response: Response) => {
-    const hashParam = request.params.hash;
+  private getTransactionByTxId = async (request: Request, response: Response) => {
+    const txIdParam = request.params.txid;
     await this.repository.createQueryBuilder("transaction")
-    .innerJoinAndSelect("transaction.block", "block")
-    .innerJoinAndSelect("transaction.vins", "vin")
+    .leftJoinAndSelect("transaction.block", "block")
+    .leftJoinAndSelect("transaction.vins", "vin")
     .leftJoinAndSelect("vin.vout", "vinvout")
     .leftJoinAndSelect("vinvout.transaction", "vintransaction")
     .leftJoinAndSelect("vinvout.addresses", "vinaddress")
-    .innerJoinAndSelect("transaction.vouts", "vout")
-    .innerJoinAndSelect("vout.addresses", "address")
+    .leftJoinAndSelect("transaction.vouts", "vout")
+    .leftJoinAndSelect("vout.addresses", "address")
     .leftJoinAndSelect("vout.vin", "voutvin")
     .leftJoinAndSelect("voutvin.transaction", "voutvintransaction")
-    .where("transaction.hash = :hash", { hash: hashParam })
+    .where("transaction.txid = :txid", { txid: txIdParam })
     .orderBy("vin.id", "ASC")
     .addOrderBy("vout.n", "ASC")
     .getOne()

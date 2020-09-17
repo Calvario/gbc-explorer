@@ -43,7 +43,7 @@ block content
             div.column.is-full.bottom-border
               div.columns.is-mobile
                 div.column.is-half-desktop.is-narrow-mobile
-                  p.has-text-weight-bold Inputs (VRM)
+                  p.has-text-weight-bold Inputs (#{process.env.COIN_SYMBOL})
                 div.column.is-half-desktop
                   p.has-text-right
                     span#blockInputs
@@ -52,7 +52,7 @@ block content
             div.column.is-full.bottom-border
               div.columns.is-mobile
                 div.column.is-half-desktop.is-narrow-mobile
-                  p.has-text-weight-bold Outputs (VRM)
+                  p.has-text-weight-bold Outputs (#{process.env.COIN_SYMBOL})
                 div.column.is-half-desktop
                   p.has-text-right
                     span#blockOutputs
@@ -129,7 +129,7 @@ block content
         )#blockTransactionsTable.table.is-striped.is-hoverable.is-fullwidth
           thead
             tr
-              th(data-halign="left" data-align="left" data-field="hash" data-formatter="blockTransactionsTransaction") Transaction
+              th(data-halign="left" data-align="left" data-field="txid" data-formatter="blockTransactionsTransaction") Transaction
               th(data-halign="right" data-align="right" data-field="inputC") Inputs
               th(data-halign="right" data-align="right" data-field="inputT" data-formatter="formatNumberCoin") In
               th(data-halign="right" data-align="right" data-field="outputC") Outputs

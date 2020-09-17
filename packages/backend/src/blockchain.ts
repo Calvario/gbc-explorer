@@ -22,7 +22,7 @@ class Blockchain {
       select: ["height"],
       order: { height: 'DESC' }
     })
-    .then(async (block) => {
+    .then(async (block: mBlock) => {
       await loop(rpcClient, Number(block.height) + 1, lastBlock);
     })
     .catch(async () => {
@@ -43,7 +43,7 @@ class Blockchain {
       if(addressesLabel) {
         for(const addressJSON of addressesLabel) {
           await this.addressRepository.findOne(({ address: addressJSON.address }))
-          .then(async address => {
+          .then(async (address: mAddress | undefined) => {
             if(address) {
               address.label = addressJSON.label;
               await this.addressRepository.update(address.id!, address)
@@ -149,11 +149,11 @@ async function getAllFromBlockHash(rpc: RPCClient, blockHash: string) {
           await createTransaction(transactionalEntityManager, blockObj, transactionInfo)
           .then( async (transactionObj: mTransaction) => {
             // Initialization of transaction update variable
-            let tInputC: BigNumber = new BigNumber(0);;
+            let tInputC: BigNumber = new BigNumber(0);
             let tInputT: BigNumber = new BigNumber(0);
-            let tOutputC: BigNumber = new BigNumber(0);;
+            let tOutputC: BigNumber = new BigNumber(0);
             let tOutputT: BigNumber = new BigNumber(0);
-            let tFee: BigNumber;
+            let tFee: BigNumber = new BigNumber(0);
 
             // 4. Loop for each VINs
             for(const vinInfo of transactionInfo.vin) {
@@ -173,28 +173,72 @@ async function getAllFromBlockHash(rpc: RPCClient, blockHash: string) {
 
             // 7. Loop for each VOUTs
             for (const voutInfo of transactionInfo.vout) {
+              // Discard nonstandard type
+              if (voutInfo.scriptPubKey.type === 'nonstandard')  {
+                continue;
+              }
+
               // 8. Loop for each addresses and search them (or create them if needed) returning an array with ID's
               await checkVoutAddresses(blockObj.onMainChain, transactionalEntityManager, voutInfo)
-              .then(async addressesArrayObj => {
+              .then(async (addressesArrayObj: mAddress[]) => {
                 // 9. Create VOUT
                 await createVout(transactionalEntityManager, transactionObj, addressesArrayObj, voutInfo);
 
                 // Update transation variables for output
                 tOutputC = tOutputC.plus(1);
                 tOutputT = tOutputT.plus(new BigNumber(voutInfo.value));
-                if(transactionInfo.vin[0].coinbase !== undefined && voutInfo.n === 0) blockMiner = addressesArrayObj[0];
+
+                // Block miner/validator depending of each coin type
+                if (process.env.COIN_TYPE === 'PoST') {
+                  if (blockInfo.flags === 'proof-of-stake' && blockInfo.tx[1].txid === transactionInfo.txid && transactionInfo.vout[0].scriptPubKey.type === 'nonstandard') {
+                    blockMiner = addressesArrayObj[0];
+                  } else if (blockInfo.flags === 'proof-of-stake stake-modifier' && blockInfo.tx[1].txid === transactionInfo.txid && transactionInfo.vout[0].scriptPubKey.type === 'nonstandard') {
+                    blockMiner = addressesArrayObj[0];
+                  } else if (blockInfo.flags === 'proof-of-work' && transactionInfo.vin[0].coinbase !== undefined && voutInfo.n === 0) {
+                    blockMiner = addressesArrayObj[0];
+                  } else if (blockInfo.flags === 'proof-of-work  stake-modifier' && transactionInfo.vin[0].coinbase !== undefined && voutInfo.n === 0) {
+                    blockMiner = addressesArrayObj[0];
+                  }
+                } else if (process.env.COIN_TYPE === 'PoW') {
+                  if (transactionInfo.vin[0].coinbase !== undefined && voutInfo.n === 0)
+                    blockMiner = addressesArrayObj[0];
+                }
               })
               .catch(error => {
                 debug.log(error)
               })
             }
 
+            // Block generation and transaction fee depending of each coin type
+            if (process.env.COIN_TYPE === 'PoST') {
+              if (blockInfo.flags === 'proof-of-stake' || blockInfo.flags === 'proof-of-stake stake-modifier') {
+                if (blockInfo.tx[1].txid === transactionInfo.txid && transactionInfo.vout[0].scriptPubKey.type === 'nonstandard') {
+                  blockGeneration = blockGeneration.plus(tOutputT.minus(tInputT));
+                } else  {
+                  tFee = tInputT.minus(tOutputT);
+                  blockGeneration = blockGeneration.minus(tFee)
+                }
+              } else if (blockInfo.flags === 'proof-of-work' || blockInfo.flags === 'proof-of-work stake-modifier') {
+                if (transactionInfo.vin[0].coinbase !== undefined) {
+                  blockGeneration = blockGeneration.plus(tOutputT)
+                } else  {
+                  tFee = tInputT.minus(tOutputT)
+                  blockGeneration = blockGeneration.minus(tFee);
+                }
+              }
+            } else if (process.env.COIN_TYPE === 'PoW') {
+              if (transactionInfo.vin[0].coinbase !== undefined) {
+                blockGeneration = blockGeneration.plus(tOutputT)
+              } else  {
+                tFee = tInputT.minus(tOutputT)
+                blockGeneration = blockGeneration.minus(tFee);
+              }
+            }
+
             // Update block variable
             blockOutputC = blockOutputC.plus(tOutputC);
             blockOutputT = blockOutputT.plus(tOutputT);
-            tFee = (transactionInfo.vin[0].coinbase !== undefined ? new BigNumber(0) : tInputT.minus(tOutputT))
             blockFeesT = blockFeesT.plus(tFee);
-            blockGeneration = (transactionInfo.vin[0].coinbase !== undefined ? blockGeneration.plus(tOutputT) : blockGeneration.minus(tFee));
 
             // 10. Update transaction
             await updateTransaction(transactionalEntityManager, transactionObj, tInputC.toNumber(), tInputT, tOutputC.toNumber(), tOutputT, tFee)
@@ -226,10 +270,8 @@ async function createBlock(transaction: EntityManager, blockInfo: any): Promise<
   const blockData: mBlock = {
     hash: blockInfo.hash,
     onMainChain: (blockInfo.confirmation === -1 ? false : true),
-    strippedsize: blockInfo.strippedsize,
     size: blockInfo.size,
     mint: blockInfo.mint,
-    weight: blockInfo.weight,
     height: blockInfo.height,
     version: blockInfo.version,
     merkleroot: blockInfo.merkleroot,
@@ -237,10 +279,24 @@ async function createBlock(transaction: EntityManager, blockInfo: any): Promise<
     nonce: blockInfo.nonce,
     bits: blockInfo.bits,
     difficulty: blockInfo.difficulty,
-    chainwork: blockInfo.chainwork,
-    nTx: blockInfo.nTx,
+    nTx: blockInfo.nTx !== undefined ? blockInfo.nTx : (blockInfo.tx as any[]).length,
     previousblockhash: blockInfo.previousblockhash,
     nextblockhash: blockInfo.nextblockhash,
+
+    // PoW
+    strippedsize: blockInfo.strippedsize,
+    weight: blockInfo.weight,
+    chainwork: blockInfo.chainwork,
+
+    // PoS
+    chaintrust: blockInfo.chaintrust,
+    blocktrust: blockInfo.blocktrust,
+    flags: blockInfo.flags,
+    proofhash: blockInfo.proofhash,
+    entropybit: blockInfo.entropybit,
+    modifier: blockInfo.modifier,
+    modifierchecksum: blockInfo.modifierchecksum,
+    signature: blockInfo.signature,
   };
 
   const newBlock = transaction.create(mBlock, blockData);
@@ -268,7 +324,7 @@ async function updateBlock(transaction: EntityManager, blockObj: mBlock, bInputC
 
 async function updatePreviousBlock(transaction: EntityManager, blockObj: mBlock): Promise<any> {
   await transaction.findOneOrFail(mBlock, { hash: blockObj.previousblockhash })
-  .then(async previousBlockObj => {
+  .then(async (previousBlockObj: mBlock) => {
     previousBlockObj.nextblockhash = blockObj.hash;
     return await transaction.update(mBlock, previousBlockObj.id!, previousBlockObj)
     .catch((error: any) => {
@@ -283,13 +339,16 @@ async function updatePreviousBlock(transaction: EntityManager, blockObj: mBlock)
 async function createTransaction (transaction: EntityManager, blockObj: mBlock, transactionInfo: any): Promise<any> {
   const transactionData: mTransaction = {
     txid: transactionInfo.txid,
-    hash: transactionInfo.hash,
     version: transactionInfo.version,
     time: transactionInfo.time,
-    size: transactionInfo.size,
-    vsize: transactionInfo.vsize,
     locktime: transactionInfo.locktime,
     block: blockObj,
+
+    // PoW
+    hash: transactionInfo.hash,
+    size: transactionInfo.size,
+    vsize: transactionInfo.vsize,
+    weight: transactionInfo.weight,
   };
 
   const newTransaction = transaction.create(mTransaction, transactionData);
@@ -330,12 +389,12 @@ async function createVin (transaction: EntityManager, transactionObj: mTransacti
 async function checkVinTransaction (onMainChain: boolean, transaction: EntityManager, vinInfo: any): Promise<any> {
   if (vinInfo.txid !== undefined && vinInfo.vout !== undefined) {
     return await transaction.findOneOrFail(mTransaction, { txid: vinInfo.txid })
-    .then(async transactionObj => {
+    .then(async (transactionObj: mTransaction) => {
       return await transaction.findOneOrFail(mVout, {
         where: {transaction: transactionObj.id, n: vinInfo.vout },
         relations: ["addresses"]
       });
-    }).then(async vout => {
+    }).then(async (vout: mVout) => {
       if (onMainChain === true) {
         await updateAddress(transaction, vout.addresses[0], 0, new BigNumber(0), 1, new BigNumber(vout.value))
       }
@@ -349,7 +408,7 @@ async function checkVinTransaction (onMainChain: boolean, transaction: EntityMan
   }
 }
 
-async function createVout (transaction: EntityManager, transactionObj: mTransaction, addressesArrayObj: [mAddress] ,voutInfo: any): Promise<any> {
+async function createVout (transaction: EntityManager, transactionObj: mTransaction, addressesArrayObj: mAddress[] ,voutInfo: any): Promise<any> {
   const voutData: mVout = {
     value!: voutInfo.value,
     n: voutInfo.n,
@@ -436,7 +495,7 @@ async function manageSideChain (rpc: RPCClient, sideBlockHash: string, status: s
         // Check if we have already inserted it
         await transactionalEntityManager.findOne(mBlock, {
           where: { hash : mainBlockHash }
-        }).then(async mainBlockObj => {
+        }).then(async (mainBlockObj: mBlock | undefined) => {
           if (mainBlockObj === undefined) {
             debug.log("Height : " + blockObj.height + " - Slide chain block detected (" + workingSideBlockHash +
               "), inserting block of main chain (" + mainBlockHash + ")");
@@ -464,7 +523,7 @@ async function manageSideChain (rpc: RPCClient, sideBlockHash: string, status: s
           .addOrderBy("vin.id", "ASC")
           .addOrderBy("vout.n", "ASC")
           .getMany()
-          .then(async transactions => {
+          .then(async (transactions: mTransaction[]) => {
             for (const transaction of transactions) {
               // Loop for each VIN
               for (const vin of transaction.vins!) {

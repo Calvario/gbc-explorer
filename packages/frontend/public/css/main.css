@@ -7,6 +7,46 @@ body {
   flex-direction: column;
 }
 
+#wrapper {
+  flex: 1;
+}
+
+#footerColumns {
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+
+/*
+General design : Override Bulma navbar
+*/
+.navbar-item img {
+  max-height: 64px !important; /* Bulma override */
+}
+
+.navbar-burger {
+  height: auto !important; /* Bulma override */
+}
+
+/*
+General design : Columns
+*/
+
+#pageContent {
+  margin-top: 0.75em;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1.5em;
+}
+
+/*
+General design : Remove scroll on table
+*/
+.table-container {
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+}
+
 /*
 General design : Overflow
 https://stackoverflow.com/a/41534940

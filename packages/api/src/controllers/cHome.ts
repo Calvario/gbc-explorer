@@ -48,13 +48,13 @@ class Home implements iController {
       })
 
       await this.transactionRepository.find({
-        select: ["hash"],
-        where: { hash: Like(`%${searchPattern}%`) },
+        select: ["txid"],
+        where: { txid: Like(`%${searchPattern}%`) },
         take: 10
       })
       .then(transactions => {
         for (const transaction of transactions) {
-          results.push({ _id: transaction.hash, type: 'transaction'});
+          results.push({ _id: transaction.txid, type: 'transaction'});
         }
       })
       .catch(error => {

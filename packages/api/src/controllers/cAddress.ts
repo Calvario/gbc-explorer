@@ -58,7 +58,7 @@ class Address implements iController {
   private getTransactionsForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.hash;
     const qB = createQueryBuilder(mTransaction, "transaction");
-    qB.select("transaction.hash", "transaction_hash")
+    qB.select("transaction.txid", "transaction_txid")
     .addSelect("block.hash", "block_hash")
     .addSelect("block.height", "block_height")
     .addSelect("block.time", "block_time")

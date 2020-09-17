@@ -22,6 +22,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    this.app.set('trust proxy', true);
     this.app.use(logger(':remote-addr - [:date[clf]] :status ":method :url" :res[content-length] ":referrer" :response-time ms - :res[content-length]'));
     this.app.use(bodyParser.json());
   }

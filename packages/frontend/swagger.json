@@ -41,7 +41,40 @@
     }
   ],
   "paths":{
-    "/rpc/getaddressinfo/{hash}":{
+    "/rpc/decoderawtransaction/{rawTransaction}":{
+      "get":{
+        "tags":[
+          "RPC"
+        ],
+        "summary":"Decodes a serialized transaction hex string into a JSON object describing the transaction.",
+        "description":"",
+        "operationId":"decoderawtransaction",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"rawTransaction",
+            "description":"The transaction hex string",
+            "type":"string",
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/rpc/getaddressinfo/{address}":{
       "get":{
         "tags":[
           "RPC"
@@ -55,7 +88,7 @@
         "parameters":[
           {
             "in":"path",
-            "name":"hash",
+            "name":"address",
             "description":"Address hash",
             "type":"string",
             "required":true
@@ -611,6 +644,39 @@
         "responses":{
           "200":{
 
+          },
+          "500":{
+            "description":"Error"
+          }
+        }
+      }
+    },
+    "/rpc/sendrawtransaction/{rawTransaction}":{
+      "get":{
+        "tags":[
+          "RPC"
+        ],
+        "summary":"Validates a transaction and broadcasts it to the peer-to-peer network.",
+        "description":"",
+        "operationId":"sendrawtransaction",
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"path",
+            "name":"rawTransaction",
+            "description":"The hex string of the raw transaction",
+            "type":"string",
+            "required":true
+          }
+        ],
+        "responses":{
+          "200":{
+
+          },
+          "405":{
+            "description":"Invalid input"
           },
           "500":{
             "description":"Error"

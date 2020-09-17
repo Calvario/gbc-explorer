@@ -5,10 +5,8 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
 [![DeepScan grade](https://deepscan.io/api/teams/10460/projects/13319/branches/220035/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10460&pid=13319&bid=220035)
 
-### Preview
+### Live sites
 
-<img src="https://raw.githubusercontent.com/Calvario/gbc-explorer/master/docs/images/desktop.PNG" height="360">
-<img src="https://raw.githubusercontent.com/Calvario/gbc-explorer/master/docs/images/mobile.PNG" height="360">
 
 ### Requires
 
@@ -37,8 +35,6 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 ### Configure
 
 Copy the ".env.example" to ".env" and edit it according your environment.
-Change logo on public/images/logo.png
-Change favicon on public
 
 ### Start Explorer with PM2
 

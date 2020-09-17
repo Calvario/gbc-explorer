@@ -3,7 +3,6 @@ import iController from '../interfaces/iController';
 
 class Block implements iController {
   public path = '/extraction'
-  public apiPath = '/rest/api/1/extraction';
   public router = Router();
 
   constructor() {

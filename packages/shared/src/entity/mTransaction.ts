@@ -11,8 +11,9 @@ class Transaction {
   @Column({ unique: true })
   txid!: string;
 
-  @Column({ unique: true })
-  hash!: string;
+  // PoW
+  @Column({ nullable: true, unique: true })
+  hash?: string;
 
   @Column({ type: 'int' })
   version!: number;
@@ -20,11 +21,17 @@ class Transaction {
   @Column({ type: 'int' })
   time!: number;
 
-  @Column({ type: 'int' })
-  size!: number;
+  // PoW
+  @Column({ nullable: true, type: 'int' })
+  size?: number;
 
-  @Column({ type: 'int' })
-  vsize!: number;
+  // PoW
+  @Column({ nullable: true, type: 'int' })
+  vsize?: number;
+
+  // PoW
+  @Column({ nullable: true, type: 'int' })
+  weight?: number;
 
   @Column({ type: 'int' })
   locktime!: number;
@@ -37,7 +44,7 @@ class Transaction {
 
   @Index()
   @ManyToOne(() => Block, (blockhash: Block) => blockhash.transactions)
-  block!: Block;
+  block?: Block;
 
   @Column({ nullable: true, type: 'int' })
   inputC?: number;

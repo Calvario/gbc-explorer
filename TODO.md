@@ -10,10 +10,6 @@
 	- Total out
 	- Avg difficulty + variation
 	- Total generation
-- Tools
-	- Push transaction
-	- Decode raw transaction
-- Proof of Stack support
 - Language (with local format) support
 - Currency support
 - Dark theme
@@ -35,24 +31,11 @@
 	- Count total blocks and how many % for all blocks
 
 # Charts
-- Circulation
 - Inflation
 - Rich list wealth distribution
 - Stalled blocks (Reason, time)
-- Average block size
-- Median block size
-- Transactions in block
-- Transaction counts
 - Total transaction count
-- Transaction volume (coin)
-- Transaction per second
-- Average transaction amount (coin)
-- Median transaction amount
-- Unspent transactions
-- Generation
-- Difficulty
 - Miner distribution
-- Blockchain size history
 - Network versions
 - Network Geo location
 - Hashrate (calculated)

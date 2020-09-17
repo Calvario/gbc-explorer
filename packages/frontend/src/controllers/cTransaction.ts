@@ -10,7 +10,7 @@ class Transaction implements iController {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/:hash`, this.getTransactionPage);
+    this.router.get(`${this.path}/:txid`, this.getTransactionPage);
   }
 
   private getTransactionPage = async (request: Request, response: Response) => {
