@@ -3,6 +3,8 @@ Global Blockchain Explorer
 
 An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
+[![DeepScan grade](https://deepscan.io/api/teams/10460/projects/13319/branches/220035/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10460&pid=13319&bid=220035)
+
 ### Live sites
 
 
