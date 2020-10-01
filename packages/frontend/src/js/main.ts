@@ -813,7 +813,7 @@ function blockTransactionsVout(value: string, row: any) {
 
 // Transaction page - Functions
 function transactionVinPrevious(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined) {
     return addOverflowControl(
       '<span>' + row.vout.n + ': <a href="/transaction/' + row.vout.transaction.txid + '">' + row.vout.transaction.txid + '</a></span>');
   } else {
@@ -822,7 +822,7 @@ function transactionVinPrevious(value: string, row: any) {
 }
 
 function transactionVinAddress(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined) {
     return addOverflowControl('<a href="/address/' + row.vout.addresses[0].address + '">' + row.vout.addresses[0].address + '</a>')
   } else {
     return '<p class="has-text-primary">Coinbase</p>';
@@ -830,7 +830,7 @@ function transactionVinAddress(value: string, row: any) {
 }
 
 function transactionVinAmount(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined) {
     return '<p>' + row.vout.value + '</p>';
   } else {
     return '<p class="has-text-primary">N/A</p>';
