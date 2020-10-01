@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, ManyToMany, JoinTable, OneToOne, Index } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, ManyToMany, JoinTable, Index, OneToMany } from 'typeorm';
 import Transaction from './mTransaction';
 import Address from './mAddress';
 import Vin from './mVin';
@@ -19,14 +19,14 @@ class Vout {
 
   @ManyToMany(() => Address, (address: Address) => address.vouts)
   @JoinTable()
-  addresses!: Address[];
+  addresses?: Address[];
 
   @Index()
   @ManyToOne(() => Transaction, (transaction: Transaction) => transaction.vins)
   transaction!: Transaction;
 
-  @OneToOne(() => Vin, (vin: Vin) => vin.vout)
-  vin?: Vin;
+  @OneToMany(() => Vin, (vin: Vin) => vin.vout)
+  vins?: Vin[];
 }
 
 export default Vout;

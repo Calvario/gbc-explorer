@@ -25,7 +25,8 @@ class Block implements iController {
   private getLatestBlocks = async (request: Request, response: Response) => {
     const qB = this.repository.createQueryBuilder("block")
     .innerJoinAndSelect("block.miner", "miner")
-    .where("block.onMainChain = true")
+    .innerJoin("block.chain", "chain")
+    .where("chain.id = 1")
     .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
@@ -48,6 +49,7 @@ class Block implements iController {
         innerJoinAndSelect: {
             miner: "block.miner",
             transactions: "block.transactions",
+            chain: "block.chain",
         }
       },
       where: { hash : blockHash },
@@ -80,7 +82,7 @@ class Block implements iController {
   private getBlockTransactions = async (request: Request, response: Response) => {
     const blockHash = request.params.hash;
     await createQueryBuilder(mTransaction, "transaction")
-    .innerJoin("transaction.block", "block")
+    .innerJoin("transaction.blocks", "block")
     .leftJoinAndSelect("transaction.vins", "vin")
     .leftJoinAndSelect("vin.vout", "vinvout")
     .leftJoinAndSelect("vinvout.addresses", "vinaddress")

@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToOne, Index } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, ManyToOne, Index, JoinTable } from 'typeorm';
+import Chain from './mChain';
 import Address from './mAddress';
 import Transaction from './mTransaction';
 
@@ -10,8 +11,9 @@ class Block {
   @Column({ unique: true })
   hash!: string;
 
-  @Column()
-  onMainChain!: boolean;
+  @Index()
+  @ManyToOne(() => Chain, (chain: Chain) => chain.blocks)
+  chain!: Chain;
 
   @Index()
   @ManyToOne(() => Address, (address: Address) => address.address)
@@ -41,7 +43,8 @@ class Block {
   @Column()
   merkleroot!: string;
 
-  @OneToMany(() => Transaction, (transaction: Transaction) => transaction.block)
+  @ManyToMany(() => Transaction, (transaction: Transaction) => transaction.blocks)
+  @JoinTable()
   transactions?: Transaction[];
 
   @Index()

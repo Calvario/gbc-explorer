@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { getConnection } from "typeorm";
 import iController from '../interfaces/iController';
-// import stringValidator from '../middlewares/mStringValidator';
 import { mBlock, mVin } from '@calvario/gbc-explorer-shared';
 import debug from 'debug';
 
@@ -19,9 +18,6 @@ class Chart implements iController {
     this.router.get(`${this.path}/difficulty`, this.getDifficulty);
     this.router.get(`${this.path}/blockchainSize`, this.getBlockchainSize);
     this.router.get(`${this.path}/transactionVolume`, this.getTransactionVolume);
-
-    this.router.get(`${this.path}/extractionStats`, this.getExtractionStats);
-    this.router.get(`${this.path}/rejectedBlocks`, this.getRejectedBlocks);
   }
 
   private getCirculation = async (request: Request, response: Response) => {
@@ -32,8 +28,9 @@ class Chart implements iController {
       .from(mVin, 'vin')
       .innerJoin("vin.transaction", "transaction")
       .innerJoin("transaction.vouts", "vout")
-      .innerJoin("transaction.block", "block")
-      .where('block.onMainChain = true')
+      .innerJoin("transaction.blocks", "block")
+      .innerJoin("block.chain", "chain")
+      .where('chain.id = 1')
       .andWhere('vin.coinbase = true')
       .groupBy('DATE(to_timestamp(block.time))')
       .orderBy('1', 'ASC')
@@ -71,7 +68,8 @@ class Chart implements iController {
     .addSelect('AVG(block.difficulty)', 'difficulty')
     .addSelect('SUM(block.nTx)', 'transactions')
     .from(mBlock, 'block')
-    .where('block.onMainChain = true')
+    .innerJoin("block.chain", "chain")
+    .where('chain.id = 1')
     .groupBy('DATE(to_timestamp(block.time))')
     .orderBy('1', 'ASC')
 
@@ -92,7 +90,8 @@ class Chart implements iController {
     .addSelect('AVG(block.size)', 'avgblocksize')
     .addSelect('AVG(block.nTx)', 'avgtransactions')
     .from(mBlock, 'block')
-    .where('block.onMainChain = true')
+    .innerJoin("block.chain", "chain")
+    .where('chain.id = 1')
     .groupBy('DATE(to_timestamp(block.time))')
     .orderBy('1', 'ASC')
 
@@ -120,10 +119,11 @@ class Chart implements iController {
     .select('DATE(to_timestamp(block.time))', 'time')
     .addSelect('SUM(block.outputT)', 'volume')
     .addSelect('AVG(block.outputT)', 'avgAmount')
-    .addSelect('AVG(transaction.fee)', 'avgFee')
+    .addSelect('AVG(CASE WHEN transaction.fee = 0 THEN null ELSE transaction.fee END)', 'avgFee')
     .from(mBlock, 'block')
+    .innerJoin("block.chain", "chain")
     .innerJoin('block.transactions', 'transaction')
-    .where('block.onMainChain = true')
+    .where('chain.id = 1')
     .andWhere('block.height > 500')
     .groupBy('DATE(to_timestamp(block.time))')
     .orderBy('1', 'ASC')

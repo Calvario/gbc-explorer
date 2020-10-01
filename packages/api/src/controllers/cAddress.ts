@@ -65,7 +65,8 @@ class Address implements iController {
     .addSelect("vout.n", "vout_n")
     .addSelect("vout.value", "vout_value")
     .addSelect("vinvout.value", "vinvout_value")
-    .innerJoin("transaction.block", "block")
+    .innerJoin("transaction.blocks", "block")
+    .innerJoin("block.chain", "chain")
     .leftJoin("transaction.vins", "vin", "vin.transaction = transaction.id AND vin.id IN " + qB.subQuery()
       .select("vin.id")
       .from(mVin, "vin")
@@ -83,7 +84,7 @@ class Address implements iController {
       .getQuery()
     )
     .where("(vin.id IS NOT NULL OR vout.id IS NOT NULL)")
-    .andWhere("block.onMainChain = true")
+    .andWhere("chain.id = 1")
     .orderBy("transaction.id", "DESC")
     .addOrderBy("vin.id", "ASC")
     if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn, Index } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, Index } from 'typeorm';
 import Transaction from './mTransaction';
 import Vout from './mVout';
 
@@ -7,8 +7,8 @@ class Vin {
   @PrimaryGeneratedColumn()
   id?: number;
 
-  @OneToOne(() => Vout, (vout: Vout) => vout.vin)
-  @JoinColumn()
+  @Index()
+  @ManyToOne(() => Vout, (vout: Vout) => vout.vins)
   vout?: Vout;
 
   @Column()

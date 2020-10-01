@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToOne, Index } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
 import Block from './mBlock';
 import Vin from './mVin';
 import Vout from './mVout';
@@ -42,9 +42,8 @@ class Transaction {
   @OneToMany(() => Vout, (vout: Vout) => vout.transaction)
   vouts?: Vout[];
 
-  @Index()
-  @ManyToOne(() => Block, (blockhash: Block) => blockhash.transactions)
-  block?: Block;
+  @ManyToMany(() => Block, (block: Block) => block.transactions)
+  blocks?: Block[];
 
   @Column({ nullable: true, type: 'int' })
   inputC?: number;

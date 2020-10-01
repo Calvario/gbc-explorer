@@ -21,8 +21,9 @@ class Transaction implements iController {
 
   private getLatestTransactions = async (request: Request, response: Response) => {
     const qB = this.repository.createQueryBuilder("transaction")
-    .innerJoinAndSelect("transaction.block", "block")
-    .where("block.onMainChain = true")
+    .innerJoinAndSelect("transaction.blocks", "block")
+    .innerJoinAndSelect("block.chain", "chain")
+    .where("chain.id = 1")
     .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("transaction.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
@@ -40,18 +41,23 @@ class Transaction implements iController {
   private getTransactionByTxId = async (request: Request, response: Response) => {
     const txIdParam = request.params.txid;
     await this.repository.createQueryBuilder("transaction")
-    .leftJoinAndSelect("transaction.block", "block")
+    .leftJoinAndSelect("transaction.blocks", "block")
+    .leftJoinAndSelect("block.chain", "chain")
+    .leftJoinAndSelect("chain.status", "chainStatus")
     .leftJoinAndSelect("transaction.vins", "vin")
     .leftJoinAndSelect("vin.vout", "vinvout")
     .leftJoinAndSelect("vinvout.transaction", "vintransaction")
     .leftJoinAndSelect("vinvout.addresses", "vinaddress")
     .leftJoinAndSelect("transaction.vouts", "vout")
     .leftJoinAndSelect("vout.addresses", "address")
-    .leftJoinAndSelect("vout.vin", "voutvin")
+    .leftJoinAndSelect("vout.vins", "voutvin")
     .leftJoinAndSelect("voutvin.transaction", "voutvintransaction")
+    .leftJoinAndSelect("voutvintransaction.blocks", "voutvinblock")
+    .leftJoinAndSelect("voutvinblock.chain", "voutvinchain")
     .where("transaction.txid = :txid", { txid: txIdParam })
     .orderBy("vin.id", "ASC")
     .addOrderBy("vout.n", "ASC")
+    .addOrderBy("voutvinchain.id", "ASC")
     .getOne()
     .then( transaction => {
       return response.json(transaction);

@@ -59,7 +59,7 @@ function formatEpochToDate(epoch: number) {
 }
 
 function formatNumber(nb: number, size: number = 5, symbol: string = '') {
-  if(isNaN(nb)) {
+  if (isNaN(nb)) {
     return '';
   }
 
@@ -83,11 +83,11 @@ function formatNumberBTC(value: number) {
 }
 
 function formatNumberCoin(value: number) {
-  return formatNumber(value, 5, COIN_SYMBOL)
+  return formatNumber(value, 9, COIN_SYMBOL)
 }
 
 function formatNumberDifficulty(value: number) {
-  return formatNumber(value, 5)
+  return formatNumber(value, 10)
 }
 
 function formatNumberMint(value: number) {
@@ -126,7 +126,7 @@ function getUrlParameter() {
 };
 
 function navigationControl(itemInfo: string) {
-  $("#homeDivsContainer > div").each(function() {
+  $("#homeDivsContainer > div").each(function () {
     const divId = '#' + this.id;
     if (divId !== itemInfo) {
       // Hide div
@@ -136,7 +136,7 @@ function navigationControl(itemInfo: string) {
       const bsTable = ($(divId).find('table') as any);
       const bsTableOption = bsTable.bootstrapTable('getOptions')
       if (bsTableOption.autoRefreshStatus === true) {
-        bsTable.bootstrapTable('refreshOptions', {autoRefreshStatus: false});
+        bsTable.bootstrapTable('refreshOptions', { autoRefreshStatus: false });
         clearInterval(bsTableOption.autoRefreshFunction);
       }
     } else {
@@ -147,7 +147,7 @@ function navigationControl(itemInfo: string) {
       const bsTable = ($(divId).find('table') as any);
       const bsTableOption = bsTable.bootstrapTable('getOptions')
       if (bsTableOption.autoRefreshStatus === false) {
-        ($(divId).find('table') as any).bootstrapTable('refreshOptions', {autoRefreshStatus: true});
+        ($(divId).find('table') as any).bootstrapTable('refreshOptions', { autoRefreshStatus: true });
       }
     }
   });
@@ -191,8 +191,8 @@ function createNotification(message: string) {
 }
 
 function getObjectValueByPath(path: string, obj: object) {
-  return path.split('.').reduce((prev: any, curr:any) => {
-      return prev ? prev[curr] : null
+  return path.split('.').reduce((prev: any, curr: any) => {
+    return prev ? prev[curr] : null
   }, obj || self)
 }
 
@@ -217,7 +217,7 @@ function formatNumberBTCTotalTable(this: any, data: any) {
 }
 
 function formatNumberCoinTotalTable(this: any, data: any) {
-  return formatNumber(countTotalTable.call(this, data), 5, COIN_SYMBOL)
+  return formatNumber(countTotalTable.call(this, data), 9, COIN_SYMBOL)
 }
 
 // Home page - Functions
@@ -244,20 +244,20 @@ function updateLayoutMarketBoxes() {
 
 function homeBlocks(params: any) {
   $.ajax({
-      type: 'GET',
-      url: '/rest/api/1/block?limit=100',
-      success: (data) => {
-        // Check for notification
-        if (data[0] !== undefined) homeBlocksCheckNew(data[0].height);
+    type: 'GET',
+    url: '/rest/api/1/block?limit=100',
+    success: (data) => {
+      // Check for notification
+      if (data[0] !== undefined) homeBlocksCheckNew(data[0].height);
 
-        params.success({
-          'rows': data,
-          'total': data.length
-        })
-      },
-      error: (err) => {
-        params.error(err);
-      }
+      params.success({
+        'rows': data,
+        'total': data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
   });
 }
 
@@ -284,9 +284,16 @@ function homeTransactions(params: any) {
     type: 'GET',
     url: '/rest/api/1/transaction?limit=100',
     success: (data) => {
+      // As we want only the first Block, change the Blocks[] to Block
+      const newData: any[] = [];
+      data.forEach((row: any) => {
+        row.block = row.blocks[0];
+        delete row.blocks;
+        newData.push(row);
+      });
       params.success({
-        'rows': data,
-        'total': data.length
+        'rows': newData,
+        'total': newData.length
       })
     },
     error: (err) => {
@@ -346,17 +353,17 @@ function homePeers(params: any) {
   });
 }
 
-function homePeersAddNodeButton(value: string)  {
+function homePeersAddNodeButton(value: string) {
   const link = '<button onclick="homePeersAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
   return link;
 }
 
-function homePeersAddNodeModal(version: number)  {
+function homePeersAddNodeModal(version: number) {
   $.get('/rest/api/1/peer/' + version, (data, textStatus, jqXHR) => {
     let peersList: string = '';
     $('#homePeersModal').toggleClass('is-active');
     $('#homePeersModalTitle').text(data.subVersion);
-    for(const peer of data.peers) {
+    for (const peer of data.peers) {
       peersList += '<p>addnode=' + peer.ip + (peer.port !== null ? ':' + peer.port : '') + '</p>';
     }
     $('#homePeersPre').html(peersList);
@@ -409,7 +416,7 @@ interface ChartConfiguration {
   ctx: CanvasRenderingContext2D,
   chartType: Chart.ChartType,
   labelsArray: string[],
-  datasets : {
+  datasets: {
     label: string,
     data: number[],
     color: string,
@@ -427,7 +434,7 @@ interface ChartConfiguration {
   }[]
 }
 
-function createChart (chartConfiguration: ChartConfiguration) {
+function createChart(chartConfiguration: ChartConfiguration) {
   const datasetsArray = [];
   const scalesYAxes: any[] = [];
   for (const dataset of chartConfiguration.datasets) {
@@ -442,7 +449,7 @@ function createChart (chartConfiguration: ChartConfiguration) {
       },
     )
   }
-  if (chartConfiguration.scalesYAxes !== undefined)  {
+  if (chartConfiguration.scalesYAxes !== undefined) {
     for (const scalesYAxe of chartConfiguration.scalesYAxes) {
       const data: any = {
         type: scalesYAxe.type,
@@ -473,12 +480,12 @@ function createChart (chartConfiguration: ChartConfiguration) {
       drawOnChartArea: false,
     },
   }];
-  const scales = {
+  const scales: Chart.TimeScale = {
     xAxes: [{
       type: 'time',
       display: true,
       time: {
-        tooltipFormat:'DD MMM YYYY'
+        tooltipFormat: 'DD MMM YYYY',
       }
     }],
     yAxes: scalesYAxes.length === 0 ? defaultYAxes : scalesYAxes
@@ -690,7 +697,7 @@ function homeCharts(chart: string) {
             ticks: {
               autoSkip: true,
               maxTicksLimit: 8.1,
-              callback: (value:any, index:any, values:any) => {
+              callback: (value: any, index: any, values: any) => {
                 return value;
               }
             },
@@ -700,7 +707,7 @@ function homeCharts(chart: string) {
             display: true,
             position: 'right',
             id: 'y-axis-2',
-            ticks: { },
+            ticks: {},
             gridLines: {
               drawOnChartArea: false,
             },
@@ -787,7 +794,7 @@ function blockTransactionsDetails(index: string, row: any, detail: any) {
 }
 
 function blockTransactionsVin(value: string, row: any) {
-  if(row.vin === null || row.vin === undefined) {
+  if (row.vin === null || row.vin === undefined) {
     return '';
   } else if (row.vin.vout === null || row.vin.vout === undefined) {
     return '<p class="has-text-primary">Coinbase</p>'
@@ -797,7 +804,7 @@ function blockTransactionsVin(value: string, row: any) {
 }
 
 function blockTransactionsVout(value: string, row: any) {
-  if(row.vout === null || row.vout === undefined) {
+  if (row.vout === null || row.vout === undefined) {
     return '';
   } else {
     return addOverflowControl('<a href="/address/' + row.vout.addresses[0].address + '">' + row.vout.addresses[0].address + '</a></span>');
@@ -806,7 +813,7 @@ function blockTransactionsVout(value: string, row: any) {
 
 // Transaction page - Functions
 function transactionVinPrevious(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
     return addOverflowControl(
       '<span>' + row.vout.n + ': <a href="/transaction/' + row.vout.transaction.txid + '">' + row.vout.transaction.txid + '</a></span>');
   } else {
@@ -815,7 +822,7 @@ function transactionVinPrevious(value: string, row: any) {
 }
 
 function transactionVinAddress(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
     return addOverflowControl('<a href="/address/' + row.vout.addresses[0].address + '">' + row.vout.addresses[0].address + '</a>')
   } else {
     return '<p class="has-text-primary">Coinbase</p>';
@@ -823,7 +830,7 @@ function transactionVinAddress(value: string, row: any) {
 }
 
 function transactionVinAmount(value: string, row: any) {
-  if (row.vout !== null && row.vout !== undefined) {
+  if (row.vout !== null && row.vout !== undefined && row.vout !== null && row.vout !== undefined) {
     return '<p>' + row.vout.value + '</p>';
   } else {
     return '<p class="has-text-primary">N/A</p>';
@@ -831,8 +838,8 @@ function transactionVinAmount(value: string, row: any) {
 }
 
 function transactionVoutRedeemed(value: string, row: any) {
-  if (row.vin !== null && row.vin !== undefined) {
-    return addOverflowControl('<a href="/transaction/' + row.vin.transaction.txid + '">' + row.vin.transaction.txid + '</a>');
+  if (row.vins[0] !== null && row.vins[0] !== undefined) {
+    return addOverflowControl('<a href="/transaction/' + row.vins[0].transaction.txid + '">' + row.vins[0].transaction.txid + '</a>');
   } else {
     return '<p class="has-text-primary">Not yet redeemed</p>';
   }
@@ -840,6 +847,10 @@ function transactionVoutRedeemed(value: string, row: any) {
 
 function transactionVoutAddress(value: string, row: any) {
   return addOverflowControl('<a href="/address/' + row.addresses[0].address + '">' + row.addresses[0].address + '</a></span>');
+}
+
+function transactionBlockLink(value: string, row: any) {
+  return '<a href="/block/' + row.hash + '">' + value + '</a>';
 }
 
 // Address page - Functions
@@ -860,7 +871,7 @@ function addressTransactions(params: any) {
 }
 
 function addressTransactionsTransaction(value: string, row: any) {
-  const nVout = row.vout_n !== null ? '<span>' + row.vout_n + ': </span>' : '';
+  const nVout = row.vout_n !== null && row.vinvout_value === null ? '<span>' + row.vout_n + ': </span>' : '';
   const link = nVout + '<a href="/transaction/' + value + '">' + value + '</a>';
   return addOverflowControl(link);
 }
@@ -870,7 +881,19 @@ function addressTransactionsBlock(value: string, row: any) {
 }
 
 function addressTransactionsValue(value: string, row: any) {
-  return formatNumberCoin(row.vout_value !== null ? row.vout_value : - row.vinvout_value);
+  const vinValue = row.vinvout_value !== null ?
+    formatNumberCoin(-row.vinvout_value) : undefined;
+  const voutValue = row.vout_value !== null ?
+    formatNumberCoin(row.vout_value) : undefined;
+  const bothValue = row.vinvout_value !== null && row.vout_value !== null ?
+    formatNumberCoin(-(row.vinvout_value-row.vout_value)) : undefined;
+  if (bothValue !== undefined) {
+    return bothValue + ' <b>*</b>';
+  } else if (vinValue !== undefined) {
+    return vinValue;
+  } else {
+    return voutValue;
+  }
 }
 
 // Extraction page - Functions
@@ -909,14 +932,14 @@ $(() => {
   });
 
   // Layout: Menu
-  $('.navbar-burger').on('click',() => {
+  $('.navbar-burger').on('click', () => {
     $('.navbar-burger').toggleClass('is-active');
     $('.navbar-menu').toggleClass('is-active');
   });
 
   $('div.navbar-item').on('click', function (e: any) {
     // Dropdown button
-    if($(e.target).hasClass('navbar-link')) {
+    if ($(e.target).hasClass('navbar-link')) {
       $('div.navbar-item').each(function () {
         $(this).removeClass('is-active')
       });
@@ -973,12 +996,12 @@ $(() => {
         });
     });
 
-    $('#homeDecodeTxModalClose').on('click',() => {
+    $('#homeDecodeTxModalClose').on('click', () => {
       $('#homeDecodeTxModal').toggleClass('is-active');
     });
 
     // Peers
-    $('#homePeersModalClose').on('click',() => {
+    $('#homePeersModalClose').on('click', () => {
       $('#homePeersModal').toggleClass('is-active');
     });
 
@@ -994,6 +1017,7 @@ $(() => {
 
     // Page initialization
     updateLayoutMarketBoxes();
+    homeCharts('circulation');
 
     // Auto refresh
     setInterval(
@@ -1006,17 +1030,17 @@ $(() => {
   if ($(location).attr('pathname')!.indexOf('/block') === 0) {
     const allItemInfo = ['#blockTransactionsDiv', '#blockJSONDiv'];
 
-    $('#blockTransactions').on('click',() => {
+    $('#blockTransactions').on('click', () => {
       tabsControl('#blockTransactions', '#blockTransactionsDiv', allItemInfo);
       $.get('/rest/api/1/block/' + getUrlParameter(), (data, textStatus, jqXHR) => {
         $('#blockHeight').text('"' + data.height + '"');
         $.get('/rest/api/1/block/' + getUrlParameter() + '/confirmations', (confirmations) => {
           const iIcon = $('<i></i>').addClass('fas fa-check');
           const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
-          if (data.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
-            $('#blockConfirmation').text(confirmations.confirmations).addClass('is-success').append(spanIcon);
-          } else if (data.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
-            $('#blockConfirmation').text(confirmations.confirmations).addClass('is-warning').append(spanIcon);
+          if (data.chain.id === 1 && confirmations.confirmations >= COIN_CONFIRMATIONS) {
+            $('#blockConfirmation').text(formatNumber(confirmations.confirmations, 0)).addClass('is-success').append(spanIcon);
+          } else if (data.chain.id === 1 && confirmations.confirmations < COIN_CONFIRMATIONS) {
+            $('#blockConfirmation').text(formatNumber(confirmations.confirmations, 0)).addClass('is-warning').append(spanIcon);
           } else {
             $('#blockConfirmation').text('Rejected').addClass('is-danger');
           }
@@ -1026,18 +1050,18 @@ $(() => {
         $('#blockTransactionsCount').text(data.nTx);
         $('#blockSize').text(' ( ' + formatBytes(data.size) + ' )');
         $('#blockInputs').text(data.inputC);
-        $('#blockIn').text(' ( ' + data.inputT + ' )');
+        $('#blockIn').text(' ( ' + formatNumberCoin(data.inputT) + ' )');
         $('#blockOutputs').text(data.outputC);
-        $('#blockOut').text(' ( ' + data.outputT + ' )');
-        $('#blockFees').text(data.feesT);
-        $('#blockDifficulty').text(data.difficulty);
-        $('#blockGeneration').text(data.generation);
+        $('#blockOut').text(' ( ' + formatNumberCoin(data.outputT) + ' )');
+        $('#blockFees').text(formatNumberCoin(data.feesT));
+        $('#blockDifficulty').text(formatNumberDifficulty(data.difficulty));
+        $('#blockGeneration').text(formatNumberCoin(data.generation));
         $('#blockMiner').attr('href', '/extraction/' + data.miner.address);
         $('#blockMiner').text(data.miner.label !== null ? data.miner.label : data.miner.address);
       });
     });
 
-    $('#blockJSON').on('click',() => {
+    $('#blockJSON').on('click', () => {
       tabsControl('#blockJSON', '#blockJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getblock/' + getUrlParameter() + '?verbosity=2', (data, textStatus, jqXHR) => {
         $('#blockJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
@@ -1051,21 +1075,21 @@ $(() => {
   // Page specific : Transaction
   if ($(location).attr('pathname')!.indexOf('/transaction') === 0) {
 
-    const allItemInfo = ['#transactionVinsDiv', '#transactionVoutsDiv', '#transactionJSONDiv'];
+    const allItemInfo = ['#transactionVinsDiv', '#transactionVoutsDiv', '#transactionHistoryDiv', '#transactionJSONDiv'];
 
     function getTransaction() {
       $.get('/rest/api/1/transaction/' + getUrlParameter(), (data, textStatus, jqXHR) => {
         $('#transactionId').text(data.txid);
-        if (data.block !== null) {
-          $('#transactionBlock').text(data.block.height);
-          $('#transactionBlock').attr('href', '/block/' + data.block.hash);
-          $.get('/rest/api/1/block/' + data.block.hash + '/confirmations', (confirmations) => {
+        if (data.blocks !== null) {
+          $('#transactionBlock').text(data.blocks[0].height);
+          $('#transactionBlock').attr('href', '/block/' + data.blocks[0].hash);
+          $.get('/rest/api/1/block/' + data.blocks[0].hash + '/confirmations', (confirmations) => {
             const iIcon = $('<i></i>').addClass('fas fa-check');
             const spanIcon = $('<span></span>').addClass('icon ml-1').append(iIcon);
-            if (data.block.onMainChain === true && confirmations.confirmations >= COIN_CONFIRMATIONS) {
-              $('#transactionConfirmation').text(confirmations.confirmations).addClass('is-success').append(spanIcon);
-            } else if (data.block.onMainChain === true && confirmations.confirmations < COIN_CONFIRMATIONS) {
-              $('#transactionConfirmation').text(confirmations.confirmations).addClass('is-warning').append(spanIcon);
+            if (data.blocks[0].chain.id === 1 && confirmations.confirmations >= COIN_CONFIRMATIONS) {
+              $('#transactionConfirmation').text(formatNumber(confirmations.confirmations, 0)).addClass('is-success').append(spanIcon);
+            } else if (data.blocks[0].chain.id === 1 && confirmations.confirmations < COIN_CONFIRMATIONS) {
+              $('#transactionConfirmation').text(formatNumber(confirmations.confirmations, 0)).addClass('is-warning').append(spanIcon);
             } else {
               $('#transactionConfirmation').text('Rejected').addClass('is-danger');
             }
@@ -1077,10 +1101,10 @@ $(() => {
         $('#transactionTime').text(formatEpochToDate(data.time));
         $('#transactionSize').text(formatBytes(data.size));
         $('#transactionInputs').text(data.inputC);
-        $('#transactionIn').text(' ( ' + data.inputT + ' )');
+        $('#transactionIn').text(' ( ' + formatNumberCoin(data.inputT) + ' )');
         $('#transactionOutputs').text(data.outputC);
-        $('#transactionOut').text(' ( ' + data.outputT + ' )');
-        $('#transactionFee').text(data.fee);
+        $('#transactionOut').text(' ( ' + formatNumberCoin(data.outputT) + ' )');
+        $('#transactionFee').text(formatNumberCoin(data.fee));
 
         ($('#transactionVinsTable') as any).bootstrapTable({
           data: {
@@ -1094,18 +1118,31 @@ $(() => {
             'total': data.vouts.length
           }
         })
+        if (data.blocks.length > 1) {
+          $('#transactionHistory').parent().removeClass('is-hidden');
+        }
+        ($('#transactionHistoryTable') as any).bootstrapTable({
+          data: {
+            'rows': data.blocks,
+            'total': data.blocks.length
+          }
+        })
       });
     }
 
-    $('#transactionVins').on('click',() => {
+    $('#transactionVins').on('click', () => {
       tabsControl('#transactionVins', '#transactionVinsDiv', allItemInfo);
     });
 
-    $('#transactionVouts').on('click',() => {
+    $('#transactionVouts').on('click', () => {
       tabsControl('#transactionVouts', '#transactionVoutsDiv', allItemInfo);
     });
 
-    $('#transactionJSON').on('click',() => {
+    $('#transactionHistory').on('click', () => {
+      tabsControl('#transactionHistory', '#transactionHistoryDiv', allItemInfo);
+    });
+
+    $('#transactionJSON').on('click', () => {
       tabsControl('#transactionJSON', '#transactionJSONDiv', allItemInfo);
       $.get('/rest/api/1/rpc/getrawtransaction/' + getUrlParameter() + '?verbose=true', (data, textStatus, jqXHR) => {
         $('#transactionJSONDiv').children().html(formatJSON(JSON.stringify(data, undefined, 2)));
@@ -1143,7 +1180,7 @@ $(() => {
       $(hash).toggle();
     }
 
-    $('#financial-disclaimer').on('click',() => {
+    $('#financial-disclaimer').on('click', () => {
       $('#financial-disclaimer-content').toggle();
     });
   }

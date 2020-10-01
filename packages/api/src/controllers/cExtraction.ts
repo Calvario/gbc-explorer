@@ -32,8 +32,9 @@ class Block implements iController {
       .addSelect("miner.address", "address")
       .addSelect("miner.label", "label")
       .innerJoin("block.miner", "miner")
-      .where("height >= :height", { height: lastBlock.height - 100 })
-      .andWhere("block.onMainChain = true")
+      .innerJoin("block.chain", "chain")
+      .where("block.height >= :height", { height: lastBlock.height - 100 })
+      .andWhere("chain.id = 1")
       .groupBy("miner.address")
       .addGroupBy("miner.label")
       .addGroupBy("miner.id")
@@ -59,8 +60,9 @@ class Block implements iController {
     const addressHash = request.params.addressHash;
     const qB = this.repository.createQueryBuilder("block")
     .innerJoin("block.miner", "miner")
+    .innerJoin("block.chain", "chain")
     .where("miner.address = :address", { address: addressHash })
-    .andWhere("block.onMainChain = true")
+    .andWhere("chain.id = 1")
     .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));

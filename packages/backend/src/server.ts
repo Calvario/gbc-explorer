@@ -1,11 +1,13 @@
 import path from 'path';
 import debug from 'debug';
 import dotenv from 'dotenv';
+import cron from 'cron';
 import { RPCClient } from 'rpc-bitcoin';
 import { createConnection, getConnectionOptions } from 'typeorm';
-import cron from 'cron';
-import Blockchain from './blockchain';
-import Peer from './peer';
+import { Block } from './controllers/cBlock';
+import { Chain } from './controllers/cChain';
+import { Peer } from './controllers/cPeer';
+import { Address } from './controllers/cAddress'
 
 const toRoot = '../../../';
 
@@ -15,10 +17,16 @@ const toRoot = '../../../';
   dotenv.config({ path: path.resolve(__dirname, toRoot + '.env') });
 
   // Database connection
-  const connectionOptions = await getConnectionOptions();
+  const connectionOptions = await getConnectionOptions()
+    .catch(error => {
+      debug.log('getConnectionOptions');
+      debug.log(error);
+      return Promise.reject(error);
+    });
+
   Object.assign(connectionOptions, {
-    entities: [ path.resolve(__dirname, toRoot + connectionOptions.entities ).toString() ],
-    migrations: [ path.resolve(__dirname, toRoot + connectionOptions.migrations).toString() ],
+    entities: [path.resolve(__dirname, toRoot + connectionOptions.entities).toString()],
+    migrations: [path.resolve(__dirname, toRoot + connectionOptions.migrations).toString()],
   });
 
   if (process.env.NODE_ENV === 'development') {
@@ -31,10 +39,11 @@ const toRoot = '../../../';
   }
 
   await createConnection(connectionOptions)
-  .catch(error => {
-    debug.log('Error while connecting to the database', error);
-    return error;
-  });
+    .catch(error => {
+      debug.log('Error while connecting to the database');
+      debug.log(error);
+      return Promise.reject(error);
+    });
 
   // RPC Connection
   const url = process.env.RPC_HOST;
@@ -47,37 +56,58 @@ const toRoot = '../../../';
   // Cron
   let isRunning = false;
   const CronJob = cron.CronJob;
-  const blockchain = new Blockchain();
 
   // Sync Peers
   const jobGetPeers = new CronJob('30 * * * * *', async () => {
-    await Peer(rpcClient);
+    await Peer.sync(rpcClient)
+      .catch(error => {
+        debug.log(error);
+        return Promise.reject(error);
+      });
   });
 
   // Sync blockchain
   const jobSync = new CronJob('10 * * * * *', async () => {
-    if(!isRunning) {
+    if (!isRunning) {
       isRunning = true;
-      await blockchain.sync(rpcClient);
-      isRunning = false;
+      await Block.sync(rpcClient)
+        .catch(error => {
+          debug.log(error);
+          return Promise.reject(error);
+        })
+        .finally(() => {
+          isRunning = false;
+        });
     }
   });
 
   // Check chain tips
-  const jobChainTips = new CronJob('40 * * * * *', async () => {
-    if(!isRunning) {
+  const jobChainTips = new CronJob('25 * * * * *', async () => {
+    if (!isRunning) {
       isRunning = true;
-      await blockchain.checkChainTips(rpcClient);
-      isRunning = false;
+      await Chain.sync(rpcClient)
+      .catch(error => {
+        debug.log(error);
+        return Promise.reject(error);
+      })
+      .finally(() => {
+        isRunning = false;
+      });
     }
   });
 
   // Sync labels
   const jobLabels = new CronJob('45 * * * * *', async () => {
-    if(!isRunning) {
+    if (!isRunning) {
       isRunning = true;
-      await blockchain.updateLabelForAddresses(path.join(__dirname, toRoot));
-      isRunning = false;
+      await Address.updateLabels(path.join(__dirname, toRoot))
+        .catch(error => {
+          debug.log(error);
+          return Promise.reject(error);
+        })
+        .finally(() => {
+          isRunning = false;
+        });
     }
   });
 
