@@ -3,6 +3,7 @@ import { getConnection } from "typeorm";
 import iController from '../interfaces/iController';
 import { mBlock, mVin } from '@calvario/gbc-explorer-shared';
 import debug from 'debug';
+import mCache from '../middlewares/mCache';
 
 
 class Chart implements iController {
@@ -14,10 +15,10 @@ class Chart implements iController {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/circulation`, this.getCirculation);
-    this.router.get(`${this.path}/difficulty`, this.getDifficulty);
-    this.router.get(`${this.path}/blockchainSize`, this.getBlockchainSize);
-    this.router.get(`${this.path}/transactionVolume`, this.getTransactionVolume);
+    this.router.get(`${this.path}/circulation`, mCache(600), this.getCirculation);
+    this.router.get(`${this.path}/difficulty`, mCache(600), this.getDifficulty);
+    this.router.get(`${this.path}/blockchainSize`, mCache(600), this.getBlockchainSize);
+    this.router.get(`${this.path}/transactionVolume`, mCache(600), this.getTransactionVolume);
   }
 
   private getCirculation = async (request: Request, response: Response) => {

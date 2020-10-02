@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { RPCClient } from 'rpc-bitcoin';
 import iController from '../interfaces/iController';
 import stringValidator from '../middlewares/mStringValidator';
+import mCache from '../middlewares/mCache';
 import debug from 'debug';
 
 class RPC implements iController {
@@ -28,23 +29,23 @@ class RPC implements iController {
     this.router.get(`${this.path}/decoderawtransaction/:rawTransaction`, stringValidator(), this.decoderawtransaction);
     this.router.get(`${this.path}/getaddressinfo/:address`, stringValidator(), this.getaddressinfo);
     this.router.get(`${this.path}/getblock/:hash`, stringValidator(), this.getblock);
-    this.router.get(`${this.path}/getblockchaininfo`, this.getblockchaininfo);
-    this.router.get(`${this.path}/getblockcount`, this.getblockcount);
+    this.router.get(`${this.path}/getblockchaininfo`, mCache(60), this.getblockchaininfo);
+    this.router.get(`${this.path}/getblockcount`, mCache(60), this.getblockcount);
     this.router.get(`${this.path}/getblockhash/:height`, stringValidator(), this.getblockhash);
     this.router.get(`${this.path}/getblockstats/:block`, stringValidator(), this.getblockstats);
-    this.router.get(`${this.path}/getchaintips`, this.getchaintips);
+    this.router.get(`${this.path}/getchaintips`, mCache(60), this.getchaintips);
     this.router.get(`${this.path}/getchaintxstats`, stringValidator(), this.getchaintxstats);
-    this.router.get(`${this.path}/getconnectioncount`, this.getconnectioncount);
-    this.router.get(`${this.path}/getdifficulty`, this.getdifficulty);
+    this.router.get(`${this.path}/getconnectioncount`, mCache(60), this.getconnectioncount);
+    this.router.get(`${this.path}/getdifficulty`, mCache(60), this.getdifficulty);
     this.router.get(`${this.path}/getmempoolancestors/:txid`, stringValidator(), this.getmempoolancestors);
     this.router.get(`${this.path}/getmempooldescendants/:txid`, stringValidator(), this.getmempooldescendants);
     this.router.get(`${this.path}/getmempoolentry/:txid`, stringValidator(), this.getmempoolentry);
-    this.router.get(`${this.path}/getmempoolinfo`, this.getmempoolinfo);
-    this.router.get(`${this.path}/getmininginfo`, this.getmininginfo);
-    this.router.get(`${this.path}/getrawmempool`, this.getrawmempool);
+    this.router.get(`${this.path}/getmempoolinfo`, mCache(60), this.getmempoolinfo);
+    this.router.get(`${this.path}/getmininginfo`, mCache(60), this.getmininginfo);
+    this.router.get(`${this.path}/getrawmempool`, mCache(60), this.getrawmempool);
     this.router.get(`${this.path}/getrawtransaction/:txid`, stringValidator(), this.getrawtransaction);
     this.router.get(`${this.path}/gettxoutproof`, stringValidator(), this.gettxoutproof);
-    this.router.get(`${this.path}/gettxoutsetinfo`, this.gettxoutsetinfo);
+    this.router.get(`${this.path}/gettxoutsetinfo`, mCache(60), this.gettxoutsetinfo);
     this.router.get(`${this.path}/sendrawtransaction/:rawTransaction`, stringValidator(), this.sendrawtransaction);
   }
 

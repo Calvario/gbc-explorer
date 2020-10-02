@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { getRepository } from "typeorm";
 import iController from '../interfaces/iController';
 import stringValidator from '../middlewares/mStringValidator';
+import mCache from '../middlewares/mCache';
 import { mPeerVersion } from '@calvario/gbc-explorer-shared';
 import debug from 'debug';
 
@@ -17,7 +18,7 @@ class Peer implements iController {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, stringValidator(), this.getNetworkSummary);
+    this.router.get(`${this.path}`, mCache(10), this.getNetworkSummary);
     this.router.get(`${this.path}/:version`, stringValidator(), this.getNetworkListForVersion);
   }
 

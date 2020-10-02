@@ -1,1180 +1,1080 @@
 {
-  "swagger":"2.0",
-  "info":{
-    "description":"",
-    "version":"1.0.0",
-    "title":"Swagger GBC Explorer"
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "version": "1.0.0",
+    "title": "Swagger GBC Explorer"
   },
-  "basePath":"/rest/api/1/",
-  "schemes":[
-    "https",
-    "http"
-  ],
-  "tags":[
+  "basePath": "/rest/api/1/",
+  "schemes": ["https"],
+  "tags": [
     {
-      "name":"RPC",
-      "description":"RPC commands"
+      "name": "RPC",
+      "description": "RPC commands"
     },
     {
-      "name":"General",
-      "description":"Internal API"
+      "name": "CoinGecko",
+      "description": "CoinGecko wrapper"
     },
     {
-      "name":"Block",
-      "description":"Internal API"
+      "name": "General",
+      "description": "Internal API"
     },
     {
-      "name":"Extraction",
-      "description":"Internal API"
+      "name": "Block",
+      "description": "Internal API"
     },
     {
-      "name":"Peer",
-      "description":"Internal API"
+      "name": "Extraction",
+      "description": "Internal API"
     },
     {
-      "name":"Transaction",
-      "description":"Internal API"
+      "name": "Peer",
+      "description": "Internal API"
     },
     {
-      "name":"Address",
-      "description":"Internal API"
+      "name": "Transaction",
+      "description": "Internal API"
+    },
+    {
+      "name": "Address",
+      "description": "Internal API"
+    },
+    {
+      "name": "Chart",
+      "description": "Internal API"
     }
   ],
-  "paths":{
-    "/rpc/decoderawtransaction/{rawTransaction}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Decodes a serialized transaction hex string into a JSON object describing the transaction.",
-        "description":"",
-        "operationId":"decoderawtransaction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+  "paths": {
+    "/rpc/decoderawtransaction/{rawTransaction}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Decodes a serialized transaction hex string into a JSON object describing the transaction.",
+        "description": "",
+        "operationId": "decoderawtransaction",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"rawTransaction",
-            "description":"The transaction hex string",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "rawTransaction",
+            "description": "The transaction hex string",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getaddressinfo/{address}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Return information about the given address.",
-        "description":"",
-        "operationId":"getaddressinfo",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getaddressinfo/{address}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Return information about the given address.",
+        "description": "",
+        "operationId": "getaddressinfo",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"address",
-            "description":"Address hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "address",
+            "description": "Address hash",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getblock/{hash}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns information about the block with the given hash.",
-        "description":"",
-        "operationId":"getblock",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getblock/{hash}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns information about the block with the given hash.",
+        "description": "",
+        "operationId": "getblock",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"hash",
-            "description":"Block hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "hash",
+            "description": "Block hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"verbosity",
-            "description":"Verbosity level (0,1,2)",
-            "type":"integer",
-            "required":false
+            "in": "query",
+            "name": "verbosity",
+            "description": "Verbosity level (0,1,2)",
+            "type": "integer",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getblockchaininfo":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns an object containing various state info regarding blockchain processing.",
-        "description":"",
-        "operationId":"getblockchaininfo",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getblockchaininfo": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns an object containing various state info regarding blockchain processing.",
+        "description": "",
+        "operationId": "getblockchaininfo",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getblockcount":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns the number of blocks in the longest blockchain.",
-        "description":"",
-        "operationId":"getblockcount",
-        "produces":[
-          "text/plain"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getblockcount": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns the number of blocks in the longest blockchain.",
+        "description": "",
+        "operationId": "getblockcount",
+        "produces": ["text/plain"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getblockhash/{height}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns hash of block in best-block-chain at height provided.",
-        "description":"",
-        "operationId":"getblockhash",
-        "produces":[
-          "text/plain"
-        ],
-        "parameters":[
+    "/rpc/getblockhash/{height}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns hash of block in best-block-chain at height provided.",
+        "description": "",
+        "operationId": "getblockhash",
+        "produces": ["text/plain"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"height",
-            "description":"Block height",
-            "type":"integer",
-            "required":true
+            "in": "path",
+            "name": "height",
+            "description": "Block height",
+            "type": "integer",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getblockstats/{block}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Compute per block statistics for a given window. All amounts are in satoshis.",
-        "description":"",
-        "operationId":"getblockstats",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getblockstats/{block}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Compute per block statistics for a given window. All amounts are in satoshis.",
+        "description": "",
+        "operationId": "getblockstats",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"block",
-            "description":"Block hash or height",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "block",
+            "description": "Block hash or height",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"stat",
-            "description":"Stat",
-            "type":"string",
-            "required":false
+            "in": "query",
+            "name": "stat",
+            "description": "Stat",
+            "type": "string",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getchaintips":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Return information about all known tips in the block tree, including the main chain as well as orphaned branches.",
-        "description":"",
-        "operationId":"getchaintips",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getchaintips": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Return information about all known tips in the block tree, including the main chain as well as orphaned branches.",
+        "description": "",
+        "operationId": "getchaintips",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getchaintxstats":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Compute statistics about the total number and rate of transactions in the chain.",
-        "description":"",
-        "operationId":"getchaintxstats",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getchaintxstats": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Compute statistics about the total number and rate of transactions in the chain.",
+        "description": "",
+        "operationId": "getchaintxstats",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"nBlocks",
-            "description":"Size of the window in number of blocks (default: one month).",
-            "type":"integer",
-            "required":false
+            "in": "query",
+            "name": "nBlocks",
+            "description": "Size of the window in number of blocks (default: one month).",
+            "type": "integer",
+            "required": false
           },
           {
-            "in":"query",
-            "name":"blockHash",
-            "description":"The hash of the block that ends the window.",
-            "type":"string",
-            "required":false
+            "in": "query",
+            "name": "blockHash",
+            "description": "The hash of the block that ends the window.",
+            "type": "string",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getconnectioncount":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns the number of connections to other nodes.",
-        "description":"",
-        "operationId":"getconnectioncount",
-        "produces":[
-          "text/plain"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getconnectioncount": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns the number of connections to other nodes.",
+        "description": "",
+        "operationId": "getconnectioncount",
+        "produces": ["text/plain"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getdifficulty":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns the proof-of-work difficulty as a multiple of the minimum difficulty.",
-        "description":"",
-        "operationId":"getdifficulty",
-        "produces":[
-          "text/plain"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getdifficulty": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns the proof-of-work difficulty as a multiple of the minimum difficulty.",
+        "description": "",
+        "operationId": "getdifficulty",
+        "produces": ["text/plain"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getmempoolancestors/{txid}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"If txid is in the mempool, returns all in-mempool ancestors.",
-        "description":"",
-        "operationId":"getmempoolancestors",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getmempoolancestors/{txid}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "If txid is in the mempool, returns all in-mempool ancestors.",
+        "description": "",
+        "operationId": "getmempoolancestors",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"txid",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "txid",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"verbose",
-            "description":"Verbose",
-            "type":"boolean",
-            "required":false
+            "in": "query",
+            "name": "verbose",
+            "description": "Verbose",
+            "type": "boolean",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getmempooldescendants/{txid}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"If txid is in the mempool, returns all in-mempool descendants.",
-        "description":"",
-        "operationId":"getmempooldescendants",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getmempooldescendants/{txid}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "If txid is in the mempool, returns all in-mempool descendants.",
+        "description": "",
+        "operationId": "getmempooldescendants",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"txid",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "txid",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"verbose",
-            "description":"Verbose",
-            "type":"boolean",
-            "required":false
+            "in": "query",
+            "name": "verbose",
+            "description": "Verbose",
+            "type": "boolean",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getmempoolentry/{txid}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns mempool data for given transaction",
-        "description":"",
-        "operationId":"getmempoolentry",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getmempoolentry/{txid}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns mempool data for given transaction",
+        "description": "",
+        "operationId": "getmempoolentry",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"txid",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "txid",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getmempoolinfo":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns details on the active state of the TX memory pool.",
-        "description":"",
-        "operationId":"getmempoolinfo",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getmempoolinfo": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns details on the active state of the TX memory pool.",
+        "description": "",
+        "operationId": "getmempoolinfo",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getmininginfo":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns a json object containing mining-related information.",
-        "description":"",
-        "operationId":"getmininginfo",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/getmininginfo": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns a json object containing mining-related information.",
+        "description": "",
+        "operationId": "getmininginfo",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getrawmempool":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns all transaction ids in memory pool as a json array of string transaction ids.",
-        "description":"",
-        "operationId":"getrawmempool",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getrawmempool": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns all transaction ids in memory pool as a json array of string transaction ids.",
+        "description": "",
+        "operationId": "getrawmempool",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"verbose",
-            "description":"verbose",
-            "type":"boolean",
-            "required":false
+            "in": "query",
+            "name": "verbose",
+            "description": "verbose",
+            "type": "boolean",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/getrawtransaction/{txid}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns the raw transaction data.",
-        "description":"",
-        "operationId":"getrawtransaction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/getrawtransaction/{txid}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns the raw transaction data.",
+        "description": "",
+        "operationId": "getrawtransaction",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"txid",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "txid",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"verbose",
-            "description":"Verbose",
-            "type":"boolean",
-            "required":false
+            "in": "query",
+            "name": "verbose",
+            "description": "Verbose",
+            "type": "boolean",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/gettxoutproof":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns a hex-encoded proof that txid was included in a block.",
-        "description":"",
-        "operationId":"gettxoutproof",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/gettxoutproof": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns a hex-encoded proof that txid was included in a block.",
+        "description": "",
+        "operationId": "gettxoutproof",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"txid",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
+            "in": "query",
+            "name": "txid",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"blockHash",
-            "description":"Block hash",
-            "type":"string",
-            "required":false
+            "in": "query",
+            "name": "blockHash",
+            "description": "Block hash",
+            "type": "string",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/gettxoutsetinfo":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Returns statistics about the unspent transaction output set. Note this call may take some time.",
-        "description":"",
-        "operationId":"gettxoutsetinfo",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "500":{
-            "description":"Error"
+    "/rpc/gettxoutsetinfo": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Returns statistics about the unspent transaction output set. Note this call may take some time.",
+        "description": "",
+        "operationId": "gettxoutsetinfo",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/rpc/sendrawtransaction/{rawTransaction}":{
-      "get":{
-        "tags":[
-          "RPC"
-        ],
-        "summary":"Validates a transaction and broadcasts it to the peer-to-peer network.",
-        "description":"",
-        "operationId":"sendrawtransaction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/rpc/sendrawtransaction/{rawTransaction}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Validates a transaction and broadcasts it to the peer-to-peer network.",
+        "description": "",
+        "operationId": "sendrawtransaction",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"rawTransaction",
-            "description":"The hex string of the raw transaction",
-            "type":"string",
-            "required":true
+            "in": "path",
+            "name": "rawTransaction",
+            "description": "The hex string of the raw transaction",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/general":{
-      "get":{
-        "tags":[
-          "General"
-        ],
-        "summary":"Search pattern matches on blocks, transactions, addresses",
-        "description":"",
-        "operationId":"general",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
-          {
-            "in":"query",
-            "name":"search",
-            "description":"Search pattern",
-            "type":"string",
-            "required":true
-          }
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+    "/coingecko/price": {
+      "get": {
+        "tags": ["CoinGecko"],
+        "summary": "Returns CoinGecko coin price",
+        "description": "",
+        "operationId": "price",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/block":{
-      "get":{
-        "tags":[
-          "Block"
-        ],
-        "summary":"Get latest blocks",
-        "description":"",
-        "operationId":"block",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
-          {
-            "in":"query",
-            "name":"afterId",
-            "description":"After ID",
-            "type":"integer",
-            "required":false
-          },
-          {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
-          }
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+    "/coingecko/tickers": {
+      "get": {
+        "tags": ["CoinGecko"],
+        "summary": "Returns CoinGecko coin tickers",
+        "description": "",
+        "operationId": "tickers",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/block/{hash}":{
-      "get":{
-        "tags":[
-          "Block"
-        ],
-        "summary":"Get block",
-        "description":"",
-        "operationId":"blockHash",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
-          {
-            "in":"path",
-            "name":"hash",
-            "description":"Block hash",
-            "type":"string",
-            "required":true
-          }
-        ],
-        "responses":{
-          "200":{
-
-          },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+    "/coingecko/news": {
+      "get": {
+        "tags": ["CoinGecko"],
+        "summary": "Returns CoinGecko coin news",
+        "description": "",
+        "operationId": "news",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/block/{hash}/confirmations":{
-      "get":{
-        "tags":[
-          "Block"
-        ],
-        "summary":"Get block confirmations",
-        "description":"",
-        "operationId":"blockConfirmations",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/general": {
+      "get": {
+        "tags": ["General"],
+        "summary": "Search pattern matches on blocks, transactions, addresses",
+        "description": "",
+        "operationId": "general",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"hash",
-            "description":"Block hash",
-            "type":"string",
-            "required":true
+            "in": "query",
+            "name": "search",
+            "description": "Search pattern",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/block/{hash}/transactions":{
-      "get":{
-        "tags":[
-          "Block"
-        ],
-        "summary":"Get block transactions",
-        "description":"",
-        "operationId":"blockTransaction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/block": {
+      "get": {
+        "tags": ["Block"],
+        "summary": "Get latest blocks",
+        "description": "",
+        "operationId": "block",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"hash",
-            "description":"Block hash",
-            "type":"string",
-            "required":true
+            "in": "query",
+            "name": "afterId",
+            "description": "After ID",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/extraction":{
-      "get":{
-        "tags":[
-          "Extraction"
-        ],
-        "summary":"Get extraction statistics",
-        "description":"",
-        "operationId":"extraction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/block/{hash}": {
+      "get": {
+        "tags": ["Block"],
+        "summary": "Get block",
+        "description": "",
+        "operationId": "blockHash",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
+            "in": "path",
+            "name": "hash",
+            "description": "Block hash",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/extraction/{addressHash}":{
-      "get":{
-        "tags":[
-          "Extraction"
-        ],
-        "summary":"Get latest block extracted by a specific address",
-        "description":"",
-        "operationId":"addressHash",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/block/{hash}/confirmations": {
+      "get": {
+        "tags": ["Block"],
+        "summary": "Get block confirmations",
+        "description": "",
+        "operationId": "blockConfirmations",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"addressHash",
-            "description":"Address hash",
-            "type":"string",
-            "required":true
-          },
-          {
-            "in":"query",
-            "name":"afterId",
-            "description":"After ID",
-            "type":"integer",
-            "required":false
-          },
-          {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
+            "in": "path",
+            "name": "hash",
+            "description": "Block hash",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/peer":{
-      "get":{
-        "tags":[
-          "Peer"
+    "/block/{hash}/transactions": {
+      "get": {
+        "tags": ["Block"],
+        "summary": "Get block transactions",
+        "description": "",
+        "operationId": "blockTransaction",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hash",
+            "description": "Block hash",
+            "type": "string",
+            "required": true
+          }
         ],
-        "summary":"Get peers statistics",
-        "description":"",
-        "operationId":"peer",
-        "produces":[
-          "application/json"
-        ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/peer/{versionId}":{
-      "get":{
-        "tags":[
-          "Peer"
-        ],
-        "summary":"Get all peers for a specific version",
-        "description":"",
-        "operationId":"peersForVersion",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/extraction": {
+      "get": {
+        "tags": ["Extraction"],
+        "summary": "Get extraction statistics",
+        "description": "",
+        "operationId": "extraction",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"versionId",
-            "description":"Version ID",
-            "type":"string",
-            "required":true
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/transaction":{
-      "get":{
-        "tags":[
-          "Transaction"
-        ],
-        "summary":"Get latest transaction",
-        "description":"",
-        "operationId":"transaction",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/extraction/{addressHash}": {
+      "get": {
+        "tags": ["Extraction"],
+        "summary": "Get latest block extracted by a specific address",
+        "description": "",
+        "operationId": "addressHash",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"afterId",
-            "description":"After ID",
-            "type":"integer",
-            "required":false
+            "in": "path",
+            "name": "addressHash",
+            "description": "Address hash",
+            "type": "string",
+            "required": true
           },
           {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
+            "in": "query",
+            "name": "afterId",
+            "description": "After ID",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/transaction/{addressHash}":{
-      "get":{
-        "tags":[
-          "Transaction"
-        ],
-        "summary":"Get transaction information",
-        "description":"",
-        "operationId":"transactionHash",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
-          {
-            "in":"path",
-            "name":"hash",
-            "description":"Transaction hash",
-            "type":"string",
-            "required":true
-          }
-        ],
-        "responses":{
-          "200":{
-
+    "/peer": {
+      "get": {
+        "tags": ["Peer"],
+        "summary": "Get peers statistics",
+        "description": "",
+        "operationId": "peer",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/address":{
-      "get":{
-        "tags":[
-          "Address"
-        ],
-        "summary":"Get rich list",
-        "description":"",
-        "operationId":"address",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/peer/{versionId}": {
+      "get": {
+        "tags": ["Peer"],
+        "summary": "Get all peers for a specific version",
+        "description": "",
+        "operationId": "peersForVersion",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
+            "in": "path",
+            "name": "versionId",
+            "description": "Version ID",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/address/{hash}":{
-      "get":{
-        "tags":[
-          "Address"
-        ],
-        "summary":"Get address information",
-        "description":"",
-        "operationId":"addressHash",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/transaction": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get latest transaction",
+        "description": "",
+        "operationId": "transaction",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"hash",
-            "description":"Address hash",
-            "type":"string",
-            "required":true
+            "in": "query",
+            "name": "afterId",
+            "description": "After ID",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
-          },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
           }
         }
       }
     },
-    "/address/{hash}/transactions":{
-      "get":{
-        "tags":[
-          "Address"
-        ],
-        "summary":"Get latest address transactions",
-        "description":"",
-        "operationId":"addressHashTransactions",
-        "produces":[
-          "application/json"
-        ],
-        "parameters":[
+    "/transaction/{addressHash}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Get transaction information",
+        "description": "",
+        "operationId": "transactionHash",
+        "produces": ["application/json"],
+        "parameters": [
           {
-            "in":"path",
-            "name":"hash",
-            "description":"Address hash",
-            "type":"string",
-            "required":true
-          },
-          {
-            "in":"query",
-            "name":"afterId",
-            "description":"After ID",
-            "type":"integer",
-            "required":false
-          },
-          {
-            "in":"query",
-            "name":"limit",
-            "description":"Number of results (max 100)",
-            "type":"integer",
-            "required":false
+            "in": "path",
+            "name": "hash",
+            "description": "Transaction hash",
+            "type": "string",
+            "required": true
           }
         ],
-        "responses":{
-          "200":{
-
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "405":{
-            "description":"Invalid input"
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/address": {
+      "get": {
+        "tags": ["Address"],
+        "summary": "Get rich list",
+        "description": "",
+        "operationId": "address",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
           },
-          "500":{
-            "description":"Error"
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/address/{hash}": {
+      "get": {
+        "tags": ["Address"],
+        "summary": "Get address information",
+        "description": "",
+        "operationId": "addressHash",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hash",
+            "description": "Address hash",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/address/{hash}/transactions": {
+      "get": {
+        "tags": ["Address"],
+        "summary": "Get latest address transactions",
+        "description": "",
+        "operationId": "addressHashTransactions",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "hash",
+            "description": "Address hash",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "afterId",
+            "description": "After ID",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Number of results (max 100)",
+            "type": "integer",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chart/circulation": {
+      "get": {
+        "tags": ["Chart"],
+        "summary": "Get circulation, inflation and generation",
+        "description": "",
+        "operationId": "circulation",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chart/difficulty": {
+      "get": {
+        "tags": ["Chart"],
+        "summary": "Get difficulty, blocks and transactions",
+        "description": "",
+        "operationId": "difficulty",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chart/blockchainSize": {
+      "get": {
+        "tags": ["Chart"],
+        "summary": "Get blockchain size, avg block size and avg transactions per block",
+        "description": "",
+        "operationId": "blockchainSize",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chart/transactionVolume": {
+      "get": {
+        "tags": ["Chart"],
+        "summary": "Get volume, avg output and avg fee",
+        "description": "",
+        "operationId": "transactionVolume",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
           }
         }
       }

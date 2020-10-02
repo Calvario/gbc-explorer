@@ -369,8 +369,26 @@ block content
             a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko
 
         <!-- News -->
-        div#homeNewsDiv.container.is-hidden
+        div#homeNewsDiv.table-container.is-hidden
           h1.is-size-4.has-text-weight-bold News
-          div
-            script(src="https://widgets.coingecko.com/coingecko-beam-widget.js")
-            coingecko-beam-widget(type="coins" height="0" locale="en" project-id=`${process.env.COINGECKO_SYMBOL}`)
+          table(
+            data-toggle="table"
+            data-card-view="true"
+            data-ajax="homeNews"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeNewsTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="left" data-align="left" data-field="created_at" data-formatter="formatDateToHumanDate") Date
+                th(data-halign="left" data-align="left" data-field="user" data-formatter="homeNewsAuthor") Author
+                th(data-halign="left" data-align="left" data-field="category" data-formatter="homeNewsCategory") Category
+                th(data-halign="left" data-align="left" data-field="description" data-formatter="homeNewsDescription") Description
+              tbody
+          p.has-text-right.has-text-weight-semibold Datasource 
+            a(href=`https://www.coingecko.com/en/coins/${process.env.COINGECKO_SYMBOL}` target="_blank") CoinGecko

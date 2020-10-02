@@ -13,6 +13,7 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 *  Reverse Proxy for security & SSL
 *  Node.js
 *  Postgress (default)
+*  Redis
 *  coin daemon with RPC
 
 ### Create database

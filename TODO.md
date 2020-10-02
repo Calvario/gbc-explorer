@@ -31,7 +31,6 @@
 	- Count total blocks and how many % for all blocks
 
 # Charts
-- Inflation
 - Rich list wealth distribution
 - Stalled blocks (Reason, time)
 - Total transaction count

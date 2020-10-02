@@ -58,6 +58,23 @@ function formatEpochToDate(epoch: number) {
   return dateTime;
 }
 
+function formatDateToHumanDate(fullDate: string) {
+
+  const date = new Date(fullDate);
+
+  const year = date.getFullYear();
+  const month = date.toLocaleString('default', { month: 'short' });
+  const day = ('0' + date.getDate()).substr(-2);
+  const hours = ('0' + date.getHours()).substr(-2);
+  const minutes = ('0' + date.getMinutes()).substr(-2);
+  const seconds = ('0' + date.getSeconds()).substr(-2);
+
+  const dateTime = day + ' ' + month + ' ' + year
+    + ' ' + hours + ':' + minutes + ':' + seconds + '';
+
+  return dateTime;
+}
+
 function formatNumber(nb: number, size: number = 5, symbol: string = '') {
   if (isNaN(nb)) {
     return '';
@@ -84,6 +101,10 @@ function formatNumberBTC(value: number) {
 
 function formatNumberCoin(value: number) {
   return formatNumber(value, 9, COIN_SYMBOL)
+}
+
+function formatNumberCoinShort(value: number) {
+  return formatNumber(value, 0, COIN_SYMBOL)
 }
 
 function formatNumberDifficulty(value: number) {
@@ -222,8 +243,7 @@ function formatNumberCoinTotalTable(this: any, data: any) {
 
 // Home page - Functions
 function updateLayoutMarketBoxes() {
-  const link = 'https://api.coingecko.com/api/v3/simple/price?ids=' + COINGECKO_SYMBOL + '&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true';
-  $.get(link, (data, textStatus, jqXHR) => {
+  $.get('/rest/api/1/coingecko/price', (data, textStatus, jqXHR) => {
     $('#layoutBTCPrice').text(formatNumberBTC(data[COINGECKO_SYMBOL].btc));
     $('#layoutUSDPrice').text(formatNumberFiat(data[COINGECKO_SYMBOL].usd));
     $('#layoutMarketCap').text(formatNumberFiat(data[COINGECKO_SYMBOL].usd_market_cap));
@@ -238,7 +258,7 @@ function updateLayoutMarketBoxes() {
 
   if (COIN_TYPE === 'PoW')
     $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
-      $('#layoutSupply').text(formatNumberCoin(data.totalsupply));
+      $('#layoutSupply').text(formatNumberCoinShort(data.totalsupply));
     });
 }
 
@@ -392,10 +412,9 @@ function homeRichListAddressLink(value: string, row: any) {
 }
 
 function homeMarket(params: any) {
-  const link = 'https://api.coingecko.com/api/v3/coins/' + COINGECKO_SYMBOL + '/tickers?id=' + COINGECKO_SYMBOL;
   $.ajax({
     type: 'GET',
-    url: link,
+    url: '/rest/api/1/coingecko/tickers',
     success: (data) => {
       params.success({
         'rows': data.tickers,
@@ -410,6 +429,38 @@ function homeMarket(params: any) {
 
 function homeMarketPair(value: string, row: any) {
   return row.base + '/' + row.target;
+}
+
+function homeNews(params: any) {
+  const link = '/rest/api/1/coingecko/news';
+  $.ajax({
+    type: 'GET',
+    url: link,
+    success: (data) => {
+      params.success({
+        'rows': data.status_updates,
+        'total': data.status_updates.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
+  });
+}
+
+function homeNewsAuthor(value: string, row: any) {
+  return value + ', ' + row.user_title;
+}
+
+function homeNewsCategory(value: string) {
+  return value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ');
+}
+
+function homeNewsDescription(value: string) {
+  const regex = /(https?:\/\/[^\s]+)/g;
+  return value.replace(regex, (url) => {
+    return '<a href="' + url + '" target="_blank">' + url + '</a>';
+  });
 }
 
 interface ChartConfiguration {

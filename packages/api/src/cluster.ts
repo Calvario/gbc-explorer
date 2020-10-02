@@ -12,6 +12,7 @@ import cAddress from './controllers/cAddress';
 import cPeer from './controllers/cPeer';
 import cChart from './controllers/cChart';
 import cRPC from './controllers/cRPC';
+import cCoinGecko from './controllers/cCoinGecko';
 import debug from 'debug';
 
 const toRoot = '../../../';
@@ -62,6 +63,7 @@ else {
         new cPeer(),
         new cChart(),
         new cRPC(),
+        new cCoinGecko(),
       ],
     );
 
