@@ -42,39 +42,39 @@ class CoinGecko implements iController {
     const link = 'https://api.coingecko.com/api/v3/simple/price?ids=' + this.symbol
       + '&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true';
     return await axios.get(link)
-    .then(apiResponse => {
-      return response.json(apiResponse.data);
-    })
-    .catch(error => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(apiResponse => {
+        return response.json(apiResponse.data);
+      })
+      .catch(error => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getTickers = async (request: Request, response: Response) => {
     const link = 'https://api.coingecko.com/api/v3/coins/' + this.symbol +
-       '/tickers?id=' + this.symbol;
+      '/tickers?id=' + this.symbol;
     return await axios.get(link)
-    .then(apiResponse => {
-      return response.json(apiResponse.data);
-    })
-    .catch(error => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(apiResponse => {
+        return response.json(apiResponse.data);
+      })
+      .catch(error => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getNews = async (request: Request, response: Response) => {
     const link = 'https://api.coingecko.com/api/v3/coins/' + this.symbol +
-       '/status_updates';
+      '/status_updates';
     return await axios.get(link)
-    .then(apiResponse => {
-      return response.json(apiResponse.data);
-    })
-    .catch(error => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(apiResponse => {
+        return response.json(apiResponse.data);
+      })
+      .catch(error => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 }
 

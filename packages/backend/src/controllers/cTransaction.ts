@@ -24,7 +24,7 @@ import { mBlock, mTransaction } from '@calvario/gbc-explorer-shared';
 BigNumber.config({ DECIMAL_PLACES: 9 })
 
 export class Transaction {
-  static async select(dbTransaction: EntityManager, blockHash: string): Promise<mTransaction[]>  {
+  static async select(dbTransaction: EntityManager, blockHash: string): Promise<mTransaction[]> {
     return dbTransaction.createQueryBuilder(mTransaction, "transaction")
       .innerJoin("transaction.blocks", "block")
       .innerJoin("block.chain", "chain")
@@ -79,9 +79,9 @@ export class Transaction {
 
   static async updateLinkedBlock(dbTransaction: EntityManager, transactionObj: mTransaction, blockObj: mBlock): Promise<void> {
     return await dbTransaction.createQueryBuilder()
-    .relation(mTransaction, "blocks")
-    .of(transactionObj)
-    .add(blockObj)
+      .relation(mTransaction, "blocks")
+      .of(transactionObj)
+      .add(blockObj)
       .catch((error: any) => {
         return Promise.reject(error);
       });

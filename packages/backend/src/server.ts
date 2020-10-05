@@ -105,13 +105,13 @@ const toRoot = '../../../';
     if (!isRunning) {
       isRunning = true;
       await Chain.sync(rpcClient)
-      .catch(error => {
-        debug.log(error);
-        return Promise.reject(error);
-      })
-      .finally(() => {
-        isRunning = false;
-      });
+        .catch(error => {
+          debug.log(error);
+          return Promise.reject(error);
+        })
+        .finally(() => {
+          isRunning = false;
+        });
     }
   });
 

@@ -55,11 +55,11 @@ export class Address {
         addressObj.outputC -= addressDetails.outputC,
       balance: addressDetails.type === UpdateType.ADDITION ?
         (addressDetails.inputC === 1 ?
-          new BigNumber(addressObj.balance).plus(addressDetails.inputT).toNumber():
+          new BigNumber(addressObj.balance).plus(addressDetails.inputT).toNumber() :
           new BigNumber(addressObj.balance).minus(addressDetails.outputT).toNumber()
-        ):
+        ) :
         (addressDetails.inputC === 1 ?
-          new BigNumber(addressObj.balance).minus(addressDetails.inputT).toNumber():
+          new BigNumber(addressObj.balance).minus(addressDetails.inputT).toNumber() :
           new BigNumber(addressObj.balance).plus(addressDetails.outputT).toNumber()
         )
     })

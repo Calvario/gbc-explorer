@@ -72,90 +72,90 @@ class Chart implements iController {
       .from('(' + subQuery1.getQuery() + ')', 'subQuery1')
 
     await qB.getRawMany()
-    .then(avgGeneration => {
-      return response.json(avgGeneration);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(avgGeneration => {
+        return response.json(avgGeneration);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getDifficulty = async (request: Request, response: Response) => {
     const qB = getConnection().createQueryBuilder()
-    .select('DATE(to_timestamp(block.time))', 'time')
-    .addSelect('COUNT(block.height)', 'blocks')
-    .addSelect('AVG(block.difficulty)', 'difficulty')
-    .addSelect('SUM(block.nTx)', 'transactions')
-    .from(mBlock, 'block')
-    .innerJoin("block.chain", "chain")
-    .where('chain.id = 1')
-    .groupBy('DATE(to_timestamp(block.time))')
-    .orderBy('1', 'ASC')
+      .select('DATE(to_timestamp(block.time))', 'time')
+      .addSelect('COUNT(block.height)', 'blocks')
+      .addSelect('AVG(block.difficulty)', 'difficulty')
+      .addSelect('SUM(block.nTx)', 'transactions')
+      .from(mBlock, 'block')
+      .innerJoin("block.chain", "chain")
+      .where('chain.id = 1')
+      .groupBy('DATE(to_timestamp(block.time))')
+      .orderBy('1', 'ASC')
 
     await qB.getRawMany()
-    .then(difficulty => {
-      return response.json(difficulty);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(difficulty => {
+        return response.json(difficulty);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getBlockchainSize = async (request: Request, response: Response) => {
     const subQuery = getConnection().createQueryBuilder()
-    .select('DATE(to_timestamp(block.time))', 'time')
-    .addSelect('SUM(block.size)', 'size')
-    .addSelect('AVG(block.size)', 'avgblocksize')
-    .addSelect('AVG(block.nTx)', 'avgtransactions')
-    .from(mBlock, 'block')
-    .innerJoin("block.chain", "chain")
-    .where('chain.id = 1')
-    .groupBy('DATE(to_timestamp(block.time))')
-    .orderBy('1', 'ASC')
+      .select('DATE(to_timestamp(block.time))', 'time')
+      .addSelect('SUM(block.size)', 'size')
+      .addSelect('AVG(block.size)', 'avgblocksize')
+      .addSelect('AVG(block.nTx)', 'avgtransactions')
+      .from(mBlock, 'block')
+      .innerJoin("block.chain", "chain")
+      .where('chain.id = 1')
+      .groupBy('DATE(to_timestamp(block.time))')
+      .orderBy('1', 'ASC')
 
-  const qB = getConnection()
-    .createQueryBuilder()
-    .select('"dailyChain".time', 'time')
-    .addSelect('SUM(SUM("dailyChain".size)) OVER (ORDER BY "dailyChain".time ASC) / 1048576', 'size')
-    .addSelect('"dailyChain".avgblocksize / 1048576', 'avgblocksize')
-    .addSelect('"dailyChain".avgtransactions', 'avgtransactions')
-    .from('(' + subQuery.getQuery() + ')', 'dailyChain')
-    .groupBy('"dailyChain".time, "dailyChain".avgblocksize, "dailyChain".avgtransactions')
+    const qB = getConnection()
+      .createQueryBuilder()
+      .select('"dailyChain".time', 'time')
+      .addSelect('SUM(SUM("dailyChain".size)) OVER (ORDER BY "dailyChain".time ASC) / 1048576', 'size')
+      .addSelect('"dailyChain".avgblocksize / 1048576', 'avgblocksize')
+      .addSelect('"dailyChain".avgtransactions', 'avgtransactions')
+      .from('(' + subQuery.getQuery() + ')', 'dailyChain')
+      .groupBy('"dailyChain".time, "dailyChain".avgblocksize, "dailyChain".avgtransactions')
 
     await qB.getRawMany()
-    .then(avgBlockSize => {
-      return response.json(avgBlockSize);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(avgBlockSize => {
+        return response.json(avgBlockSize);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getTransactionVolume = async (request: Request, response: Response) => {
     const qB = getConnection().createQueryBuilder()
-    .select('DATE(to_timestamp(block.time))', 'time')
-    .addSelect('SUM(block.outputT)', 'volume')
-    .addSelect('AVG(block.outputT)', 'avgAmount')
-    .addSelect('AVG(CASE WHEN transaction.fee = 0 THEN null ELSE transaction.fee END)', 'avgFee')
-    .from(mBlock, 'block')
-    .innerJoin("block.chain", "chain")
-    .innerJoin('block.transactions', 'transaction')
-    .where('chain.id = 1')
-    .andWhere('block.height > 500')
-    .groupBy('DATE(to_timestamp(block.time))')
-    .orderBy('1', 'ASC')
+      .select('DATE(to_timestamp(block.time))', 'time')
+      .addSelect('SUM(block.outputT)', 'volume')
+      .addSelect('AVG(block.outputT)', 'avgAmount')
+      .addSelect('AVG(CASE WHEN transaction.fee = 0 THEN null ELSE transaction.fee END)', 'avgFee')
+      .from(mBlock, 'block')
+      .innerJoin("block.chain", "chain")
+      .innerJoin('block.transactions', 'transaction')
+      .where('chain.id = 1')
+      .andWhere('block.height > 500')
+      .groupBy('DATE(to_timestamp(block.time))')
+      .orderBy('1', 'ASC')
 
     await qB.getRawMany()
-    .then(avgTransactionsPerBlock => {
-      return response.json(avgTransactionsPerBlock);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(avgTransactionsPerBlock => {
+        return response.json(avgTransactionsPerBlock);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 }
 

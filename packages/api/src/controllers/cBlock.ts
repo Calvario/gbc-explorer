@@ -43,21 +43,21 @@ class Block implements iController {
 
   private getLatestBlocks = async (request: Request, response: Response) => {
     const qB = this.repository.createQueryBuilder("block")
-    .innerJoinAndSelect("block.miner", "miner")
-    .innerJoin("block.chain", "chain")
-    .where("chain.id = 1")
-    .orderBy("block.height", "DESC")
+      .innerJoinAndSelect("block.miner", "miner")
+      .innerJoin("block.chain", "chain")
+      .where("chain.id = 1")
+      .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
     await qB.getMany()
-    .then(blocks => {
-      return response.json(blocks);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(blocks => {
+        return response.json(blocks);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getBlockByHash = async (request: Request, response: Response) => {
@@ -66,59 +66,59 @@ class Block implements iController {
       join: {
         alias: "block",
         innerJoinAndSelect: {
-            miner: "block.miner",
-            transactions: "block.transactions",
-            chain: "block.chain",
+          miner: "block.miner",
+          transactions: "block.transactions",
+          chain: "block.chain",
         }
       },
-      where: { hash : blockHash },
+      where: { hash: blockHash },
       order: { "height": "DESC" }
     })
-    .then(block => {
-      return response.json(block);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .then(block => {
+        return response.json(block);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getBlockConfirmations = async (request: Request, response: Response) => {
     const blockHash = request.params.hash;
     await this.repository.createQueryBuilder("block")
-    .select("(SELECT MAX(height) FROM block) - block.height + 1", "confirmations")
-    .where("block.hash = :hash", { hash: blockHash })
-    .getRawOne()
-    .then(block => {
-      return response.json(block);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .select("(SELECT MAX(height) FROM block) - block.height + 1", "confirmations")
+      .where("block.hash = :hash", { hash: blockHash })
+      .getRawOne()
+      .then(block => {
+        return response.json(block);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 
   private getBlockTransactions = async (request: Request, response: Response) => {
     const blockHash = request.params.hash;
     await createQueryBuilder(mTransaction, "transaction")
-    .innerJoin("transaction.blocks", "block")
-    .leftJoinAndSelect("transaction.vins", "vin")
-    .leftJoinAndSelect("vin.vout", "vinvout")
-    .leftJoinAndSelect("vinvout.addresses", "vinaddress")
-    .leftJoinAndSelect("transaction.vouts", "vout")
-    .leftJoinAndSelect("vout.addresses", "address")
-    .where("block.hash = :hash", { hash: blockHash })
-    .orderBy("transaction.id", "ASC")
-    .addOrderBy("vin.id", "ASC")
-    .addOrderBy("vout.n", "ASC")
-    .getMany()
-    .then(transactions => {
-      return response.json(transactions);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(500)
-    });
+      .innerJoin("transaction.blocks", "block")
+      .leftJoinAndSelect("transaction.vins", "vin")
+      .leftJoinAndSelect("vin.vout", "vinvout")
+      .leftJoinAndSelect("vinvout.addresses", "vinaddress")
+      .leftJoinAndSelect("transaction.vouts", "vout")
+      .leftJoinAndSelect("vout.addresses", "address")
+      .where("block.hash = :hash", { hash: blockHash })
+      .orderBy("transaction.id", "ASC")
+      .addOrderBy("vin.id", "ASC")
+      .addOrderBy("vout.n", "ASC")
+      .getMany()
+      .then(transactions => {
+        return response.json(transactions);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
   }
 }
 

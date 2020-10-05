@@ -63,14 +63,14 @@ else {
     // Database connection
     const connectionOptions = await getConnectionOptions();
     Object.assign(connectionOptions, {
-      entities: [ path.resolve(__dirname, toRoot + connectionOptions.entities ).toString() ],
-      migrations: [ path.resolve(__dirname, toRoot + connectionOptions.migrations).toString() ],
+      entities: [path.resolve(__dirname, toRoot + connectionOptions.entities).toString()],
+      migrations: [path.resolve(__dirname, toRoot + connectionOptions.migrations).toString()],
     });
     await createConnection(connectionOptions)
-    .catch(error => {
-      debug.log('Error while connecting to the database', error);
-      return error;
-    });
+      .catch(error => {
+        debug.log('Error while connecting to the database', error);
+        return error;
+      });
 
     const app = new App(
       [

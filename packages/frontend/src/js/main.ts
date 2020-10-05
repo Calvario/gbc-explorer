@@ -956,7 +956,7 @@ function addressTransactionsValue(value: string, row: any) {
   const voutValue = row.vout_value !== null ?
     formatNumberCoin(row.vout_value) : undefined;
   const bothValue = row.vinvout_value !== null && row.vout_value !== null ?
-    formatNumberCoin(-(row.vinvout_value-row.vout_value)) : undefined;
+    formatNumberCoin(-(row.vinvout_value - row.vout_value)) : undefined;
   if (bothValue !== undefined) {
     return bothValue + ' <b>*</b>';
   } else if (vinValue !== undefined) {

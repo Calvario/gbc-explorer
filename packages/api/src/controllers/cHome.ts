@@ -41,7 +41,7 @@ class Home implements iController {
   }
 
   private getSearch = async (request: Request, response: Response) => {
-    if(request.query.search === undefined) {
+    if (request.query.search === undefined) {
       return response.sendStatus(405)
     }
 
@@ -51,69 +51,69 @@ class Home implements iController {
     const results: { _id: string, type: string }[] = Array()
 
     // Search for all
-    if(strRegex.test(searchPattern)) {
+    if (strRegex.test(searchPattern)) {
       await this.blockRepository.find({
         select: ["hash"],
         where: { hash: Like(`%${searchPattern}%`) },
         take: 10
       })
-      .then(blocks => {
-        for (const block of blocks) {
-          results.push({ _id: block.hash, type: 'block'});
-        }
-      })
-      .catch(error => {
-        debug.log(error);
-      })
+        .then(blocks => {
+          for (const block of blocks) {
+            results.push({ _id: block.hash, type: 'block' });
+          }
+        })
+        .catch(error => {
+          debug.log(error);
+        })
 
       await this.transactionRepository.find({
         select: ["txid"],
         where: { txid: Like(`%${searchPattern}%`) },
         take: 10
       })
-      .then(transactions => {
-        for (const transaction of transactions) {
-          results.push({ _id: transaction.txid, type: 'transaction'});
-        }
-      })
-      .catch(error => {
-        debug.log(error);
-      })
+        .then(transactions => {
+          for (const transaction of transactions) {
+            results.push({ _id: transaction.txid, type: 'transaction' });
+          }
+        })
+        .catch(error => {
+          debug.log(error);
+        })
 
       await this.addressRepository.find({
         select: ["address"],
         where: { address: Like(`%${searchPattern}%`) },
         take: 10
       })
-      .then(addresses => {
-        for (const address of addresses) {
-          results.push({ _id: address.address, type: 'address'});
-        }
-      })
-      .catch(error => {
-        debug.log(error);
-      })
+        .then(addresses => {
+          for (const address of addresses) {
+            results.push({ _id: address.address, type: 'address' });
+          }
+        })
+        .catch(error => {
+          debug.log(error);
+        })
 
       return response.json(results);
 
-    // Search for blocks
-    } else if(numRegex.test(searchPattern)) {
+      // Search for blocks
+    } else if (numRegex.test(searchPattern)) {
       await this.blockRepository.find({
         select: ["hash"],
         where: { height: searchPattern, chain: 1 },
         take: 10
       }).then(blocks => {
         for (const block of blocks) {
-          results.push({ _id: block.hash, type: 'block'});
+          results.push({ _id: block.hash, type: 'block' });
         }
       })
-      .catch(error => {
-        debug.log(error);
-      })
+        .catch(error => {
+          debug.log(error);
+        })
 
       return response.json(results);
 
-    // Invalid pattern
+      // Invalid pattern
     } else {
       return response.sendStatus(405);
     }

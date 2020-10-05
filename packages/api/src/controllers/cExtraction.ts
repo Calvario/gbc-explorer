@@ -40,60 +40,60 @@ class Block implements iController {
 
   private getExtractionStats = async (request: Request, response: Response) => {
     await this.repository.findOneOrFail({
-      select: [ "height" ],
+      select: ["height"],
       order: { "height": "DESC" }
     })
-    .then(async lastBlock => {
-      const qB = this.repository.createQueryBuilder("block")
-      .select("ROW_NUMBER() OVER (ORDER BY COUNT(miner.address) DESC)", "rank")
-      .addSelect("COUNT(miner.address)", "count")
-      .addSelect("miner.id", "id")
-      .addSelect("miner.address", "address")
-      .addSelect("miner.label", "label")
-      .innerJoin("block.miner", "miner")
-      .innerJoin("block.chain", "chain")
-      .where("block.height >= :height", { height: lastBlock.height - 100 })
-      .andWhere("chain.id = 1")
-      .groupBy("miner.address")
-      .addGroupBy("miner.label")
-      .addGroupBy("miner.id")
-      .orderBy("count", "DESC")
-      request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
+      .then(async lastBlock => {
+        const qB = this.repository.createQueryBuilder("block")
+          .select("ROW_NUMBER() OVER (ORDER BY COUNT(miner.address) DESC)", "rank")
+          .addSelect("COUNT(miner.address)", "count")
+          .addSelect("miner.id", "id")
+          .addSelect("miner.address", "address")
+          .addSelect("miner.label", "label")
+          .innerJoin("block.miner", "miner")
+          .innerJoin("block.chain", "chain")
+          .where("block.height >= :height", { height: lastBlock.height - 100 })
+          .andWhere("chain.id = 1")
+          .groupBy("miner.address")
+          .addGroupBy("miner.label")
+          .addGroupBy("miner.id")
+          .orderBy("count", "DESC")
+        request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
-      await qB.getRawMany()
-      .then(blocks => {
-        return response.json(blocks);
+        await qB.getRawMany()
+          .then(blocks => {
+            return response.json(blocks);
+          })
+          .catch((error) => {
+            debug.log(error);
+            return response.sendStatus(500)
+          });
       })
-      .catch((error) => {
+      .catch(error => {
         debug.log(error);
         return response.sendStatus(500)
-      });
-    })
-    .catch(error => {
-      debug.log(error);
-      return response.sendStatus(500)
-    })
+      })
   }
 
   private getExtractionForAddress = async (request: Request, response: Response) => {
     const addressHash = request.params.addressHash;
     const qB = this.repository.createQueryBuilder("block")
-    .innerJoin("block.miner", "miner")
-    .innerJoin("block.chain", "chain")
-    .where("miner.address = :address", { address: addressHash })
-    .andWhere("chain.id = 1")
-    .orderBy("block.height", "DESC")
+      .innerJoin("block.miner", "miner")
+      .innerJoin("block.chain", "chain")
+      .where("miner.address = :address", { address: addressHash })
+      .andWhere("chain.id = 1")
+      .orderBy("block.height", "DESC")
     if (request.query.afterId !== undefined) qB.andWhere("block.id < " + request.query.afterId.toString());
     request.query.limit === undefined || Number(request.query.limit) > 100 ? qB.limit(10) : qB.limit(Number(request.query.limit.toString()));
 
     await qB.getMany()
-    .then(blocks => {
-      return response.json(blocks);
-    })
-    .catch((error) => {
-      debug.log(error);
-      return response.sendStatus(404)
-    });
+      .then(blocks => {
+        return response.json(blocks);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(404)
+      });
   }
 }
 

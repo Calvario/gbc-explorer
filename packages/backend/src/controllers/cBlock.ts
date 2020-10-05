@@ -38,7 +38,7 @@ export class Block {
       join: {
         alias: "block",
         innerJoinAndSelect: {
-            chain: "block.chain",
+          chain: "block.chain",
         }
       },
       where: { hash: blockHash }
