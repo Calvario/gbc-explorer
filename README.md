@@ -30,7 +30,7 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 ### Install node modules
 
     cd gbc-explorer
-    npm run bootstrap
+    npm install
     npm run build
 
 ### Configure

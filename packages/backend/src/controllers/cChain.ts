@@ -98,6 +98,16 @@ export class Chain {
       });
   }
 
+  static async delete(dbTransaction: EntityManager, dbChain: mChain): Promise<boolean> {
+    return await dbTransaction.delete(mChain, dbChain.id!)
+      .then(() => {
+        return true;
+      })
+      .catch((error: any) => {
+        return Promise.reject(error);
+      });
+  }
+
   static async sync(rpcClient: RPCClient) {
     // Get the list of chains
     const chainTips = await rpcClient.getchaintips()
@@ -213,6 +223,12 @@ async function manageSideChain(dbTransaction: EntityManager, rpc: RPCClient, cha
         .catch(error => {
           return Promise.reject(error);
         });
+
+      // In case it's a info gap and it is really on the mainchain
+      if (blockObj.hash === mainBlockHash) {
+        debug.log('Removed chain: ' + chainObj.hash + ', chainStatus: ' + chainObj.status.name)
+        await Chain.delete(dbTransaction, chainObj)
+      }
 
       // Try to find the main chain block hash on the database
       const mainBlockObj = await dbTransaction.findOne(mBlock, {

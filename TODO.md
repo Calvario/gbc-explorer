@@ -37,4 +37,3 @@
 - Miner distribution
 - Network versions
 - Network Geo location
-- Hashrate (calculated)

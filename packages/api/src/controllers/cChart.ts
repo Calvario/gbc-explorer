@@ -38,6 +38,7 @@ class Chart implements iController {
     this.router.get(`${this.path}/difficulty`, mCache(600), this.getDifficulty);
     this.router.get(`${this.path}/blockchainSize`, mCache(600), this.getBlockchainSize);
     this.router.get(`${this.path}/transactionVolume`, mCache(600), this.getTransactionVolume);
+    this.router.get(`${this.path}/nethashrate`, mCache(600), this.getNethashrate);
   }
 
   private getCirculation = async (request: Request, response: Response) => {
@@ -151,6 +152,86 @@ class Chart implements iController {
     await qB.getRawMany()
       .then(avgTransactionsPerBlock => {
         return response.json(avgTransactionsPerBlock);
+      })
+      .catch((error) => {
+        debug.log(error);
+        return response.sendStatus(500)
+      });
+  }
+
+  private getNethashrate = async (request: Request, response: Response) => {
+    // CTE are not possible natively on TypeORM
+    // TODO Clean version when possible
+    const qB = getConnection().query(`
+      with recursive CTE as
+      (
+        select
+          b1.height,
+          b1.time,
+          DATE(to_timestamp(b1.time)) as htime,
+          GREATEST(
+          ((
+            (72 - 1) *
+            30 +
+            b1.time - 1472669240 +
+            b1.time - 1472669240
+          ) / (72 + 1)),
+          30
+        ) as nTargetSpacingWork,
+          b1.difficulty *
+        1024 *
+        4294.967296 /
+        GREATEST(
+          ((
+            (72 - 1) *
+            30 +
+            b1.time - 1472669240 +
+            b1.time - 1472669240
+          ) / (72 + 1)),
+          30
+        ) *
+        60 as hashrate
+        FROM block as b1
+        where b1.height = 1
+          and b1."chainId" = 1
+        union all
+        select
+          b2.height,
+          b2.time,
+          DATE(to_timestamp(b2.time)) as htime,
+          GREATEST(
+          ((
+            (72 - 1) *
+            c.nTargetSpacingWork +
+            b2.time - c.time +
+            b2.time - c.time
+          ) / (72 + 1)),
+          30
+        ) as nTargetSpacingWork,
+          b2.difficulty *
+        1024 *
+        4294.967296 /
+        GREATEST(
+          ((
+            (72 - 1) *
+            c.nTargetSpacingWork +
+            b2.time - c.time +
+            b2.time - c.time
+          ) / (72 + 1)),
+          30
+        ) *
+        60 as hashrate
+        from CTE as C
+        inner join block as b2
+            on b2.height = C.height + 1
+        where b2."chainId" = 1
+      )
+      SELECT htime, MIN(hashrate), AVG(hashrate), MAX(hashrate) FROM cte group by htime order by htime asc; `
+    );
+
+    await qB
+      .then(avgBlockSize => {
+        return response.json(avgBlockSize);
       })
       .catch((error) => {
         debug.log(error);

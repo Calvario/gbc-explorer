@@ -46,6 +46,7 @@ class RPC implements iController {
   private initializeRoutes() {
     // API
     this.router.get(`${this.path}/decoderawtransaction/:rawTransaction`, stringValidator(), this.decoderawtransaction);
+    this.router.get(`${this.path}/decodescript/:rawScript`, stringValidator(), this.decodescript);
     this.router.get(`${this.path}/getaddressinfo/:address`, stringValidator(), this.getaddressinfo);
     this.router.get(`${this.path}/getblock/:hash`, stringValidator(), this.getblock);
     this.router.get(`${this.path}/getblockchaininfo`, mCache(60), this.getblockchaininfo);
@@ -83,6 +84,20 @@ class RPC implements iController {
     const rawTransaction: string = request.params.rawTransaction;
     await this.client.decoderawtransaction({
       hexstring: rawTransaction
+    })
+      .then(txJSON => {
+        return response.json(txJSON);
+      })
+      .catch(error => {
+        debug.log(error)
+        return response.sendStatus(500)
+      });
+  }
+
+  private decodescript = async (request: Request, response: Response) => {
+    const rawScript: string = request.params.rawScript;
+    await this.client.decodescript({
+      hexstring: rawScript
     })
       .then(txJSON => {
         return response.json(txJSON);

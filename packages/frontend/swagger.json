@@ -73,6 +73,33 @@
         }
       }
     },
+    "/rpc/decodescript/{rawScript}": {
+      "get": {
+        "tags": ["RPC"],
+        "summary": "Decodes a hex-encoded P2SH redeem script to JSON.",
+        "description": "",
+        "operationId": "decodescript",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rawScript",
+            "description": "The script hex string",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
     "/rpc/getaddressinfo/{address}": {
       "get": {
         "tags": ["RPC"],

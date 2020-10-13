@@ -17,30 +17,17 @@
  * GBC Explorer. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, Index, OneToMany } from 'typeorm';
-import Block from './mBlock';
-import ChainStatus from './mChainStatus';
+import {MigrationInterface, QueryRunner} from "typeorm";
 
-@Entity()
-class Chain {
-  @PrimaryGeneratedColumn()
-  id?: number;
+export class RemoveUniqueHashChain1602589274582 implements MigrationInterface {
+    name = 'RemoveUniqueHashChain1602589274582'
 
-  @Column({ type: 'int' })
-  height!: number;
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "chain" DROP CONSTRAINT "UQ_0d0267bb5736a992af8412823e1"`);
+    }
 
-  @Column()
-  hash!: string;
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "chain" ADD CONSTRAINT "UQ_0d0267bb5736a992af8412823e1" UNIQUE ("hash")`);
+    }
 
-  @Column({ type: 'int' })
-  branchlen!: number;
-
-  @Index()
-  @ManyToOne(() => ChainStatus, (chainStatus: ChainStatus) => chainStatus.chains)
-  status!: ChainStatus;
-
-  @OneToMany(() => Block, (block: Block) => block.chain)
-  blocks?: Block[];
 }
-
-export default Chain;

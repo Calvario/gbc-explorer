@@ -787,6 +787,62 @@ function homeCharts(chart: string) {
       });
       break;
     }
+    case 'nethashrate': {
+      $.get('/rest/api/1/chart/nethashrate', (data, textStatus, jqXHR) => {
+        const time = [];
+        const min = [];
+        const avg = [];
+        const max = [];
+
+        for (const row of data) {
+          time.push(row.htime);
+          min.push(row.min);
+          avg.push(row.avg);
+          max.push(row.max);
+        }
+
+        const chartConfiguration: ChartConfiguration = {
+          ctx: chartCtx,
+          chartType: 'line',
+          labelsArray: time,
+          datasets: [
+            {
+              label: 'Min',
+              data: min,
+              color: 'rgba(54, 162, 235, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Avg',
+              data: avg,
+              color: 'rgba(255, 99, 132, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+            {
+              label: 'Max',
+              data: max,
+              color: 'rgba(35,43,43, 0.2)',
+              yAxisID: 'y-axis-1'
+            },
+          ],
+          scalesYAxes: [{
+            type: 'linear',
+            display: true,
+            position: 'left',
+            id: 'y-axis-1',
+            ticks: {
+              autoSkip: true,
+              maxTicksLimit: 8.1,
+              callback: (value: any, index: any, values: any) => {
+                return value + ' kH/m';
+              }
+            },
+          }],
+        }
+        createChart(chartConfiguration);
+      });
+      break;
+    }
     default: {
       break;
     }
