@@ -832,7 +832,7 @@ function homeCharts(chart: string) {
             id: 'y-axis-1',
             ticks: {
               autoSkip: true,
-              maxTicksLimit: 8.1,
+              maxTicksLimit: 11.1,
               callback: (value: any, index: any, values: any) => {
                 return value + ' kH/m';
               }

@@ -3,7 +3,7 @@ Global Blockchain Explorer
 
 An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
-[![DeepScan grade](https://deepscan.io/api/teams/10460/projects/13319/branches/220035/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10460&pid=13319&bid=220035)
+[![DeepScan grade](https://deepscan.io/api/teams/10460/projects/13319/branches/220035/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=10460&pid=13319&bid=220035) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Calvario_gbc-explorer&metric=alert_status)](https://sonarcloud.io/dashboard?id=Calvario_gbc-explorer) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Calvario_gbc-explorer&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=Calvario_gbc-explorer) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Calvario_gbc-explorer&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=Calvario_gbc-explorer) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Calvario_gbc-explorer&metric=security_rating)](https://sonarcloud.io/dashboard?id=Calvario_gbc-explorer)
 
 ### Live sites
 
