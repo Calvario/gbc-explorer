@@ -98,8 +98,8 @@ export class Address {
       }
     } catch (error) {
       debug.log('Incorrect file format for ' + file);
-      fs.unlink(path + file, (error) => {
-        if (error) return Promise.reject(error);
+      fs.unlink(path + file, (unlinkError) => {
+        if (unlinkError) return Promise.reject(unlinkError);
       });
     }
   }

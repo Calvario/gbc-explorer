@@ -163,7 +163,7 @@ function addOverflowControl(value: string) {
 function getUrlParameter() {
   const pathname = window.location.pathname;
   return pathname.substring(pathname.lastIndexOf('/') + 1);
-};
+}
 
 function navigationControl(itemInfo: string) {
   $("#homeDivsContainer > div").each(function () {

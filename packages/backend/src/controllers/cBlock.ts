@@ -245,7 +245,7 @@ export class Block {
                   // Update transation and block variables for output
                   tInputC = tInputC.plus(1);
                   tInputT = voutVin === undefined ? new BigNumber(0) : tInputT.plus(new BigNumber(voutVin.value));
-                };
+                }
                 blockInputC = blockInputC.plus(tInputC);
                 blockInputT = blockInputT.plus(tInputT);
 
