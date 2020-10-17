@@ -130,6 +130,7 @@ export class Block {
 
     const currentBlock = await getRepository(mBlock).findOne({
       select: ["height"],
+      where: { chain: 1 },
       order: { height: 'DESC' }
     })
       .catch(error => {
@@ -146,7 +147,30 @@ export class Block {
           await getManager().transaction(async dbTransaction => {
             await Chain.selectMain(dbTransaction)
               .then(async (chain: mChain) => {
-                await this.addFromHash(dbTransaction, rpcClient, blockHash, chain);
+                // Search if a block exist with this hash
+                const dbBlock = await Block.select(dbTransaction, blockHash)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
+
+                // In case it was mistaken set as valid-headers
+                if (dbBlock !== undefined) {
+                  await Block.updateChain(dbTransaction, dbBlock, chain)
+                    .catch(error => {
+                      return Promise.reject(error);
+                    });
+                  await Chain.delete(dbTransaction, dbBlock.chain)
+                    .catch(error => {
+                      return Promise.reject(error);
+                    });
+                }
+                // Normal process
+                else {
+                  await this.addFromHash(dbTransaction, rpcClient, blockHash, chain)
+                    .catch(error => {
+                      return Promise.reject(error);
+                    });
+                }
               })
           });
         })
