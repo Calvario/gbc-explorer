@@ -21,14 +21,19 @@ import debug from 'debug';
 import redis from 'redis';
 import { RequestHandler } from 'express';
 
-const client = redis.createClient({
-  host: process.env.REDIS_HOST!,
-  port: Number(process.env.REDIS_PORT!),
-  password: process.env.REDIS_PASSWORD! !== '' ? process.env.REDIS_PASSWORD! : undefined,
-});
+let client: redis.RedisClient;
 
 function redisCache<T>(duration: number): RequestHandler {
   return (request, response, next) => {
+    // Only create a client if undefined
+    if (client === undefined) {
+      client = redis.createClient({
+        host: process.env.REDIS_HOST!,
+        port: Number(process.env.REDIS_PORT!),
+        password: process.env.REDIS_PASSWORD! !== '' ? process.env.REDIS_PASSWORD! : undefined,
+      });
+    }
+
     const key = request.url;
     client.get(key, (err, result) => {
       if (err === null && result !== null) {
