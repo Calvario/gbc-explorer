@@ -30,7 +30,6 @@ class Peer implements iController {
   public path = '/rest/api/1/peer';
   public router = Router();
   private repository = getRepository(mPeerVersion);
-  private lastDay = new Date(new Date().getTime() - 86400000).toISOString();
 
   constructor() {
     this.initializeRoutes();
@@ -48,7 +47,7 @@ class Peer implements iController {
       .addSelect('version.subVersion', 'version_subVersion')
       .addSelect('COUNT(peer.id)', 'version_count')
       .innerJoin('version.peers', 'peer')
-      .where('peer.lastSeen >= :date', { date: this.lastDay })
+      .where('peer.lastSeen >= (NOW() - interval \'24 hour\')')
       .groupBy('version.id, version.version, version.subVersion')
       .orderBy('version_count', 'DESC')
     await qB.getRawMany()
@@ -66,7 +65,7 @@ class Peer implements iController {
     await this.repository.createQueryBuilder("version")
       .innerJoinAndSelect('version.peers', 'peer')
       .where("version.id = :id", { id: version })
-      .andWhere('peer.lastSeen >= :date', { date: this.lastDay })
+      .andWhere('peer.lastSeen >= (NOW() - interval \'24 hour\')')
       .getOne()
       .then(block => {
         return response.json(block);
