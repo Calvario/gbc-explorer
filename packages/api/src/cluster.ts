@@ -25,6 +25,7 @@ import { createConnection, getConnectionOptions } from 'typeorm';
 import App from './instance';
 import cHome from './controllers/cHome';
 import cBlock from './controllers/cBlock';
+import cChain from './controllers/cChain';
 import cExtraction from './controllers/cExtraction';
 import cTransaction from './controllers/cTransaction';
 import cAddress from './controllers/cAddress';
@@ -75,6 +76,7 @@ else {
     const app = new App(
       [
         new cHome(),
+        new cChain(),
         new cBlock(),
         new cExtraction(),
         new cTransaction(),

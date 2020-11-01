@@ -272,13 +272,42 @@ function updateLayoutMarketBoxes() {
     if (COIN_TYPE === 'PoW')
       $('#layoutNetworkHash').text(formatNumber(data['nethashrate (kH/m)'], 2, 'kH/m'));
     if (COIN_TYPE === 'PoST')
-      $('#layoutNetworkHash').text(formatNumberPercentage(Number(data.stakeinterest)));
+      $('#layoutInterestRate').text(formatNumberPercentage(Number(data.stakeinterest)));
   });
 
   if (COIN_TYPE === 'PoW')
     $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
       $('#layoutSupply').text(formatNumberCoinShort(data.totalsupply));
     });
+}
+
+function homeChains(params: any) {
+  $.ajax({
+    type: 'GET',
+    url: '/rest/api/1/chain',
+    success: (data) => {
+      params.success({
+        'rows': data,
+        'total': data.length
+      })
+    },
+    error: (err) => {
+      params.error(err);
+    }
+  });
+}
+
+function homeChainsBlockLink(value: string, row: any) {
+  if (row.status.name === 'valid-fork' || row.status.name === 'valid-headers' || row.status.name === 'active') {
+    const link = '<a href="/block/' + row.hash + '">' + value + '</a>';
+    return addOverflowControl(link);
+  } else {
+    return addOverflowControl(value);
+  }
+}
+
+function homeChainsStatus(value: string) {
+  return value + '<a href="/faq#orphans-content" target="_blank"> *</a>';
 }
 
 function homeBlocks(params: any) {
@@ -1137,6 +1166,18 @@ $(() => {
       homeCharts(chartType);
     });
 
+    $("#layoutNetworkHash").on('click', () => {
+      navigationControl('#homeChartsDiv');
+      $("#homeChartSelect").val('nethashrate');
+      homeCharts('nethashrate');
+    });
+
+    $("#layoutSupply").on('click', () => {
+      navigationControl('#homeChartsDiv');
+      $("#homeChartSelect").val('circulation');
+      homeCharts('circulation');
+    });
+
     $('#homeChartResetZoom').on('click', () => {
       (myChart as any).resetZoom();
     })
@@ -1306,8 +1347,8 @@ $(() => {
       $(hash).toggle();
     }
 
-    $('#financial-disclaimer').on('click', () => {
-      $('#financial-disclaimer-content').toggle();
+    $('.card-header-icon').on('click', function() {
+      $('#' + this.id + '-content').toggle();
     });
   }
 });

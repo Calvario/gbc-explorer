@@ -39,6 +39,22 @@ export class Chain {
       });
   }
 
+  static async selectVanished(dbTransaction: EntityManager): Promise<mChain[] | undefined> {
+    return await dbTransaction.find(mChain, {
+      join: {
+        alias: "chain",
+        leftJoinAndSelect: {
+          block: "chain.blocks",
+        }
+      },
+      where: { available: false, unknown: false},
+      order: { "height": "DESC" }
+    })
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
+
   static async selectMain(dbTransaction: EntityManager): Promise<mChain> {
     return await dbTransaction.findOne(mChain, {
       where: { id: 1 }
@@ -74,6 +90,8 @@ export class Chain {
       hash: chainInfo.hash,
       branchlen: chainInfo.branchlen,
       status: chainStatus,
+      available: true,
+      unknown: false,
     };
 
     const newChain = dbTransaction.create(mChain, chainData);
@@ -89,11 +107,39 @@ export class Chain {
       hash: chainInfo.hash,
       branchlen: chainInfo.branchlen,
       status: chainStatus,
+      available: true,
+      unknown: false,
     })
       .then(() => {
         return true;
       })
       .catch((error: any) => {
+        return Promise.reject(error);
+      });
+  }
+
+  static async updateToUnknown(dbTransaction: EntityManager, dbChain: mChain): Promise<boolean> {
+    return await dbTransaction.update(mChain, dbChain.id!, {
+      unknown: true,
+    })
+      .then(() => {
+        return true;
+      })
+      .catch((error: any) => {
+        return Promise.reject(error);
+      });
+  }
+
+  static async updateAllToUnavailable(dbTransaction: EntityManager): Promise<boolean> {
+    return await dbTransaction.createQueryBuilder()
+      .update(mChain)
+      .set({ available: false })
+      .where('available = true')
+      .execute()
+      .then(() => {
+        return true;
+      })
+      .catch(error => {
         return Promise.reject(error);
       });
   }
@@ -117,6 +163,12 @@ export class Chain {
 
     // Create a big transaction
     await getManager().transaction(async dbTransaction => {
+
+      // Start fresh to find removed
+      await this.updateAllToUnavailable(dbTransaction)
+        .catch(error => {
+          return Promise.reject(error);
+        });
 
       // Loop on each chain
       for (const chain of chainTips) {
@@ -144,6 +196,7 @@ export class Chain {
             .then(async (chainObj: mChain | undefined) => {
               // Chain was found
               if (chainObj !== undefined) {
+                this.update(dbTransaction, chainObj, chain, chainStatus)
                 return chainObj;
               }
               // Chain hash not found but lenght of 1
@@ -151,11 +204,18 @@ export class Chain {
                 return await this.create(dbTransaction, chain, chainStatus);
               }
               // Search until we find the associated chain
-              else {
+              else if (chain.status === 'valid-fork' || chain.status === 'valid-headers') {
                 let searchChainObj: mChain | undefined;
+                let searchHash = chain.hash;
                 for (let i = 0; i < chain.branchlen; i++) {
-                  const loopChainObj = await this.select(dbTransaction, chain.hash);
-                  if (loopChainObj !== undefined) {
+                  const loopChainObj = await this.select(dbTransaction, searchHash);
+                  if (loopChainObj === undefined) {
+                    const blockObj = await rpcClient.getblock({
+                      blockhash: searchHash,
+                      verbosity: 2
+                    })
+                    searchHash = blockObj.previousblockhash;
+                  } else {
                     searchChainObj = loopChainObj
                     break;
                   }
@@ -170,6 +230,10 @@ export class Chain {
                   return searchChainObj;
                 }
               }
+              // It's a dummy chain
+              else {
+                return await this.create(dbTransaction, chain, chainStatus);
+              }
             })
             .then(async (chainObj: mChain) => {
               return await manageSideChain(dbTransaction, rpcClient, chain, chainObj)
@@ -179,6 +243,65 @@ export class Chain {
             });
         }
       }
+
+      // Get the list of all chains that disappeared from the export
+      await this.selectVanished(dbTransaction)
+        .then(async (chainsListObj: mChain[] | undefined) => {
+          // If we have some chains to manage
+          if (chainsListObj !== undefined) {
+            // Get the main chain
+            const mainChainObj = await this.selectMain(dbTransaction)
+              .catch(error => {
+                return Promise.reject(error);
+              });
+
+            // Loop on each chain
+            for (const chainObj of chainsListObj) {
+              let toRemove = true;
+              if (chainObj.blocks !== undefined) {
+                // Loop on each block of the chain
+                for (const dbBlock of chainObj.blocks) {
+                  const mainHash = await rpcClient.getBlockHashByHeight({
+                    height: dbBlock.height
+                  })
+                    .catch(error => {
+                      return Promise.reject(error);
+                    });
+
+                  if (mainHash === dbBlock.hash) {
+                    debug.log('Moving block to main chain: ' + dbBlock.hash);
+                    await Block.updateChain(dbTransaction, dbBlock, mainChainObj)
+                      .catch(error => {
+                        return Promise.reject(error);
+                      });
+                    await Address.updateForBlock(dbTransaction, dbBlock)
+                      .catch(error => {
+                        return Promise.reject(error);
+                      });
+                  }
+                  // Side chain chaos situation
+                  else {
+                    debug.log('Unknow chain detected: ' + chainObj.hash);
+                    await this.updateToUnknown(dbTransaction, chainObj)
+                      .catch(error => {
+                        return Promise.reject(error);
+                      });
+                    toRemove = false;
+                  }
+                }
+              }
+
+              // We only remove the chain that we fully migrated
+              if (toRemove === true) {
+                debug.log('Removing bad detected chain: ' + chainObj.hash);
+                await Chain.delete(dbTransaction, chainObj)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
+              }
+            }
+          }
+        });
     });
   }
 }

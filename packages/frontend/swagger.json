@@ -21,6 +21,10 @@
       "description": "Internal API"
     },
     {
+      "name": "Chain",
+      "description": "Internal API"
+    },
+    {
       "name": "Block",
       "description": "Internal API"
     },
@@ -647,6 +651,48 @@
             "in": "query",
             "name": "search",
             "description": "Search pattern",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {},
+          "405": {
+            "description": "Invalid input"
+          },
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chain": {
+      "get": {
+        "tags": ["Chain"],
+        "summary": "Get list of chains",
+        "description": "",
+        "operationId": "chainList",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {},
+          "500": {
+            "description": "Error"
+          }
+        }
+      }
+    },
+    "/chain/{id}": {
+      "get": {
+        "tags": ["Chain"],
+        "summary": "Get all blocks for a specific chain",
+        "description": "",
+        "operationId": "chainBlocks",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Chain ID",
             "type": "string",
             "required": true
           }

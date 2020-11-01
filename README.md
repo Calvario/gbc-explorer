@@ -7,6 +7,8 @@ An open source RPC Blockchain Explorer using Typescript and TypeORM.
 
 ### Live sites
 
+* [VRM](https://explorer-vrm.vericonomy.com/)
+* [VRC](https://explorer-vrc.vericonomy.com/)
 
 ### Requires
 
@@ -54,9 +56,7 @@ Configuration example
 
     whitelist=127.0.0.1
     txindex=1
-    listen=1
     server=1
-    irc=1
 
     rpcport=33987
     rpcallowip=127.0.0.1

@@ -21,7 +21,8 @@ import debug from 'debug';
 import BigNumber from "bignumber.js"
 import fs from 'fs';
 import { EntityManager, getRepository, UpdateResult } from "typeorm";
-import { mAddress } from '@calvario/gbc-explorer-shared';
+import { mAddress, mBlock, mTransaction } from '@calvario/gbc-explorer-shared';
+import { Transaction } from "./cTransaction";
 
 BigNumber.config({ DECIMAL_PLACES: 9 })
 
@@ -102,6 +103,56 @@ export class Address {
         if (unlinkError) return Promise.reject(unlinkError);
       });
     }
+  }
+
+  static async updateForBlock(dbTransaction: EntityManager, dbBlock: mBlock) {
+    // Update the addresses information
+    await Transaction.select(dbTransaction, dbBlock.hash)
+      .then(async (transactions: mTransaction[]) => {
+        // Loop for each transaction
+        for (const transaction of transactions) {
+          if (transaction.vins !== undefined) {
+            // Loop for each VIN
+            for (const vin of transaction.vins) {
+              if (vin.coinbase === false && vin.vout !== undefined) {
+                const addressDetails: AddressDetails = {
+                  type: UpdateType.ADDITION,
+                  inputC: 0,
+                  inputT: new BigNumber(0),
+                  outputC: 1,
+                  outputT: new BigNumber(vin.vout.value)
+                }
+                await this.update(dbTransaction, vin.vout.addresses![0], addressDetails)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
+              }
+            }
+          }
+
+          if (transaction.vouts !== undefined) {
+            // Loop for each VOUT
+            for (const vout of transaction.vouts) {
+              const addressDetails: AddressDetails = {
+                type: UpdateType.ADDITION,
+                inputC: 1,
+                inputT: new BigNumber(vout.value),
+                outputC: 0,
+                outputT: new BigNumber(0),
+              }
+              if (vout.addresses !== undefined) {
+                await this.update(dbTransaction, vout.addresses[0], addressDetails)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
+              }
+            }
+          }
+        }
+      })
+      .catch(error => {
+        return Promise.reject(error);
+      });
   }
 }
 

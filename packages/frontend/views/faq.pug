@@ -17,3 +17,23 @@ block content
             p You should conduct your own research, review, analyse and verify our content before relying on them.
             p Trading is a highly risky activity that can lead to major losses, please therefore consult your financial advisor before making any decision.
             p No content on our Site is meant to be a solicitation or offer.
+      div.card
+        header.card-header
+          p.card-header-title Orphans status
+          a#orphans.card-header-icon
+            span.icon
+              i.fas.fa-angle-down(aria-hidden="true")
+        div.card-content
+          div(style="display:none;")#orphans-content.content
+            p 
+              span.has-text-weight-medium invalid
+              span.pl-1 => This branch contains at least one invalid block
+            p
+              span.has-text-weight-medium headers-only
+              span.pl-1 =>  Not all blocks for this branch are available, but the headers are valid
+            p
+              span.has-text-weight-medium valid-headers
+              span.pl-1 =>  All blocks are available for this branch, but they were never fully validated
+            p
+              span.has-text-weight-medium valid-fork
+              span.pl-1 =>  This branch is not part of the active chain, but is fully validated

@@ -30,19 +30,47 @@ block content
                 | Network Hash
               else if process.env.COIN_TYPE == 'PoST'
                 | Interest rate
-            p#layoutNetworkHash
-              if process.env.COIN_TYPE == 'PoW'
+            if process.env.COIN_TYPE == 'PoW'
+              a#layoutNetworkHash(href="/#homeCharts")
                 | 0 KH/m
-              else if process.env.COIN_TYPE == 'PoST'
+            else if process.env.COIN_TYPE == 'PoST'
+              p#layoutInterestRate
                 | 0%
         div.column.is-one-fifth-desktop.is-full-mobile
           div.box.has-text-centered
             p.has-text-weight-semibold #{process.env.COIN_SYMBOL} Current Supply
-            span#layoutSupply 0
+            a#layoutSupply(href="/#homeCharts") 0
 
     <!-- Content -->
     div.column.is-full
       div#homeDivsContainer.box
+        <!-- Chains -->
+        div#homeChainsDiv.table-container.is-hidden
+          h1.is-size-4.has-text-weight-bold Orphans
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeChains"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+            data-pagination="true"
+            data-page-size="10"
+            data-pagination-successively-size="1"
+          )#homeChainsTable.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="height" data-sortable="true") Last Height
+                th(data-halign="left" data-align="left" data-field="hash" data-formatter="homeChainsBlockLink") Last hash
+                th(data-halign="right" data-align="right" data-field="branchlen" data-sortable="true") Branch length
+                th(data-halign="right" data-align="right" data-field="status.name" data-sortable="true" data-formatter="homeChainsStatus") Status
+            tbody
+
         <!-- Blocks -->
         div#homeBlocksDiv.table-container.is-hidden
           h1.is-size-4.has-text-weight-bold Latest blocks
