@@ -343,6 +343,84 @@ block content
               section.modal-card-body
                 pre#homeDecodeTxModalPre
 
+        <!-- Calculator -->
+        div#homeCalculatorDiv.is-hidden
+          h1.is-size-4.has-text-weight-bold Profitability Calculator
+          br
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label Miner cost ($)
+            div.field-body
+              div.field
+                div.control
+                  input(type="number" min="0" value="0")#homeCalculatorCost.input
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label Hashrate (H/m)
+            div.field-body
+              div.field
+                div.control
+                  input(type="number" min="0" value="0")#homeCalculatorHash.input
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label Power usage (W)
+            div.field-body
+              div.field
+                div.control
+                  input(type="number" min="0" value="0")#homeCalculatorPower.input
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label Cost per kWh ($)
+            div.field-body
+              div.field
+                div.control
+                  input(type="number" min="0" step="0.01" value="0")#homeCalculatorKWh.input
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label Pool Fee (%)
+            div.field-body
+              div.field
+                div.control
+                  input(type="number" min="0" max="100" value="0")#homeCalculatorFee.input
+          div.field.is-horizontal
+            div.field-label
+            div.field-body
+              div.field
+                div.control
+                  button#homeCalculatorRefresh.button Calculate !
+          hr
+          div.field.is-horizontal
+            div.field-label.is-normal
+              label.label ROI (month)
+            div.field-body
+              div.field
+                div.control
+                  input(readonly)#homeCalculatorROI.input
+          table(
+            data-toggle="table"
+            data-show-toggle="true"
+            data-mobile-responsive="true"
+            data-ajax="homeCalculator"
+            data-buttons-class="button"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-columns-toggle-all="true"
+            data-auto-refresh="true"
+            data-auto-refresh-status="false"
+          )#homeCalculatorResult.table.is-striped.is-hoverable.is-fullwidth
+            thead
+              tr
+                th(data-halign="right" data-align="right" data-field="time") Time
+                th(data-halign="right" data-align="right" data-field="mined" data-formatter="formatNumberCoin") Mined
+                th(data-halign="right" data-align="right" data-field="poolfee" data-formatter="formatNumberCoin") Pool Fee
+                th(data-halign="right" data-align="right" data-field="cost" data-formatter="formatNumberFiat") Cost
+                th(data-halign="right" data-align="right" data-field="income" data-formatter="formatNumberFiat") Income
+                th(data-halign="right" data-align="right" data-field="profit" data-formatter="formatNumberFiat") Profit
+            tbody
+          br
+          p.has-text-right.has-text-weight-semibold Please note that values are only estimations based on past performance.
+
         <!-- Charts -->
         div#homeChartsDiv.is-hidden
           h1.is-size-4.has-text-weight-bold Charts

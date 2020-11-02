@@ -56,6 +56,8 @@ html
               div.navbar-item.has-dropdown
                 a.navbar-link Tools
                 div.navbar-dropdown.is-boxed
+                  if process.env.COIN_TYPE == 'PoW'
+                    a(href="/#homeCalculator").navbar-item Profitability Calculator
                   a(href="/#homePushTx").navbar-item Push transaction
                   a(href="/#homeDecodeTx").navbar-item Decode transaction
               a(href="/#homeCharts").navbar-item Charts
