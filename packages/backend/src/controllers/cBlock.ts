@@ -153,18 +153,16 @@ export class Block {
                     return Promise.reject(error);
                   });
 
-                // In case it exist we will wait the next run of chain check
-                if (dbBlock !== undefined) {
-                  return Promise.reject('The main block is temporarily considered in a side chain');
-                }
-                // Normal process
-                else {
+                if (dbBlock === undefined) {
                   await this.addFromHash(dbTransaction, rpcClient, blockHash, chain)
                     .catch(error => {
                       return Promise.reject(error);
                     });
                 }
               })
+              .catch(error => {
+                return Promise.reject(error);
+              });
           });
         })
         .then(() => {

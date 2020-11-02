@@ -261,7 +261,7 @@ export class Chain {
               if (chainObj.blocks !== undefined) {
                 // Loop on each block of the chain
                 for (const dbBlock of chainObj.blocks) {
-                  const mainHash = await rpcClient.getBlockHashByHeight({
+                  const mainHash = await rpcClient.getblockhash({
                     height: dbBlock.height
                   })
                     .catch(error => {
