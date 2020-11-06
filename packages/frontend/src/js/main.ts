@@ -494,6 +494,8 @@ function homeCalculator(params: any) {
             }
             data.push(row);
           }
+          const DaysForBlock = 0.694 * (Number(getmininginfo['nethashrate (kH/m)'] * 1000) * (Number(getmininginfo.blocksperhour) / 60)) / Number($('#homeCalculatorHash').val()) / 24;
+          $('#homeCalculatorDaysForBlock').val(formatNumber(DaysForBlock, 2));
           const roiResult = isNaN(Number($('#homeCalculatorCost').val()) / monthProfit) ? 0 : Number($('#homeCalculatorCost').val()) / monthProfit;
           $('#homeCalculatorROI').val(roiResult >= 0 ? formatNumber(roiResult, 2) : 'Unprofitable ');
           params.success({
