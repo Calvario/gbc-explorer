@@ -471,7 +471,7 @@ function homeCalculator(params: any) {
           const data: any[] = [];
           const timeList: any = { Day: 24, Week: 168, Month: 720 };
           // Calcul
-          const coinsPerHour = Number(getmininginfo.blocksperhour) * Number(getmininginfo.blockreward);
+          const coinsPerHour = 60 / Number(getmininginfo.blocktime) * Number(getmininginfo.blockreward);
           const ageOfNetworkHashrate = Number($('#homeCalculatorHash').val()) / (Number(getmininginfo['nethashrate (kH/m)']) * 1000) * 100;
           const minedPerHour = coinsPerHour * ageOfNetworkHashrate / 100;
           let monthProfit = 0;
@@ -494,7 +494,7 @@ function homeCalculator(params: any) {
             }
             data.push(row);
           }
-          const DaysForBlock = 0.694 * (Number(getmininginfo['nethashrate (kH/m)'] * 1000) * (Number(getmininginfo.blocksperhour) / 60)) / Number($('#homeCalculatorHash').val()) / 24;
+          const DaysForBlock = 0.694 * (Number(getmininginfo['nethashrate (kH/m)']) * Number(getmininginfo.blocktime)) / Number($('#homeCalculatorHash').val());
           $('#homeCalculatorDaysForBlock').val(formatNumber(DaysForBlock, 2));
           const roiResult = isNaN(Number($('#homeCalculatorCost').val()) / monthProfit) ? 0 : Number($('#homeCalculatorCost').val()) / monthProfit;
           $('#homeCalculatorROI').val(roiResult >= 0 ? formatNumber(roiResult, 2) : 'Unprofitable ');
