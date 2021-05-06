@@ -33,7 +33,7 @@
     "bignumber.js": "^9.0.1",
     "cron": "^1.8.2",
     "debug": "^4.2.0",
-    "dotenv": "^8.2.0",
+    "dotenv": "^9.0.0",
     "pg": "^8.3.3",
     "reflect-metadata": "^0.1.13",
     "rpc-bitcoin": "^2.0.0",
