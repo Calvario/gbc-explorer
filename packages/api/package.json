@@ -50,7 +50,7 @@
     "@types/morgan": "^1.9.1",
     "@types/node": "^14.11.2",
     "@types/redis": "^2.8.27",
-    "jest": "^26.4.2",
+    "jest": "^27.0.1",
     "ts-jest": "^26.4.1",
     "ts-node": "^9.0.0",
     "tslint": "^6.1.3",
