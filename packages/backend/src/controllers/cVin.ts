@@ -32,7 +32,7 @@ export class Vin {
     };
 
     const newVin = dbTransaction.create(mVin, vinData);
-    return await dbTransaction.save(newVin)
+    return dbTransaction.save(newVin)
       .catch((error: any) => {
         return Promise.reject(error);
       });

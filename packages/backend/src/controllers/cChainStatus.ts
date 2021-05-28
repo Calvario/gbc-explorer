@@ -22,12 +22,12 @@ import { mChainStatus } from '@calvario/gbc-explorer-shared';
 
 export class ChainStatus {
   static async select(dbTransaction: EntityManager, statusName: string): Promise<mChainStatus> {
-    return await dbTransaction.findOne(mChainStatus, {
+    return dbTransaction.findOne(mChainStatus, {
       where: { name: statusName }
     })
       .then(async dbChainStatus => {
         if (dbChainStatus === undefined)
-          return await this.create(dbTransaction, statusName);
+          return this.create(dbTransaction, statusName);
         else
           return dbChainStatus;
       })
@@ -42,7 +42,7 @@ export class ChainStatus {
     };
 
     const newChainStatus = dbTransaction.create(mChainStatus, chainStatusData);
-    return await dbTransaction.save(newChainStatus)
+    return dbTransaction.save(newChainStatus)
       .catch((error) => {
         return Promise.reject(error);
       });

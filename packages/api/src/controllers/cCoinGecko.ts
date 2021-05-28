@@ -41,7 +41,7 @@ class CoinGecko implements iController {
   private getPrice = async (request: Request, response: Response) => {
     const link = 'https://api.coingecko.com/api/v3/simple/price?ids=' + this.symbol
       + '&vs_currencies=usd%2Cbtc&include_market_cap=true&include_24hr_vol=true';
-    return await axios.get(link)
+    return axios.get(link)
       .then(apiResponse => {
         return response.json(apiResponse.data);
       })
@@ -54,7 +54,7 @@ class CoinGecko implements iController {
   private getTickers = async (request: Request, response: Response) => {
     const link = 'https://api.coingecko.com/api/v3/coins/' + this.symbol +
       '/tickers?id=' + this.symbol;
-    return await axios.get(link)
+    return axios.get(link)
       .then(apiResponse => {
         return response.json(apiResponse.data);
       })
@@ -67,7 +67,7 @@ class CoinGecko implements iController {
   private getNews = async (request: Request, response: Response) => {
     const link = 'https://api.coingecko.com/api/v3/coins/' + this.symbol +
       '/status_updates';
-    return await axios.get(link)
+    return axios.get(link)
       .then(apiResponse => {
         return response.json(apiResponse.data);
       })

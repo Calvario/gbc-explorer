@@ -35,7 +35,7 @@ export class Vout {
     };
 
     const newVout = dbTransaction.create(mVout, voutData);
-    return await dbTransaction.save(newVout)
+    return dbTransaction.save(newVout)
       .catch((error: any) => {
         return Promise.reject(error);
       });
@@ -45,9 +45,9 @@ export class Vout {
     if (vinInfo.txid === undefined || vinInfo.vout === undefined) {
       return undefined;
     }
-    return await dbTransaction.findOneOrFail(mTransaction, { txid: vinInfo.txid })
+    return dbTransaction.findOneOrFail(mTransaction, { txid: vinInfo.txid })
       .then(async (transactionObj: mTransaction) => {
-        return await dbTransaction.findOneOrFail(mVout, {
+        return dbTransaction.findOneOrFail(mVout, {
           where: { transaction: transactionObj.id, n: vinInfo.vout },
           relations: ["addresses"]
         });
@@ -77,12 +77,12 @@ export class Vout {
         }
         return address;
       } else {
-        return await Address.create(dbTransaction, chain, addressHash, new BigNumber(voutInfo.value))
+        return Address.create(dbTransaction, chain, addressHash, new BigNumber(voutInfo.value))
           .catch(error => {
             return Promise.reject(error);
           });
       }
     }, { concurrency: 1 });
-    return await Promise.all(promiseAddressesArrayObj);
+    return Promise.all(promiseAddressesArrayObj);
   }
 }

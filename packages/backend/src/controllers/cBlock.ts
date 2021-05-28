@@ -34,7 +34,7 @@ BigNumber.config({ DECIMAL_PLACES: 9 })
 export class Block {
 
   static async select(dbTransaction: EntityManager, blockHash: string): Promise<mBlock | undefined> {
-    return await dbTransaction.findOne(mBlock, {
+    return dbTransaction.findOne(mBlock, {
       join: {
         alias: "block",
         innerJoinAndSelect: {
@@ -49,7 +49,7 @@ export class Block {
   }
 
   static async selectHeightMain(dbTransaction: EntityManager, blockHeight: number): Promise<mBlock | undefined> {
-    return await dbTransaction.findOne(mBlock, {
+    return dbTransaction.findOne(mBlock, {
       join: {
         alias: "block",
         innerJoinAndSelect: {
@@ -97,14 +97,14 @@ export class Block {
     };
 
     const newBlock = dbTransaction.create(mBlock, blockData);
-    return await dbTransaction.save(newBlock)
+    return dbTransaction.save(newBlock)
       .catch(error => {
         return Promise.reject(error);
       });
   }
 
   static async update(dbTransaction: EntityManager, blockObj: mBlock, updatedBlock: UpdatedBlock): Promise<UpdateResult> {
-    return await dbTransaction.update(mBlock, blockObj.id!, {
+    return dbTransaction.update(mBlock, blockObj.id!, {
       inputC: updatedBlock.bInputC,
       inputT: updatedBlock.bInputT.toNumber(),
       outputC: updatedBlock.bOutputC,
@@ -124,14 +124,14 @@ export class Block {
         return Promise.reject(error);
       })
 
-    return await dbTransaction.update(mBlock, previousBlockObj.id!, { nextblockhash: blockObj.hash })
+    return dbTransaction.update(mBlock, previousBlockObj.id!, { nextblockhash: blockObj.hash })
       .catch(error => {
         return Promise.reject(error);
       });
   }
 
   static async updateChain(dbTransaction: EntityManager, blockObj: mBlock, chainObj: mChain): Promise<UpdateResult> {
-    return await dbTransaction.update(mBlock, blockObj.id!, { chain: chainObj })
+    return dbTransaction.update(mBlock, blockObj.id!, { chain: chainObj })
       .catch(error => {
         return Promise.reject(error);
       });
@@ -157,7 +157,7 @@ export class Block {
     // Check if we got a rollback on the chain
     if (counter != 1) {
       let safetyBlock: number = counter - Number(process.env.COIN_CONFIRMATIONS);
-      while (safetyBlock <= counter) {
+      while (safetyBlock < counter) {
         debug.log('-- START CHECK Heigh: ' + safetyBlock);
         await rpcClient.getblockhash({ height: safetyBlock })
           .then(async (blockHash: string) => {
@@ -183,7 +183,7 @@ export class Block {
             });
         })
           .then(() => {
-            debug.log('-- END CHECK Heigh: ' + counter);
+            debug.log('-- END CHECK Heigh: ' + safetyBlock);
             // Jump to the next block
             safetyBlock++
           })
@@ -478,7 +478,7 @@ export class Block {
       debug.log('Inserting block of main chain: ' + mainBlockHash);
       await Chain.selectMain(dbTransaction)
       .then(async (mainChainObj: mChain) => {
-        return await Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
+        return Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
       })
       .catch(error => {
         return Promise.reject(error);

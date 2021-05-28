@@ -26,7 +26,7 @@ import { Country } from './cCountry'
 
 export class Peer {
   static async select(dbTransaction: EntityManager, peerIP: string): Promise<mPeer | undefined> {
-    return await dbTransaction.findOne(mPeer, {
+    return dbTransaction.findOne(mPeer, {
       where: { ip: peerIP }
     })
       .catch((error) => {
@@ -44,14 +44,14 @@ export class Peer {
     };
 
     const newPeer = dbTransaction.create(mPeer, peerData);
-    return await dbTransaction.save(newPeer)
+    return dbTransaction.save(newPeer)
       .catch((error) => {
         return Promise.reject(error);
       });
   }
 
   static async update(dbTransaction: EntityManager, dbPeer: mPeer, peerPort: number | undefined, dbPeerVersion: mPeerVersion): Promise<boolean> {
-    return await dbTransaction.update(mPeer, dbPeer.id!, {
+    return dbTransaction.update(mPeer, dbPeer.id!, {
       port: peerPort,
       version: dbPeerVersion,
       connected: true,
@@ -65,7 +65,7 @@ export class Peer {
   }
 
   static async updateAllToInactive(dbTransaction: EntityManager): Promise<boolean> {
-    return await dbTransaction.createQueryBuilder()
+    return dbTransaction.createQueryBuilder()
       .update(mPeer)
       .set({ connected: false })
       .where("connected = true")
@@ -159,7 +159,7 @@ function getPeerPort(addr: string): number | undefined {
 }
 
 async function getPeerGeoIP(ip: string): Promise<{ countryCode: string, countryName: string }> {
-  return await axios.get('https://get.geojs.io/v1/ip/country/' + ip + '.json')
+  return axios.get('https://get.geojs.io/v1/ip/country/' + ip + '.json')
     .then(response => {
       // Return ISO code (2 letters)
       return { countryCode: String(response.data.country), countryName: String(response.data.name) };

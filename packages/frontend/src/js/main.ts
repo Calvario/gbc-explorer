@@ -71,10 +71,8 @@ function formatEpochToDate(epoch: number) {
   const minutes = ('0' + date.getMinutes()).substr(-2);
   const seconds = ('0' + date.getSeconds()).substr(-2);
 
-  const dateTime = day + ' ' + month + ' ' + year
+  return day + ' ' + month + ' ' + year
     + ' ' + hours + ':' + minutes + ':' + seconds + '';
-
-  return dateTime;
 }
 
 function formatDateToHumanDate(fullDate: string) {
@@ -88,10 +86,8 @@ function formatDateToHumanDate(fullDate: string) {
   const minutes = ('0' + date.getMinutes()).substr(-2);
   const seconds = ('0' + date.getSeconds()).substr(-2);
 
-  const dateTime = day + ' ' + month + ' ' + year
+  return day + ' ' + month + ' ' + year
     + ' ' + hours + ':' + minutes + ':' + seconds + '';
-
-  return dateTime;
 }
 
 function formatNumber(nb: number, size: number = 5, symbol: string = '') {
@@ -275,10 +271,9 @@ function updateLayoutMarketBoxes() {
       $('#layoutInterestRate').text(formatNumberPercentage(Number(data.stakeinterest)));
   });
 
-  if (COIN_TYPE === 'PoW')
-    $.get('/rest/api/1/rpc/getblockchaininfo', (data, textStatus, jqXHR) => {
-      $('#layoutSupply').text(formatNumberCoinShort(data.totalsupply));
-    });
+  $.get('/rest/api/1/rpc/gettxoutsetinfo', (data, textStatus, jqXHR) => {
+    $('#layoutSupply').text(formatNumberCoinShort(data.total_amount));
+  });
 }
 
 function homeChains(params: any) {
@@ -422,8 +417,7 @@ function homePeers(params: any) {
 }
 
 function homePeersAddNodeButton(value: string) {
-  const link = '<button onclick="homePeersAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
-  return link;
+  return '<button onclick="homePeersAddNodeModal(' + value + ')" class="button is-small">AddNode</button>';
 }
 
 function homePeersAddNodeModal(version: number) {

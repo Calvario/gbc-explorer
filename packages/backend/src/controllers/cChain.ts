@@ -30,7 +30,7 @@ BigNumber.config({ DECIMAL_PLACES: 9 })
 
 export class Chain {
   static async select(dbTransaction: EntityManager, chainHash: string): Promise<mChain | undefined> {
-    return await dbTransaction.findOne(mChain, {
+    return dbTransaction.findOne(mChain, {
       where: { hash: chainHash }
     })
       .catch((error) => {
@@ -39,7 +39,7 @@ export class Chain {
   }
 
   static async selectVanished(dbTransaction: EntityManager): Promise<mChain[] | undefined> {
-    return await dbTransaction.find(mChain, {
+    return dbTransaction.find(mChain, {
       join: {
         alias: "chain",
         leftJoinAndSelect: {
@@ -55,7 +55,7 @@ export class Chain {
   }
 
   static async selectMain(dbTransaction: EntityManager): Promise<mChain> {
-    return await dbTransaction.findOne(mChain, {
+    return dbTransaction.findOne(mChain, {
       where: { id: 1 }
     })
       .then(async (chainObj: mChain | undefined) => {
@@ -70,7 +70,7 @@ export class Chain {
             hash: '',
             branchlen: 0,
           };
-          return await this.create(dbTransaction, chainInfo, chainStatusObj)
+          return this.create(dbTransaction, chainInfo, chainStatusObj)
             .catch((error) => {
               return Promise.reject(error);
             });
@@ -94,7 +94,7 @@ export class Chain {
     };
 
     const newChain = dbTransaction.create(mChain, chainData);
-    return await dbTransaction.save(newChain)
+    return dbTransaction.save(newChain)
       .catch((error) => {
         return Promise.reject(error);
       });
@@ -116,14 +116,14 @@ export class Chain {
     };
 
     const newChain = dbTransaction.create(mChain, chainData);
-    return await dbTransaction.save(newChain)
+    return dbTransaction.save(newChain)
       .catch((error) => {
         return Promise.reject(error);
       });
   }
 
   static async update(dbTransaction: EntityManager, dbChain: mChain, chainInfo: any, chainStatus: mChainStatus): Promise<boolean> {
-    return await dbTransaction.update(mChain, dbChain.id!, {
+    return dbTransaction.update(mChain, dbChain.id!, {
       height: chainInfo.height,
       hash: chainInfo.hash,
       branchlen: chainInfo.branchlen,
@@ -140,7 +140,7 @@ export class Chain {
   }
 
   static async updateToUnknown(dbTransaction: EntityManager, dbChain: mChain): Promise<boolean> {
-    return await dbTransaction.update(mChain, dbChain.id!, {
+    return dbTransaction.update(mChain, dbChain.id!, {
       unknown: true,
     })
       .then(() => {
@@ -152,7 +152,7 @@ export class Chain {
   }
 
   static async updateAllToUnavailable(dbTransaction: EntityManager): Promise<boolean> {
-    return await dbTransaction.createQueryBuilder()
+    return dbTransaction.createQueryBuilder()
       .update(mChain)
       .set({ available: false })
       .where('available = true')
@@ -166,7 +166,7 @@ export class Chain {
   }
 
   static async delete(dbTransaction: EntityManager, dbChain: mChain): Promise<boolean> {
-    return await dbTransaction.delete(mChain, dbChain.id!)
+    return dbTransaction.delete(mChain, dbChain.id!)
       .then(() => {
         return true;
       })
@@ -222,7 +222,7 @@ export class Chain {
               }
               // Chain hash not found but lenght of 1
               else if (chain.branchlen === 1) {
-                return await this.create(dbTransaction, chain, chainStatus);
+                return this.create(dbTransaction, chain, chainStatus);
               }
               // Search until we find the associated chain
               else if (chain.status === 'valid-fork' || chain.status === 'valid-headers') {
@@ -243,7 +243,7 @@ export class Chain {
                 }
                 // No match, we insert it
                 if (searchChainObj === undefined) {
-                  return await this.create(dbTransaction, chain, chainStatus);
+                  return this.create(dbTransaction, chain, chainStatus);
                 }
                 // We find it and update it
                 else {
@@ -253,11 +253,11 @@ export class Chain {
               }
               // It's a dummy chain
               else {
-                return await this.create(dbTransaction, chain, chainStatus);
+                return this.create(dbTransaction, chain, chainStatus);
               }
             })
             .then(async (chainObj: mChain) => {
-              return await manageSideChain(dbTransaction, rpcClient, chain, chainObj)
+              return manageSideChain(dbTransaction, rpcClient, chain, chainObj)
             })
             .catch(error => {
               return Promise.reject(error);

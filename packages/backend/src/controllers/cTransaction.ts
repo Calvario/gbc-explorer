@@ -58,14 +58,14 @@ export class Transaction {
     };
 
     const newTransaction = dbTransaction.create(mTransaction, transactionData);
-    return await dbTransaction.save(newTransaction)
+    return dbTransaction.save(newTransaction)
       .catch((error: any) => {
         return Promise.reject(error);
       });
   }
 
   static async update(dbTransaction: EntityManager, transactionObj: mTransaction, updatedTransaction: UpdatedTransaction): Promise<UpdateResult> {
-    return await dbTransaction.update(mTransaction, transactionObj.id!, {
+    return dbTransaction.update(mTransaction, transactionObj.id!, {
       inputC: updatedTransaction.tInputC,
       inputT: updatedTransaction.tInputT.toNumber(),
       outputC: updatedTransaction.tOutputC,
@@ -78,7 +78,7 @@ export class Transaction {
   }
 
   static async updateLinkedBlock(dbTransaction: EntityManager, transactionObj: mTransaction, blockObj: mBlock): Promise<void> {
-    return await dbTransaction.createQueryBuilder()
+    return dbTransaction.createQueryBuilder()
       .relation(mTransaction, "blocks")
       .of(transactionObj)
       .add(blockObj)
