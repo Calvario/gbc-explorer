@@ -105,7 +105,7 @@ export class Address {
     }
   }
 
-  static async updateForBlock(dbTransaction: EntityManager, dbBlock: mBlock) {
+  static async updateForBlock(dbTransaction: EntityManager, dbBlock: mBlock, mainChain: boolean) {
     // Update the addresses information
     await Transaction.select(dbTransaction, dbBlock.hash)
       .then(async (transactions: mTransaction[]) => {
@@ -116,7 +116,7 @@ export class Address {
             for (const vin of transaction.vins) {
               if (vin.coinbase === false && vin.vout !== undefined) {
                 const addressDetails: AddressDetails = {
-                  type: UpdateType.ADDITION,
+                  type: mainChain === true ? UpdateType.ADDITION : UpdateType.SUBTRACTION,
                   inputC: 0,
                   inputT: new BigNumber(0),
                   outputC: 1,
@@ -134,7 +134,7 @@ export class Address {
             // Loop for each VOUT
             for (const vout of transaction.vouts) {
               const addressDetails: AddressDetails = {
-                type: UpdateType.ADDITION,
+                type: mainChain === true ? UpdateType.ADDITION : UpdateType.SUBTRACTION,
                 inputC: 1,
                 inputT: new BigNumber(vout.value),
                 outputC: 0,

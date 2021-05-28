@@ -48,6 +48,21 @@ export class Block {
       });
   }
 
+  static async selectHeightMain(dbTransaction: EntityManager, blockHeight: number): Promise<mBlock | undefined> {
+    return await dbTransaction.findOne(mBlock, {
+      join: {
+        alias: "block",
+        innerJoinAndSelect: {
+          chain: "block.chain",
+        }
+      },
+      where: { height: blockHeight, chain: 1 } // HARDCODED MAIN CHAIN ID
+    })
+      .catch(error => {
+        return Promise.reject(error);
+      });
+  }
+
   static async create(dbTransaction: EntityManager, blockInfo: any, chainObj: mChain): Promise<mBlock> {
     const blockData: mBlock = {
       hash: blockInfo.hash,
@@ -139,6 +154,46 @@ export class Block {
 
     let counter: number = currentBlock === undefined ? 1 : currentBlock.height + 1;
 
+    // Check if we got a rollback on the chain
+    if (counter != 1) {
+      let safetyBlock: number = counter - Number(process.env.COIN_CONFIRMATIONS);
+      while (safetyBlock <= counter) {
+        debug.log('-- START CHECK Heigh: ' + safetyBlock);
+        await rpcClient.getblockhash({ height: safetyBlock })
+          .then(async (blockHash: string) => {
+            // Create a big transaction
+            await getManager().transaction(async dbTransaction => {
+              // Search the block with this height
+              const dbBlock = await Block.selectHeightMain(dbTransaction, safetyBlock)
+                .catch(error => {
+                  return Promise.reject(error);
+                });
+
+              if (dbBlock != undefined) {
+                if (dbBlock.hash != blockHash) {
+                  await Block.resyncToMainChain(dbTransaction, rpcClient, safetyBlock, blockHash, dbBlock, undefined)
+                    .catch(error => {
+                      return Promise.reject(error);
+                    });
+                }
+              } else {
+                // Should be impossible, only on a highly corruption situation
+                return Promise.reject('The database is missing blocks behind the current block, please fully resync');
+              }
+            });
+        })
+          .then(() => {
+            debug.log('-- END CHECK Heigh: ' + counter);
+            // Jump to the next block
+            safetyBlock++
+          })
+          .catch(error => {
+            return Promise.reject(error);
+          });
+      }
+    }
+
+    // Process new blocks
     while (counter <= lastBlock) {
       debug.log('-- START Heigh: ' + counter);
       await rpcClient.getblockhash({ height: counter })
@@ -378,6 +433,57 @@ export class Block {
       .catch(error => {
         return Promise.reject(error);
       })
+  }
+  static async resyncToMainChain(dbTransaction: EntityManager, rpc: RPCClient, blockHeight: number, mainBlockHash: string, sideBlockObj: mBlock, sideChainObj: mChain | undefined) {
+    // Move the side block to the the new side chain
+    if (sideChainObj === undefined) {
+      sideChainObj = await Chain.createUnknown(dbTransaction, sideBlockObj.height, sideBlockObj.hash);
+    }
+
+    debug.log("Height : " + blockHeight + " - Side chain block detected (" + sideBlockObj.hash + ")");
+
+    await Block.updateChain(dbTransaction, sideBlockObj, sideChainObj)
+      .catch(error => {
+        return Promise.reject(error);
+      })
+
+    await Address.updateForBlock(dbTransaction, sideBlockObj, false)
+      .catch(error => {
+        return Promise.reject(error);
+      });
+
+    // Try to find the main chain block hash on the database
+    const mainBlockObj = await Block.select(dbTransaction, mainBlockHash)
+      .catch(error => {
+        return Promise.reject(error);
+      });
+
+    // We have the main chain block
+    if (mainBlockObj != undefined) {
+      debug.log('Moving block to main chain: ' + mainBlockHash);
+      await Chain.selectMain(dbTransaction)
+        .then(async (mainChainObj: mChain) => {
+          await Block.updateChain(dbTransaction, mainBlockObj, mainChainObj)
+            .catch(error => {
+              return Promise.reject(error);
+            });
+          await Address.updateForBlock(dbTransaction, mainBlockObj, true)
+            .catch(error => {
+              return Promise.reject(error);
+            });
+        });
+    }
+    // If we don't have the main chain block on the database
+    else {
+      debug.log('Inserting block of main chain: ' + mainBlockHash);
+      await Chain.selectMain(dbTransaction)
+      .then(async (mainChainObj: mChain) => {
+        return await Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
+      })
+      .catch(error => {
+        return Promise.reject(error);
+      });
+    }
   }
 }
 

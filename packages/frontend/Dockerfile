@@ -6,7 +6,7 @@ ENV APP_PATH /gbc-explorer
 WORKDIR $APP_PATH
 
 # Copy main required files
-COPY ./package*.json ./tsconfig*.json ./tslint.json ./lerna.json ./.env ./
+COPY ./package*.json ./tsconfig*.json ./lerna.json ./.env ./
 # Copy dependecy
 COPY ./packages/shared/package*.json ./packages/shared/tsconfig*.json  ./packages/shared/
 COPY ./packages/shared/src  ./packages/shared/src

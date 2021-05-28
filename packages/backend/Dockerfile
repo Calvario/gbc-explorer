@@ -8,7 +8,6 @@ WORKDIR $APP_PATH
 # Copy required files
 COPY ./package*.json ./
 COPY ./tsconfig*.json ./
-COPY ./tslint.json ./
 COPY ./lerna.json ./
 COPY ./.env ./
 

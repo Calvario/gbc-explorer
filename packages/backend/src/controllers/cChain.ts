@@ -21,11 +21,10 @@ import debug from "debug";
 import BigNumber from "bignumber.js"
 import { RPCClient } from "rpc-bitcoin";
 import { getManager, EntityManager } from "typeorm";
-import { mBlock, mChain, mChainStatus, mTransaction } from '@calvario/gbc-explorer-shared';
+import { mChain, mChainStatus } from '@calvario/gbc-explorer-shared';
 import { ChainStatus } from "./cChainStatus";
 import { Block } from "./cBlock";
-import { Transaction } from "./cTransaction";
-import { Address, AddressDetails, UpdateType } from "./cAddress";
+import { Address } from "./cAddress";
 
 BigNumber.config({ DECIMAL_PLACES: 9 })
 
@@ -92,6 +91,28 @@ export class Chain {
       status: chainStatus,
       available: true,
       unknown: false,
+    };
+
+    const newChain = dbTransaction.create(mChain, chainData);
+    return await dbTransaction.save(newChain)
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+  }
+
+  static async createUnknown(dbTransaction: EntityManager, height: number, hash: string): Promise<mChain> {
+    const chainStatusObj: mChainStatus = await ChainStatus.select(dbTransaction, 'Unknown')
+      .catch((error) => {
+        return Promise.reject(error);
+      });
+      
+    const chainData: mChain = {
+      height: height,
+      hash: hash,
+      branchlen: 1,
+      status: chainStatusObj,
+      available: false,
+      unknown: true,
     };
 
     const newChain = dbTransaction.create(mChain, chainData);
@@ -274,7 +295,7 @@ export class Chain {
                       .catch(error => {
                         return Promise.reject(error);
                       });
-                    await Address.updateForBlock(dbTransaction, dbBlock)
+                    await Address.updateForBlock(dbTransaction, dbBlock, true)
                       .catch(error => {
                         return Promise.reject(error);
                       });
@@ -306,7 +327,7 @@ export class Chain {
   }
 }
 
-async function manageSideChain(dbTransaction: EntityManager, rpc: RPCClient, chainInfo: any, chainObj: mChain): Promise<any> {
+async function manageSideChain(dbTransaction: EntityManager, rpcClient: RPCClient, chainInfo: any, chainObj: mChain): Promise<any> {
   // Define current block hash
   let workingSideBlockHash = chainInfo.hash;
 
@@ -321,9 +342,9 @@ async function manageSideChain(dbTransaction: EntityManager, rpc: RPCClient, cha
 
     // Add the block for history (headers-only and invalid excluded)
     if (blockObj === undefined && (chainInfo.status === 'valid-fork' || chainInfo.status === 'valid-headers')) {
-      await rpc.getblock({ blockhash: workingSideBlockHash, verbosity: 2 })
+      await rpcClient.getblock({ blockhash: workingSideBlockHash, verbosity: 2 })
         .then(async rpcBlock => {
-          await Block.addFromHash(dbTransaction, rpc, workingSideBlockHash, chainObj);
+          await Block.addFromHash(dbTransaction, rpcClient, workingSideBlockHash, chainObj);
           return rpcBlock.previousblockhash
         })
         .then((previousblockhash: string) => {
@@ -342,7 +363,7 @@ async function manageSideChain(dbTransaction: EntityManager, rpc: RPCClient, cha
       }
 
       // Get the hash of the main chain block
-      const mainBlockHash = await rpc.getblockhash({ height: blockObj.height })
+      const mainBlockHash = await rpcClient.getblockhash({ height: blockObj.height })
         .catch(error => {
           return Promise.reject(error);
         });
@@ -353,83 +374,7 @@ async function manageSideChain(dbTransaction: EntityManager, rpc: RPCClient, cha
         await Chain.delete(dbTransaction, chainObj)
       }
 
-      // Try to find the main chain block hash on the database
-      const mainBlockObj = await dbTransaction.findOne(mBlock, {
-        where: { hash: mainBlockHash }
-      })
-        .catch(error => {
-          return Promise.reject(error);
-        });
-
-      // If we don't have the main chain block on the database
-      if (mainBlockObj === undefined) {
-
-        // Some log info
-        debug.log("Height : " + blockObj.height + " - Slide chain block detected (" + workingSideBlockHash + ")");
-        debug.log("Inserting block of main chain (" + mainBlockHash + ")");
-
-        await Chain.selectMain(dbTransaction)
-          .then(async (mainChainObj: mChain) => {
-            return await Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
-          })
-          .catch(error => {
-            return Promise.reject(error);
-          });
-      }
-
-      // Change the "old" block to the the new side chain
-      await Block.updateChain(dbTransaction, blockObj, chainObj)
-        .catch(error => {
-          return Promise.reject(error);
-        });
-
-      // Update the addresses information
-      await Transaction.select(dbTransaction, workingSideBlockHash)
-        .then(async (transactions: mTransaction[]) => {
-          // Loop for each transaction
-          for (const transaction of transactions) {
-            if (transaction.vins !== undefined) {
-              // Loop for each VIN
-              for (const vin of transaction.vins) {
-                if (vin.coinbase === false && vin.vout !== undefined) {
-                  const addressDetails: AddressDetails = {
-                    type: UpdateType.SUBTRACTION,
-                    inputC: 0,
-                    inputT: new BigNumber(0),
-                    outputC: 1,
-                    outputT: new BigNumber(vin.vout.value)
-                  }
-                  await Address.update(dbTransaction, vin.vout.addresses![0], addressDetails)
-                    .catch(error => {
-                      return Promise.reject(error);
-                    });
-                }
-              }
-            }
-
-            if (transaction.vouts !== undefined) {
-              // Loop for each VOUT
-              for (const vout of transaction.vouts) {
-                const addressDetails: AddressDetails = {
-                  type: UpdateType.SUBTRACTION,
-                  inputC: 1,
-                  inputT: new BigNumber(vout.value),
-                  outputC: 0,
-                  outputT: new BigNumber(0)
-                }
-                if (vout.addresses !== undefined) {
-                  await Address.update(dbTransaction, vout.addresses[0], addressDetails)
-                    .catch(error => {
-                      return Promise.reject(error);
-                    });
-                }
-              }
-            }
-          }
-        })
-        .then(() => {
-          workingSideBlockHash = blockObj.previousblockhash;
-        })
+      await Block.resyncToMainChain(dbTransaction, rpcClient, blockObj.height, mainBlockHash, blockObj, chainObj)
         .catch(error => {
           return Promise.reject(error);
         });

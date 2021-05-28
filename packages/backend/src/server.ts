@@ -76,15 +76,6 @@ const toRoot = '../../../';
   let isRunning = false;
   const CronJob = cron.CronJob;
 
-  // Sync Peers
-  const jobGetPeers = new CronJob('30 * * * * *', async () => {
-    await Peer.sync(rpcClient)
-      .catch(error => {
-        debug.log(error);
-        return Promise.reject(error);
-      });
-  });
-
   // Sync blockchain
   const jobSync = new CronJob('10 * * * * *', async () => {
     if (!isRunning) {
@@ -100,11 +91,20 @@ const toRoot = '../../../';
     }
   });
 
-  // Check chain tips
-  const jobChainTips = new CronJob('25 * * * * *', async () => {
+  // Sync Peers
+  const jobGetPeers = new CronJob('30 * * * * *', async () => {
+    await Peer.sync(rpcClient)
+      .catch(error => {
+        debug.log(error);
+        return Promise.reject(error);
+      });
+  });
+
+  // Sync labels
+  const jobLabels = new CronJob('45 * * * * *', async () => {
     if (!isRunning) {
       isRunning = true;
-      await Chain.sync(rpcClient)
+      await Address.updateLabels(path.join(__dirname, toRoot))
         .catch(error => {
           debug.log(error);
           return Promise.reject(error);
@@ -115,11 +115,11 @@ const toRoot = '../../../';
     }
   });
 
-  // Sync labels
-  const jobLabels = new CronJob('45 * * * * *', async () => {
+  // Check chain tips
+  const jobChainTips = new CronJob('0 0 * * * *', async () => {
     if (!isRunning) {
       isRunning = true;
-      await Address.updateLabels(path.join(__dirname, toRoot))
+      await Chain.sync(rpcClient)
         .catch(error => {
           debug.log(error);
           return Promise.reject(error);
