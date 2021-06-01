@@ -155,42 +155,42 @@ export class Block {
     let counter: number = currentBlock === undefined ? 1 : currentBlock.height + 1;
 
     // Check if we got a rollback on the chain
-    if (counter != 1) {
-      let safetyBlock: number = counter - Number(process.env.COIN_CONFIRMATIONS);
-      while (safetyBlock < counter) {
-        debug.log('-- START CHECK Heigh: ' + safetyBlock);
-        await rpcClient.getblockhash({ height: safetyBlock })
-          .then(async (blockHash: string) => {
-            // Create a big transaction
-            await getManager().transaction(async dbTransaction => {
-              // Search the block with this height
-              const dbBlock = await Block.selectHeightMain(dbTransaction, safetyBlock)
-                .catch(error => {
-                  return Promise.reject(error);
-                });
+    let safeBlockHeight: number = counter - Number(process.env.COIN_CONFIRMATIONS) - 2;
+    safeBlockHeight = safeBlockHeight < 0 ? 1 : safeBlockHeight; // Fail-safe for early sync
 
-              if (dbBlock != undefined) {
-                if (dbBlock.hash != blockHash) {
-                  await Block.resyncToMainChain(dbTransaction, rpcClient, safetyBlock, blockHash, dbBlock, undefined)
-                    .catch(error => {
-                      return Promise.reject(error);
-                    });
-                }
-              } else {
-                // Should be impossible, only on a highly corruption situation
-                return Promise.reject('The database is missing blocks behind the current block, please fully resync');
+    while (safeBlockHeight < counter) {
+      debug.log('-- START CHECK Heigh: ' + safeBlockHeight);
+      await rpcClient.getblockhash({ height: safeBlockHeight })
+        .then(async (blockHash: string) => {
+          // Create a big transaction
+          await getManager().transaction(async dbTransaction => {
+            // Search the block with this height
+            const dbBlock = await Block.selectHeightMain(dbTransaction, safeBlockHeight)
+              .catch(error => {
+                return Promise.reject(error);
+              });
+
+            if (dbBlock != undefined) {
+              if (dbBlock.hash != blockHash) {
+                await Block.resyncToMainChain(dbTransaction, rpcClient, safeBlockHeight, blockHash, dbBlock, undefined)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
               }
-            });
-        })
-          .then(() => {
-            debug.log('-- END CHECK Heigh: ' + safetyBlock);
-            // Jump to the next block
-            safetyBlock++
-          })
-          .catch(error => {
-            return Promise.reject(error);
+            } else {
+              // Should be impossible, only on a highly corruption situation
+              return Promise.reject('The database is missing blocks behind the current block, please fully resync');
+            }
           });
-      }
+        })
+        .then(() => {
+          debug.log('-- END CHECK Heigh: ' + safeBlockHeight);
+          // Jump to the next block
+          safeBlockHeight++
+        })
+        .catch(error => {
+          return Promise.reject(error);
+        });
     }
 
     // Process new blocks
@@ -477,12 +477,12 @@ export class Block {
     else {
       debug.log('Inserting block of main chain: ' + mainBlockHash);
       await Chain.selectMain(dbTransaction)
-      .then(async (mainChainObj: mChain) => {
-        return Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
-      })
-      .catch(error => {
-        return Promise.reject(error);
-      });
+        .then(async (mainChainObj: mChain) => {
+          return Block.addFromHash(dbTransaction, rpc, mainBlockHash, mainChainObj)
+        })
+        .catch(error => {
+          return Promise.reject(error);
+        });
     }
   }
 }

@@ -41,14 +41,6 @@ class Chain {
 
   @OneToMany(() => Block, (block: Block) => block.chain)
   blocks?: Block[];
-
-  @Index()
-  @Column({default: true})
-  available!: boolean;
-
-  @Index()
-  @Column({default: false})
-  unknown!: boolean;
 }
 
 export default Chain;
