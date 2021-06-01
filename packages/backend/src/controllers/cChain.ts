@@ -237,7 +237,7 @@ export class Chain {
 
       // Get the removed chain tips
       const removedChains = dbChains.filter(dbChain =>
-        !chainTips!.some((chainTip: any) => (
+        !chainTips.some((chainTip: any) => (
           chainTip.hash === dbChain.hash
         ))
       );
@@ -317,8 +317,14 @@ export class Chain {
           // Search the chain hash on the database
           await this.select(dbTransaction, chainTip.hash)
             .then(async (chainObj: mChain | undefined) => {
-              // Update the chain
-              this.update(dbTransaction, chainObj!, chainTip, chainStatus);
+              if (chainObj != undefined) {
+                // Update the chain
+                this.update(dbTransaction, chainObj, chainTip, chainStatus)
+                  .catch(error => {
+                    return Promise.reject(error);
+                  });
+              }
+
             })
             .catch(error => {
               return Promise.reject(error);
