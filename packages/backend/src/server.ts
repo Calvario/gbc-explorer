@@ -100,20 +100,20 @@ const toRoot = '../../../';
     }
   });
 
-    // Check chain tips
-    const jobChainTips = new CronJob('40 * * * * *', async () => {
-      if (!isRunning) {
-        isRunning = true;
-        await Chain.sync(rpcClient)
-          .catch(error => {
-            debug.log(error);
-            return Promise.reject(error);
-          })
-          .finally(() => {
-            isRunning = false;
-          });
-      }
-    });
+  // Check chain tips
+  const jobChainTips = new CronJob('40 * * * * *', async () => {
+    if (!isRunning) {
+      isRunning = true;
+      await Chain.sync(rpcClient)
+        .catch(error => {
+          debug.log(error);
+          return Promise.reject(error);
+        })
+        .finally(() => {
+          isRunning = false;
+        });
+    }
+  });
 
   // Sync labels
   const jobLabels = new CronJob('45 * * * * *', async () => {

@@ -182,7 +182,7 @@ export class Chain {
         ))
       );
 
-      if (missingChainTips.lenght >= 1) {
+      if (missingChainTips.length >= 1) {
         // Loop on each chain
         for (const missingChainTip of missingChainTips) {
 
