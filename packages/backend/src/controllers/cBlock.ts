@@ -63,6 +63,15 @@ export class Block {
       });
   }
 
+  static async selectAllOnChain(dbTransaction: EntityManager, chainObj: mChain): Promise<mBlock[] | undefined> {
+    return dbTransaction.find(mBlock, {
+      where: { chain: chainObj }
+    })
+      .catch(error => {
+        return Promise.reject(error);
+      });
+  }
+
   static async create(dbTransaction: EntityManager, blockInfo: any, chainObj: mChain): Promise<mBlock> {
     const blockData: mBlock = {
       hash: blockInfo.hash,
@@ -164,22 +173,48 @@ export class Block {
         .then(async (blockHash: string) => {
           // Create a big transaction
           await getManager().transaction(async dbTransaction => {
-            // Search the block with this height
-            const dbBlock = await Block.selectHeightMain(dbTransaction, safeBlockHeight)
+
+            // Get the main chain
+            const mainChain = await Chain.selectMain(dbTransaction)
               .catch(error => {
                 return Promise.reject(error);
               });
 
-            if (dbBlock != undefined) {
-              if (dbBlock.hash != blockHash) {
-                await Block.resyncToMainChain(dbTransaction, rpcClient, safeBlockHeight, blockHash, dbBlock, undefined)
-                  .catch(error => {
-                    return Promise.reject(error);
-                  });
-              }
-            } else {
-              // Should be impossible, only on a highly corruption situation
-              return Promise.reject('The database is missing blocks behind the current block, please fully resync');
+            // Search the block with the height on the main chain
+            const dbMainBlock = await Block.selectHeightMain(dbTransaction, safeBlockHeight)
+              .catch(error => {
+                return Promise.reject(error);
+              });
+
+            // Search the block with the hash
+            const dbHashBlock = await Block.select(dbTransaction, blockHash)
+              .catch(error => {
+                return Promise.reject(error);
+              });
+
+            // We have nothing, we add the missing block (Should not happen ?)
+            if (dbMainBlock === undefined && dbHashBlock === undefined) {
+              debug.log('Adding the missing block detected during the safety check: ' + blockHash);
+              await this.addFromHash(dbTransaction, rpcClient, blockHash, mainChain)
+                .catch(error => {
+                  return Promise.reject(error);
+                });
+            }
+            // We have a block tagged as main chain but with the wrong hash, we need to move it and add the good one.
+            else if (dbMainBlock != undefined && dbMainBlock.hash != blockHash) {
+              debug.log('Side block detected during the safety check: ' + blockHash);
+              await Block.resyncToMainChain(dbTransaction, rpcClient, safeBlockHeight, blockHash, dbMainBlock, undefined)
+                .catch(error => {
+                  return Promise.reject(error);
+                });
+            }
+            // We have the main block hash on a side chain, we need to move it back
+            else if (dbHashBlock != undefined && dbHashBlock.chain.id != mainChain.id) {
+              debug.log('Moving block to main chain detected during the safety check: ' + blockHash);
+              await Block.updateChain(dbTransaction, dbHashBlock, mainChain)
+                .catch(error => {
+                  return Promise.reject(error);
+                });
             }
           });
         })

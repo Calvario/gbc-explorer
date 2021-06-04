@@ -247,9 +247,18 @@ export class Chain {
         // Loop on each chain
         for (const removedChain of removedChains) {
           let toRemove = true;
-          if (removedChain.blocks !== undefined) {
+
+          // Get the list of blocks from the chain
+          const chainDbBlocks = await Block.selectAllOnChain(dbTransaction, removedChain)
+            .catch(error => {
+              return Promise.reject(error);
+            });
+
+          // In case we have blocks we need to handle them to remove the chain
+          if (chainDbBlocks !== undefined) {
+
             // Loop on each block of the chain
-            for (const dbBlock of removedChain.blocks) {
+            for (const dbBlock of chainDbBlocks) {
               const mainHash = await rpcClient.getblockhash({
                 height: dbBlock.height
               })
@@ -270,6 +279,7 @@ export class Chain {
               }
               // Side chain chaos situation
               else {
+                toRemove = false;
                 return Promise.reject('Unknow chain detected: ' + removedChain.hash);
               }
             }
