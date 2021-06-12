@@ -246,7 +246,6 @@ export class Chain {
       if (removedChains.length >= 1) {
         // Loop on each chain
         for (const removedChain of removedChains) {
-          let toRemove = true;
 
           // Get the list of blocks from the chain
           const chainDbBlocks = await Block.selectAllOnChain(dbTransaction, removedChain)
@@ -279,20 +278,16 @@ export class Chain {
               }
               // Side chain chaos situation
               else {
-                toRemove = false;
                 return Promise.reject('Unknow chain detected: ' + removedChain.hash);
               }
             }
           }
 
-          // We only remove the chain that we fully migrated
-          if (toRemove === true) {
-            debug.log('Removing migrated chain: ' + removedChain.hash);
-            await Chain.delete(dbTransaction, removedChain)
-              .catch(error => {
-                return Promise.reject(error);
-              });
-          }
+          debug.log('Removing migrated chain: ' + removedChain.hash);
+          await Chain.delete(dbTransaction, removedChain)
+            .catch(error => {
+              return Promise.reject(error);
+            });
         }
 
         // Renewed get of all the chains in the DB
