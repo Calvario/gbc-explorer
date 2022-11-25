@@ -36,7 +36,7 @@
     "express": "^4.17.1",
     "morgan": "^1.10.0",
     "pg": "^8.6.0",
-    "redis": "^3.1.2",
+    "redis": "^4.5.1",
     "reflect-metadata": "^0.1.13",
     "rpc-bitcoin": "^2.0.0",
     "typeorm": "^0.2.32"
